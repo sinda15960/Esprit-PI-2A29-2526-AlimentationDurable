@@ -47,29 +47,5 @@ Année universitaire : 2025–2026
 
 ---
 
-## Getting Started
-
-### 1. Cloner le projet
-```bash
-git clone https://github.com/
-```
-
-### 2. Entrer dans le dossier
-```bash
-cd Alimentation durable 
-```
-
-### 3. Installer les dépendances
-```bash
-npm install
-```
-
-### 4. Lancer le projet
-```bash
-npm start
-```
-
----
-
 ##  Acknowledgments
 Encadré par notre professeur dans le cadre du module Projet Technologies Web.
