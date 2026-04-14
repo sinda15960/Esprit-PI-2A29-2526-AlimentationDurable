@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - NutriFlow AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; color: #333; }
+        
+        /* Admin Bar */
+        .admin-bar { background: #2d5016; color: white; padding: 0.8rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .admin-bar h2 { font-size: 1.2rem; }
+        .admin-bar a { color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 0.4rem 1rem; border-radius: 5px; }
+        .admin-badge { background: #ff9800; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.8rem; }
+        
+        /* Banner */
+        .banner { background: linear-gradient(135deg, #2d5016 0%, #4a7c2b 100%); padding: 2rem 2rem; text-align: center; color: white; }
+        .banner h1 { font-size: 3rem; letter-spacing: 5px; margin-bottom: 0.5rem; }
+        .banner p { font-size: 1rem; margin-bottom: 1rem; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .section-title { font-size: 1.8rem; margin-bottom: 1rem; color: #2d5016; border-left: 5px solid #4a7c2b; padding-left: 1rem; }
+        
+        /* Tabs */
+        .tabs { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .tab-btn { padding: 0.8rem 2rem; background: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .tab-btn.active { background: #2d5016; color: white; }
+        
+        /* Cards */
+        .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card-header { background: #2d5016; color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .card-body { padding: 1.5rem; overflow-x: auto; }
+        
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f5f5f5; font-weight: bold; }
+        tr:hover { background: #f9f9f9; }
+        
+        /* Badges */
+        .badge { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
+        .badge-legere, .badge-faible { background: #4caf50; color: white; }
+        .badge-moderate, .badge-moyen { background: #ff9800; color: white; }
+        .badge-severe, .badge-eleve { background: #f44336; color: white; }
+        
+        /* Buttons */
+        .btn { padding: 0.4rem 0.8rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem; margin: 0 0.2rem; }
+        .btn-add { background: white; color: #2d5016; font-weight: bold; border: 1px solid #2d5016; }
+        .btn-edit { background: #2196F3; color: white; }
+        .btn-delete { background: #f44336; color: white; }
+        .btn-save { background: #4caf50; color: white; padding: 0.5rem 1rem; }
+        .btn-cancel { background: #999; color: white; padding: 0.5rem 1rem; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 10px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { background: #2d5016; color: white; padding: 1rem; font-size: 1.2rem; font-weight: bold; }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer { padding: 1rem; display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid #eee; }
+        
+        /* Form */
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.3rem; font-weight: bold; }
+        .form-group label.required::after { content: " *"; color: #f44336; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.6rem; border: 2px solid #ddd; border-radius: 5px; font-size: 0.9rem; font-family: inherit; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #2d5016; }
+        textarea { resize: vertical; min-height: 80px; }
+        
+        /* Alert */
+        .alert { padding: 0.8rem; border-radius: 5px; margin-bottom: 1rem; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 2rem; font-weight: bold; color: #2d5016; }
+        
+        .footer { background: #2d5016; color: white; text-align: center; padding: 2rem; margin-top: 3rem; }
+        
+        @media (max-width: 768px) { .container { padding: 1rem; } th, td { font-size: 0.8rem; padding: 0.5rem; } }
+    </style>
+</head>
+<body>
+    <div class="admin-bar">
+        <h2>⚙️ Mode Administration <span class="admin-badge">Admin</span></h2>
+        <a href="front_allergie_traitement.html">🔓 Déconnexion</a>
+    </div>
+
+    <div class="banner">
+        <h1>EAT HEALTHY</h1>
+        <p>plan your meals - Administration</p>
+    </div>
+
+    <div class="container">
+        <div id="message-container"></div>
+
+        <!-- Dashboard Stats -->
+        <div class="stats">
+            <div class="stat-card"><div class="stat-number" id="stat-allergies">0</div><div class="stat-label">Allergies</div></div>
+            <div class="stat-card"><div class="stat-number" id="stat-traitements">0</div><div class="stat-label">Traitements</div></div>
+            <div class="stat-card"><div class="stat-number" id="stat-feedbacks">0</div><div class="stat-label">Feedbacks</div></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('allergies')">🔬 Gestion des Allergies</button>
+            <button class="tab-btn" onclick="showTab('traitements')">💊 Gestion des Traitements</button>
+        </div>
+
+        <!-- Allergies Tab -->
+        <div id="allergies-tab">
+            <div class="card">
+                <div class="card-header">
+                    <span>📋 Liste des allergies</span>
+                    <button class="btn btn-add" onclick="openAllergieModal()">+ Ajouter une allergie</button>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Nom</th><th>Catégorie</th><th>Description</th><th>Symptômes</th><th>Déclencheurs</th><th>Gravité</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="allergies-table-body"><tr><td colspan="8" style="text-align:center">Chargement...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Traitements Tab -->
+        <div id="traitements-tab" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <span>💊 Liste des traitements</span>
+                    <button class="btn btn-add" onclick="openTraitementModal()">+ Ajouter un traitement</button>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Allergie</th><th>Conseils</th><th>Interdits</th><th>Médicaments</th><th>Durée</th><th>Urgence</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="traitements-table-body"><tr><td colspan="8" style="text-align:center">Chargement...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer"><p>© 2024 NutriFlow AI - Administration</p></footer>
+
+    <!-- Modal Allergie -->
+    <div id="allergie-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="allergie-modal-title">Ajouter une allergie</div>
+            <div class="modal-body">
+                <form id="allergie-form">
+                    <input type="hidden" id="allergie_id">
+                    <div class="form-group"><label class="required">Nom</label><input type="text" id="allergie_nom" placeholder="Ex: Gluten, Lactose..."></div>
+                    <div class="form-group"><label class="required">Catégorie</label>
+                        <select id="allergie_categorie"><option value="">Sélectionner</option><option value="Alimentaire">Alimentaire</option><option value="Respiratoire">Respiratoire</option><option value="Cutane">Cutane</option><option value="Médicamenteuse">Médicamenteuse</option></select>
+                    </div>
+                    <div class="form-group"><label class="required">Description</label><textarea id="allergie_description" placeholder="Décrivez cette allergie..."></textarea></div>
+                    <div class="form-group"><label class="required">Symptômes</label><textarea id="allergie_symptomes" placeholder="Listez les symptômes..."></textarea></div>
+                    <div class="form-group"><label class="required">Déclencheurs</label><input type="text" id="allergie_declencheurs" placeholder="Ex: Aliments, pollen..."></div>
+                    <div class="form-group"><label class="required">Gravité</label>
+                        <select id="allergie_gravite"><option value="">Sélectionner</option><option value="legere">Légère</option><option value="moderate">Modérée</option><option value="severe">Sévère</option></select>
+                    </div>
+                    <div id="allergie-form-message"></div>
+                    <div class="modal-footer"><button type="button" class="btn-cancel" onclick="closeAllergieModal()">Annuler</button><button type="submit" class="btn-save">Enregistrer</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Traitement -->
+    <div id="traitement-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="traitement-modal-title">Ajouter un traitement</div>
+            <div class="modal-body">
+                <form id="traitement-form">
+                    <input type="hidden" id="traitement_id">
+                    <div class="form-group"><label class="required">Allergie concernée</label><select id="traitement_allergie_nom"><option value="">Sélectionner une allergie</option></select></div>
+                    <div class="form-group"><label class="required">Conseils</label><textarea id="traitement_conseil" placeholder="Conseils pour gérer cette allergie..."></textarea></div>
+                    <div class="form-group"><label class="required">Interdits</label><textarea id="traitement_interdits" placeholder="Aliments/Produits à éviter..."></textarea></div>
+                    <div class="form-group"><label>Médicaments</label><textarea id="traitement_medicaments" placeholder="Médicaments recommandés..."></textarea></div>
+                    <div class="form-group"><label>Durée</label><input type="text" id="traitement_duree" placeholder="Ex: Permanente, Temporaire..."></div>
+                    <div class="form-group"><label class="required">Niveau d'urgence</label>
+                        <select id="traitement_niveau_urgence"><option value="">Sélectionner</option><option value="faible">Faible</option><option value="moyen">Moyen</option><option value="eleve">Élevé</option></select>
+                    </div>
+                    <div id="traitement-form-message"></div>
+                    <div class="modal-footer"><button type="button" class="btn-cancel" onclick="closeTraitementModal()">Annuler</button><button type="submit" class="btn-save">Enregistrer</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="back_allergie_traitement.js"></script>
+</body>
+</html>
