@@ -1,7 +1,15 @@
 <?php
 class Database {
+<<<<<<< hajer
     private static $instance = null;
     private $pdo;
+=======
+    private $host = "localhost";
+    private $db_name = "nutriflow_ai";
+    private $username = "root";
+    private $password = "";
+    private $conn;
+>>>>>>> main
 
     private string $host = 'localhost';
     private string $dbname = 'frigo_intelligent';
@@ -10,6 +18,7 @@ class Database {
 
     private function __construct() {
         try {
+<<<<<<< hajer
             $this->pdo = new PDO(
                 "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4",
                 $this->user,
@@ -28,6 +37,17 @@ class Database {
     public static function getInstance(): self {
         if (self::$instance === null) {
             self::$instance = new self();
+=======
+            $this->conn = new PDO(
+                "mysql:host=" . $this->host . ";dbname=" . $this->db_name,
+                $this->username,
+                $this->password
+            );
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn->exec("set names utf8");
+        } catch(PDOException $e) {
+            echo "Erreur de connexion : " . $e->getMessage();
+>>>>>>> main
         }
         return self::$instance;
     }
