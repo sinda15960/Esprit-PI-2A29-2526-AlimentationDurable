@@ -1,4 +1,5 @@
 <?php
+// Model/Database.php - Version corrigée pour XAMPP
 class Database {
     private static $instance_front = null;
     private static $instance_back = null;
@@ -8,8 +9,8 @@ class Database {
             try {
                 self::$instance_front = new PDO(
                     "mysql:host=localhost;dbname=nutriflow_front;charset=utf8mb4",
-                    "front_user",
-                    "front_password",
+                    "root",      // ← Changé de 'front_user' à 'root'
+                    "",          // ← Mot de passe vide par défaut sur XAMPP
                     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
                 );
             } catch(PDOException $e) {
@@ -24,8 +25,8 @@ class Database {
             try {
                 self::$instance_back = new PDO(
                     "mysql:host=localhost;dbname=nutriflow_back;charset=utf8mb4",
-                    "back_user",
-                    "back_password",
+                    "root",      // ← Changé de 'back_user' à 'root'
+                    "",          // ← Mot de passe vide par défaut sur XAMPP
                     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
                 );
             } catch(PDOException $e) {
