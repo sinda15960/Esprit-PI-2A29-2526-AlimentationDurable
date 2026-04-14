@@ -1,66 +1,53 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-require_once 'controllers/UserController.php';
-require_once 'controllers/AdminController.php';
+session_start();
+require_once 'config/database.php';
 
-$action = isset($_GET['action']) ? $_GET['action'] : 'home';
-$userController = new UserController();
+spl_autoload_register(function($class) {
+    $paths = [
+        'app/model/',
+        'app/contoller/',
+    ];
+    foreach ($paths as $path) {
+        $file = $path . $class . '.php';
+        if (file_exists($file)) {
+            require_once $file;
+            return;
+        }
+    }
+});
 
-switch($action) {
-    case 'home':
-        $userController->showHome();
-        break;
-    case 'register':
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $userController->register();
-        } else {
-            $userController->showRegister();
-        }
-        break;
-    case 'login':
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $userController->login();
-        } else {
-            $userController->showLogin();
-        }
-        break;
-    case 'profile':
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $userController->updateProfile();
-        } else {
-            $userController->showProfile();
-        }
-        break;
-    case 'logout':
-        $userController->logout();
-        break;
-    case 'delete_account':
-        $userController->deleteAccount();
-        break;
-    case 'admin_dashboard':
-        $adminController = new AdminController();
-        $adminController->dashboard();
-        break;
-    case 'admin_users':
-        $adminController = new AdminController();
-        $adminController->listUsers();
-        break;
-    case 'admin_edit_user':
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $adminController = new AdminController();
-            $adminController->updateUser();
-        } else {
-            $adminController = new AdminController();
-            $adminController->editUser();
-        }
-        break;
-    case 'admin_delete_user':
-        $adminController = new AdminController();
-        $adminController->deleteUser();
-        break;
-    default:
-        $userController->showHome();
+$controller = $_GET['controller'] ?? 'produit';
+$action     = $_GET['action']     ?? 'frigo';
+
+$map = [
+    'produit'   => 'ProduitController',
+    'categorie' => 'CategorieController',
+    'commande'  => 'CommandeController',
+];
+
+$controllerClass = $map[$controller] ?? null;
+
+if (!$controllerClass) {
+    die("Contrôleur introuvable.");
 }
-?>
+
+require_once 'app/contoller/' . $controllerClass . '.php';
+
+$ctrl = new $controllerClass();
+
+// Liste de toutes les actions autorisées
+$actionsAutorisees = [
+    'frigo', 'index', 'create', 'store', 'edit', 'update',
+    'delete', 'ajouterFrigo', 'ajouterManuel', 'supprimerDuFrigo',
+    'envoyerAuPanier', 'modifierQuantiteFrigo',
+    'panier', 'ajouterPanier', 'modifierPanier', 'retirerPanier',
+    'checkout', 'confirmer', 'annuler', 'updateCommande',
+    'deleteCommande',
+    'admin', 'store', 'updateCommande'
+];
+
+if (!in_array($action, $actionsAutorisees) || !method_exists($ctrl, $action)) {
+    die("Action introuvable.");
+}
+
+$ctrl->$action();
