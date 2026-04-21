@@ -356,6 +356,13 @@ if (session_status() === PHP_SESSION_NONE) {
                     <i class="fas fa-utensils"></i>
                     <span>Recettes</span>
                 </a>
+                
+                <!-- LIEN CATÉGORIES - AJOUTÉ ICI -->
+                <a href="index.php?action=backCategories" class="<?php echo isset($activeMenu) && $activeMenu === 'categories' ? 'active' : ''; ?>">
+                    <i class="fas fa-tags"></i>
+                    <span>Catégories</span>
+                </a>
+                
                 <a href="#" class="<?php echo isset($activeMenu) && $activeMenu === 'dashboard' ? 'active' : ''; ?>">
                     <i class="fas fa-chart-pie"></i>
                     <span>Tableau de bord</span>

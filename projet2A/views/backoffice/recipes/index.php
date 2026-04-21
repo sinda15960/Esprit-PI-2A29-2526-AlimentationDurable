@@ -6,17 +6,16 @@ $breadcrumb = [
     ['label' => 'Recettes']
 ];
 
-// Récupérer les statistiques pour le dashboard
+// Récupérer les statistiques
 $totalRecipes = count($recipes);
 $veganCount = count(array_filter($recipes, function($r) { return $r['is_vegan']; }));
 $vegetarianCount = count(array_filter($recipes, function($r) { return $r['is_vegetarian']; }));
+$glutenFreeCount = count(array_filter($recipes, function($r) { return $r['is_gluten_free']; }));
 $quickRecipes = count(array_filter($recipes, function($r) { return ($r['prep_time'] + $r['cook_time']) <= 30; }));
 
 $headerPath = dirname(__DIR__) . '/layout/header.php';
 if(file_exists($headerPath)) {
     include $headerPath;
-} else {
-    echo "<!-- Header non trouvé: " . $headerPath . " -->";
 }
 ?>
 
@@ -67,8 +66,8 @@ if(file_exists($headerPath)) {
     </div>
 </div>
 
-<!-- Search and Filter Bar -->
-<div class="search-filter-bar" data-aos="fade-up">
+<!-- Search and Filter Bar + Bouton Créer -->
+<div class="search-filter-bar">
     <div class="search-box">
         <i class="fas fa-search"></i>
         <input type="text" id="searchInput" placeholder="Rechercher une recette..." onkeyup="filterRecipes()">
@@ -89,18 +88,10 @@ if(file_exists($headerPath)) {
             <option value="standard">Standard</option>
         </select>
         
-        <select id="sortFilter" onchange="filterRecipes()" class="filter-select">
-            <option value="date_desc">Plus récent</option>
-            <option value="date_asc">Plus ancien</option>
-            <option value="title_asc">Titre A-Z</option>
-            <option value="title_desc">Titre Z-A</option>
-            <option value="time_asc">Temps croissant</option>
-            <option value="time_desc">Temps décroissant</option>
-        </select>
-        
-        <button class="btn-export" onclick="showExportModal()">
-            <i class="fas fa-download"></i> Exporter
-        </button>
+        <!-- BOUTON CRÉER UNE RECETTE -->
+        <a href="index.php?action=backCreateRecipe" class="btn-create">
+            <i class="fas fa-plus"></i> Nouvelle recette
+        </a>
     </div>
 </div>
 
@@ -111,15 +102,12 @@ if(file_exists($headerPath)) {
         <span id="selectedCount">0</span> recette(s) sélectionnée(s)
     </div>
     <div class="bulk-buttons">
-        <form method="POST" id="bulkDeleteForm" action="index.php?action=backBulkDeleteRecipes" style="display: inline;">
+        <form method="POST" id="bulkDeleteForm" action="index.php?action=backBulkDeleteRecipes">
             <input type="hidden" name="ids" id="bulkIds" value="">
             <button type="button" class="btn-bulk-delete" onclick="bulkDelete()">
                 <i class="fas fa-trash-alt"></i> Supprimer
             </button>
         </form>
-        <button class="btn-bulk-export" onclick="bulkExport()">
-            <i class="fas fa-download"></i> Exporter sélection
-        </button>
         <button class="btn-bulk-cancel" onclick="clearSelection()">
             Annuler
         </button>
@@ -127,7 +115,7 @@ if(file_exists($headerPath)) {
 </div>
 
 <!-- Table Container -->
-<div class="table-container" data-aos="fade-up">
+<div class="table-container">
     <table class="data-table" id="recipesTable">
         <thead>
             <tr>
@@ -151,7 +139,7 @@ if(file_exists($headerPath)) {
                         <i class="fas fa-utensils" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem; display: block;"></i>
                         <h3>Aucune recette trouvée</h3>
                         <p>Commencez par créer votre première recette !</p>
-                        <a href="index.php?action=backCreateRecipe" class="btn-primary" style="margin-top: 1rem; display: inline-block;">
+                        <a href="index.php?action=backCreateRecipe" class="btn-create" style="margin-top: 1rem; display: inline-block;">
                             <i class="fas fa-plus"></i> Créer une recette
                         </a>
                     </td>
@@ -213,7 +201,7 @@ if(file_exists($headerPath)) {
                         </td>
                         <td class="actions">
                             <div class="action-buttons">
-                                <a href="index.php?action=frontShowRecipe&id=<?php echo $recipe['id']; ?>" target="_blank" class="btn-action view" title="Voir sur le site">
+                                <a href="index.php?action=backShowRecipe&id=<?php echo $recipe['id']; ?>" class="btn-action view" title="Voir la recette">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="index.php?action=backEditRecipe&id=<?php echo $recipe['id']; ?>" class="btn-action edit" title="Modifier">
@@ -264,38 +252,11 @@ if(file_exists($headerPath)) {
     </div>
 </div>
 
-<!-- Modal d'export -->
-<div id="exportModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><i class="fas fa-download"></i> Exporter les données</h3>
-            <span class="close-export">&times;</span>
-        </div>
-        <div class="modal-body">
-            <p>Choisissez le format d'export :</p>
-            <div class="export-options">
-                <button class="export-option" onclick="exportCSV()">
-                    <i class="fas fa-file-csv"></i>
-                    <span>CSV</span>
-                </button>
-                <button class="export-option" onclick="exportJSON()">
-                    <i class="fas fa-file-code"></i>
-                    <span>JSON</span>
-                </button>
-                <button class="export-option" onclick="exportPDF()">
-                    <i class="fas fa-file-pdf"></i>
-                    <span>PDF</span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
 /* Stats Cards */
 .stats-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
@@ -378,6 +339,7 @@ if(file_exists($headerPath)) {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .filter-select {
@@ -388,18 +350,23 @@ if(file_exists($headerPath)) {
     cursor: pointer;
 }
 
-.btn-export {
-    padding: 10px 15px;
-    background: linear-gradient(135deg, #3498db, #2980b9);
+/* Bouton Créer */
+.btn-create {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
     color: white;
-    border: none;
+    text-decoration: none;
     border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.3s;
+    font-weight: 600;
+    transition: all 0.3s;
 }
 
-.btn-export:hover {
+.btn-create:hover {
     transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(46,204,113,0.3);
 }
 
 /* Table Container */
@@ -413,7 +380,7 @@ if(file_exists($headerPath)) {
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px;
+    min-width: 900px;
 }
 
 .data-table thead {
@@ -606,7 +573,7 @@ if(file_exists($headerPath)) {
     gap: 1rem;
 }
 
-.btn-bulk-delete, .btn-bulk-export, .btn-bulk-cancel {
+.btn-bulk-delete, .btn-bulk-cancel {
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 5px;
@@ -620,17 +587,12 @@ if(file_exists($headerPath)) {
     color: white;
 }
 
-.btn-bulk-export {
-    background: #3498db;
-    color: white;
-}
-
 .btn-bulk-cancel {
     background: rgba(255,255,255,0.2);
     color: white;
 }
 
-.btn-bulk-delete:hover, .btn-bulk-export:hover, .btn-bulk-cancel:hover {
+.btn-bulk-delete:hover, .btn-bulk-cancel:hover {
     transform: translateY(-2px);
 }
 
@@ -666,7 +628,7 @@ if(file_exists($headerPath)) {
     align-items: center;
 }
 
-.modal-header .close, .modal-header .close-export {
+.modal-header .close {
     font-size: 1.5rem;
     cursor: pointer;
 }
@@ -720,35 +682,6 @@ if(file_exists($headerPath)) {
     cursor: pointer;
 }
 
-/* Export Options */
-.export-options {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-.export-option {
-    padding: 1rem;
-    background: #f8f9fa;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-align: center;
-}
-
-.export-option i {
-    font-size: 2rem;
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-.export-option:hover {
-    border-color: #2ecc71;
-    transform: translateY(-5px);
-}
-
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; }
@@ -757,12 +690,12 @@ if(file_exists($headerPath)) {
 
 @keyframes slideDown {
     from {
+        transform: translateY(-50px);
         opacity: 0;
-        transform: translateY(-20px);
     }
     to {
-        opacity: 1;
         transform: translateY(0);
+        opacity: 1;
     }
 }
 
@@ -803,7 +736,6 @@ if(file_exists($headerPath)) {
 </style>
 
 <script>
-// Variables globales
 let selectedRecipes = new Set();
 
 // Filtrer les recettes
@@ -811,10 +743,8 @@ function filterRecipes() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const difficultyFilter = document.getElementById('difficultyFilter').value;
     const typeFilter = document.getElementById('typeFilter').value;
-    const sortFilter = document.getElementById('sortFilter').value;
     
     const rows = document.querySelectorAll('#recipesTableBody tr');
-    let visibleRows = [];
     
     rows.forEach(row => {
         if(row.getAttribute('data-id')) {
@@ -836,40 +766,9 @@ function filterRecipes() {
                 show = false;
             }
             
-            if(show) {
-                visibleRows.push(row);
-            }
-            
             row.style.display = show ? '' : 'none';
         }
     });
-    
-    // Trier les lignes
-    if(sortFilter && visibleRows.length > 0) {
-        visibleRows.sort((a, b) => {
-            switch(sortFilter) {
-                case 'title_asc':
-                    return a.getAttribute('data-title').localeCompare(b.getAttribute('data-title'));
-                case 'title_desc':
-                    return b.getAttribute('data-title').localeCompare(a.getAttribute('data-title'));
-                case 'time_asc':
-                    return parseInt(a.getAttribute('data-time')) - parseInt(b.getAttribute('data-time'));
-                case 'time_desc':
-                    return parseInt(b.getAttribute('data-time')) - parseInt(a.getAttribute('data-time'));
-                case 'date_asc':
-                    return new Date(a.getAttribute('data-date')) - new Date(b.getAttribute('data-date'));
-                case 'date_desc':
-                default:
-                    return new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date'));
-            }
-        });
-        
-        // Réorganiser le DOM
-        const tbody = document.getElementById('recipesTableBody');
-        visibleRows.forEach(row => {
-            tbody.appendChild(row);
-        });
-    }
 }
 
 // Sélectionner tout
@@ -904,7 +803,6 @@ function updateBulkActions() {
         bulkActionsBar.style.display = 'flex';
         selectedCountSpan.textContent = selectedCount;
         
-        // Récupérer les IDs sélectionnés
         const selectedIds = [];
         checkboxes.forEach(cb => {
             if(cb.checked) {
@@ -918,7 +816,6 @@ function updateBulkActions() {
         if(bulkIdsInput) bulkIdsInput.value = '';
     }
     
-    // Mettre à jour le select all
     const selectAllCheckbox = document.getElementById('selectAll');
     if(selectAllCheckbox) {
         selectAllCheckbox.checked = selectedCount === checkboxes.length && checkboxes.length > 0;
@@ -948,116 +845,8 @@ function bulkDelete() {
     
     if(selected.length === 0) return;
     
-    if(confirm(`Êtes-vous sûr de vouloir supprimer ${selected.length} recette(s) ? Cette action est irréversible.`)) {
+    if(confirm(`Êtes-vous sûr de vouloir supprimer ${selected.length} recette(s) ?`)) {
         document.getElementById('bulkDeleteForm').submit();
-    }
-}
-
-// Export CSV
-function exportCSV() {
-    const rows = document.querySelectorAll('#recipesTableBody tr:visible');
-    let csvContent = "ID,Titre,Difficulté,Temps (min),Calories,Type,Status\n";
-    
-    rows.forEach(row => {
-        if(row.style.display !== 'none' && row.getAttribute('data-id')) {
-            const id = row.cells[1]?.innerText || '';
-            const title = row.cells[2]?.querySelector('span')?.innerText || '';
-            const difficulty = row.cells[3]?.innerText.trim() || '';
-            const time = row.cells[4]?.innerText.replace(/[^0-9]/g, '') || '';
-            const calories = row.cells[5]?.innerText.replace(/[^0-9]/g, '') || '';
-            const type = row.cells[6]?.innerText.trim() || '';
-            const status = row.cells[7]?.innerText.trim() || '';
-            
-            csvContent += `"${id}","${title}","${difficulty}","${time}","${calories}","${type}","${status}"\n`;
-        }
-    });
-    
-    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.setAttribute('download', 'recettes_export_' + new Date().toISOString().slice(0,19) + '.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    closeExportModal();
-}
-
-// Export JSON
-function exportJSON() {
-    const rows = document.querySelectorAll('#recipesTableBody tr:visible');
-    const recipes = [];
-    
-    rows.forEach(row => {
-        if(row.style.display !== 'none' && row.getAttribute('data-id')) {
-            recipes.push({
-                id: row.cells[1]?.innerText || '',
-                title: row.cells[2]?.querySelector('span')?.innerText || '',
-                difficulty: row.cells[3]?.innerText.trim() || '',
-                time: row.cells[4]?.innerText.replace(/[^0-9]/g, '') || '',
-                calories: row.cells[5]?.innerText.replace(/[^0-9]/g, '') || '',
-                type: row.cells[6]?.innerText.trim() || '',
-                status: row.cells[7]?.innerText.trim() || '',
-                exportDate: new Date().toISOString()
-            });
-        }
-    });
-    
-    const jsonContent = JSON.stringify(recipes, null, 2);
-    const blob = new Blob([jsonContent], { type: 'application/json' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.setAttribute('download', 'recettes_export_' + new Date().toISOString().slice(0,19) + '.json');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    closeExportModal();
-}
-
-// Export PDF (simulation)
-function exportPDF() {
-    alert('Fonctionnalité PDF à venir prochainement. Pour l\'instant, utilisez l\'export CSV ou JSON.');
-    closeExportModal();
-}
-
-// Export groupé
-function bulkExport() {
-    const selected = Array.from(document.querySelectorAll('.recipe-select:checked'));
-    if(selected.length === 0) {
-        alert('Veuillez sélectionner au moins une recette à exporter.');
-        return;
-    }
-    showExportModal();
-}
-
-// Modal export
-function showExportModal() {
-    const modal = document.getElementById('exportModal');
-    if(modal) {
-        modal.style.display = 'block';
-        
-        const closeBtn = modal.querySelector('.close-export');
-        if(closeBtn) {
-            closeBtn.onclick = closeExportModal;
-        }
-        
-        window.onclick = function(event) {
-            if(event.target === modal) {
-                closeExportModal();
-            }
-        };
-    }
-}
-
-function closeExportModal() {
-    const modal = document.getElementById('exportModal');
-    if(modal) {
-        modal.style.display = 'none';
     }
 }
 
@@ -1099,7 +888,7 @@ function showDeleteModal(id, title) {
 document.addEventListener('DOMContentLoaded', function() {
     filterRecipes();
     
-    // Animation des lignes du tableau
+    // Animation des lignes
     const rows = document.querySelectorAll('#recipesTableBody tr');
     rows.forEach((row, index) => {
         if(row.getAttribute('data-id')) {
@@ -1113,19 +902,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 100);
         }
     });
-    
-    // Auto-hide alerts
-    setTimeout(() => {
-        const alerts = document.querySelectorAll('.alert-dismissible');
-        alerts.forEach(alert => {
-            setTimeout(() => {
-                alert.style.opacity = '0';
-                setTimeout(() => {
-                    if(alert.parentElement) alert.remove();
-                }, 300);
-            }, 4000);
-        });
-    }, 1000);
 });
 
 // Raccourcis clavier
@@ -1136,10 +912,8 @@ document.addEventListener('keydown', function(e) {
     }
     
     if(e.key === 'Escape') {
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            modal.style.display = 'none';
-        });
+        const modal = document.getElementById('deleteModal');
+        if(modal) modal.style.display = 'none';
     }
 });
 </script>
@@ -1148,8 +922,5 @@ document.addEventListener('keydown', function(e) {
 $footerPath = dirname(__DIR__) . '/layout/footer.php';
 if(file_exists($footerPath)) {
     include $footerPath;
-} else {
-    echo "<!-- Footer non trouvé: " . $footerPath . " -->";
-    echo "</body></html>";
 }
 ?>
