@@ -2,37 +2,50 @@
 $pageTitle = "Recettes Durables et Intelligentes";
 $activePage = "recipes";
 
-// Correction du chemin du header
-$headerPath = dirname(__DIR__) . '/layout/header.php';
-if(file_exists($headerPath)) {
-    include $headerPath;
-} else {
-    // Fallback si le fichier n'existe pas
-    echo "<!-- Header non trouvé: " . $headerPath . " -->";
-}
+// NE PAS inclure Categorie.php ici - les catégories doivent être passées par le contrôleur
+// Les catégories seront disponibles via la variable $dbCategories passée par le contrôleur
+
+include dirname(__DIR__) . '/layout/header.php'; 
 ?>
 
 <!-- Hero Section -->
 <section class="hero">
-    <div class="hero-content" data-aos="fade-up">
+    <div class="hero-content">
         <div class="hero-badge">
             <i class="fas fa-robot"></i> Alimentation Durable & IA
         </div>
         <h1>Recettes <span class="gradient-text">Intelligentes</span><br>pour un Futur Durable</h1>
-        <p>Découvrez des recettes alliant nutrition optimale et respect de l'environnement,<br>générées par notre intelligence artificielle.</p>
+        <p>Découvrez des recettes alliant nutrition optimale et respect de l'environnement</p>
         
-        <div class="hero-stats">
-            <div class="stat">
-                <div class="stat-number">500+</div>
-                <div class="stat-label">Recettes Durables</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">50k+</div>
-                <div class="stat-label">Utilisateurs Actifs</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">100%</div>
-                <div class="stat-label">Sans Gaspillage</div>
+        <!-- Barre de recherche -->
+        <div class="search-container">
+            <form action="index.php" method="GET" class="search-form">
+                <input type="hidden" name="action" value="searchRecipes">
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="search" class="search-input" 
+                           placeholder="Rechercher une recette..."
+                           value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
+                    <button type="submit" class="search-btn">Rechercher</button>
+                </div>
+            </form>
+            
+            <div class="categories-row">
+                <span class="categories-label">Rechercher par catégorie :</span>
+                <div class="categories-tags">
+                    <a href="index.php?action=searchRecipes&type=vegan" class="cat-tag cat-vegan">
+                        <i class="fas fa-seedling"></i> Vegan
+                    </a>
+                    <a href="index.php?action=searchRecipes&type=vegetarian" class="cat-tag cat-vegetarian">
+                        <i class="fas fa-carrot"></i> Végétarien
+                    </a>
+                    <a href="index.php?action=searchRecipes&type=gluten_free" class="cat-tag cat-gluten">
+                        <i class="fas fa-wheat-slash"></i> Sans Gluten
+                    </a>
+                    <a href="index.php?action=searchRecipes&type=quick" class="cat-tag cat-quick">
+                        <i class="fas fa-bolt"></i> Rapides
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -43,162 +56,117 @@ if(file_exists($headerPath)) {
         </svg>
     </div>
 </section>
+    
 
-<!-- Categories Section -->
+<!-- Catégories spéciales (filtres rapides) -->
 <section class="categories-section">
     <div class="container">
-        <div class="section-header" data-aos="fade-up">
-            <h2>Explorer par Catégorie</h2>
-            <p>Trouvez la recette parfaite selon vos préférences alimentaires</p>
+        <div class="section-header">
+            <h2>Filtres Rapides</h2>
+            <p>Trouvez rapidement selon vos préférences</p>
         </div>
         
         <div class="categories-grid">
-            <div class="category-card" data-aos="fade-up" data-aos-delay="0">
-                <div class="category-icon">
+            <div class="category-card" onclick="window.location.href='index.php?action=searchRecipes&type=vegan'">
+                <div class="category-icon" style="background: #2ecc71">
                     <i class="fas fa-seedling"></i>
                 </div>
                 <h3>Vegan</h3>
                 <p>100% végétal</p>
             </div>
-            <div class="category-card" data-aos="fade-up" data-aos-delay="100">
-                <div class="category-icon">
+            
+            <div class="category-card" onclick="window.location.href='index.php?action=searchRecipes&type=vegetarian'">
+                <div class="category-icon" style="background: #f39c12">
                     <i class="fas fa-carrot"></i>
                 </div>
                 <h3>Végétarien</h3>
                 <p>Sans viande</p>
             </div>
-            <div class="category-card" data-aos="fade-up" data-aos-delay="200">
-                <div class="category-icon">
+            
+            <div class="category-card" onclick="window.location.href='index.php?action=searchRecipes&type=gluten_free'">
+                <div class="category-icon" style="background: #3498db">
                     <i class="fas fa-wheat-slash"></i>
                 </div>
                 <h3>Sans Gluten</h3>
                 <p>Sans gluten</p>
             </div>
-            <div class="category-card" data-aos="fade-up" data-aos-delay="300">
-                <div class="category-icon">
-                    <i class="fas fa-clock"></i>
+            
+            <div class="category-card" onclick="window.location.href='index.php?action=searchRecipes&type=quick'">
+                <div class="category-icon" style="background: #e74c3c">
+                    <i class="fas fa-bolt"></i>
                 </div>
                 <h3>Rapides</h3>
                 <p>-30 minutes</p>
-            </div>
-            <div class="category-card" data-aos="fade-up" data-aos-delay="400">
-                <div class="category-icon">
-                    <i class="fas fa-fire"></i>
-                </div>
-                <h3>Healthy</h3>
-                <p>-500 calories</p>
-            </div>
-            <div class="category-card" data-aos="fade-up" data-aos-delay="500">
-                <div class="category-icon">
-                    <i class="fas fa-euro-sign"></i>
-                </div>
-                <h3>Économiques</h3>
-                <p>Petit budget</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Featured Recipes Section -->
+<!-- Catégories personnalisées depuis la BDD -->
+<?php if(!empty($dbCategories)): ?>
+<section class="custom-categories-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Catégories</h2>
+            <p>Explorez nos recettes par catégorie</p>
+        </div>
+        
+        <div class="categories-grid">
+            <?php foreach($dbCategories as $cat): ?>
+                <div class="category-card" onclick="window.location.href='index.php?action=frontRecettesByCategorie&id=<?php echo $cat['idCategorie']; ?>'">
+                    <div class="category-icon" style="background: <?php echo $cat['couleur']; ?>">
+                        <i class="<?php echo $cat['icon']; ?>"></i>
+                    </div>
+                    <h3><?php echo htmlspecialchars($cat['nom']); ?></h3>
+                    <p><?php echo htmlspecialchars($cat['description'] ?? 'Découvrez nos recettes'); ?></p>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Liste des recettes -->
 <section class="recipes-section">
     <div class="container">
-        <div class="section-header" data-aos="fade-up">
-            <h2>Nos Recettes à l'Honneur</h2>
+        <div class="section-header">
+            <h2>Nos Recettes</h2>
             <p>Des plats savoureux, nutritifs et respectueux de la planète</p>
         </div>
         
         <?php if(empty($recipes)): ?>
-            <div class="no-results" data-aos="fade-up">
-                <div class="no-results-icon">
-                    <i class="fas fa-search"></i>
-                </div>
+            <div class="no-results">
+                <i class="fas fa-search"></i>
                 <h3>Aucune recette trouvée</h3>
-                <p>Nous n'avons pas encore de recettes disponibles. Revenez bientôt !</p>
+                <a href="index.php?action=backCreateRecipe" class="btn-create">Ajouter une recette</a>
             </div>
         <?php else: ?>
             <div class="recipes-grid">
-                <?php foreach($recipes as $index => $recipe): ?>
-                    <div class="recipe-card" data-aos="fade-up" data-aos-delay="<?php echo $index * 50; ?>">
+                <?php foreach($recipes as $recipe): ?>
+                    <div class="recipe-card">
                         <div class="card-badge">
                             <?php if($recipe['is_vegan']): ?>
-                                <span class="badge vegan"><i class="fas fa-seedling"></i> Vegan</span>
-                            <?php elseif($recipe['is_vegetarian']): ?>
-                                <span class="badge vegetarian"><i class="fas fa-carrot"></i> Végétarien</span>
+                                <span class="badge vegan">Vegan</span>
                             <?php endif; ?>
-                            <?php if($recipe['is_gluten_free']): ?>
-                                <span class="badge gluten-free"><i class="fas fa-wheat-slash"></i> Sans Gluten</span>
-                            <?php endif; ?>
-                            <?php if(($recipe['prep_time'] + $recipe['cook_time']) <= 30): ?>
-                                <span class="badge quick"><i class="fas fa-bolt"></i> Rapide</span>
+                            <?php if($recipe['is_vegetarian']): ?>
+                                <span class="badge vegetarian">Végétarien</span>
                             <?php endif; ?>
                         </div>
-                        
                         <div class="card-image">
-                            <?php if($recipe['image_url']): ?>
-                                <img src="<?php echo $recipe['image_url']; ?>" alt="<?php echo htmlspecialchars($recipe['title']); ?>">
-                            <?php else: ?>
-                                <div class="image-placeholder">
-                                    <i class="fas fa-utensils"></i>
-                                </div>
-                            <?php endif; ?>
-                            <div class="card-overlay">
-                                <a href="index.php?action=frontShowRecipe&id=<?php echo $recipe['id']; ?>" class="btn-quick-view">
-                                    <i class="fas fa-eye"></i> Voir la recette
-                                </a>
+                            <div class="image-placeholder">
+                                <i class="fas fa-utensils"></i>
                             </div>
                         </div>
-                        
                         <div class="card-content">
                             <h3><?php echo htmlspecialchars($recipe['title']); ?></h3>
-                            <p class="description"><?php echo substr(htmlspecialchars($recipe['description']), 0, 100); ?>...</p>
-                            
+                            <p><?php echo substr(htmlspecialchars($recipe['description']), 0, 100); ?>...</p>
                             <div class="recipe-meta">
-                                <div class="meta-item">
-                                    <i class="far fa-clock"></i>
-                                    <span><?php echo $recipe['prep_time'] + $recipe['cook_time']; ?> min</span>
-                                </div>
-                                <div class="meta-item">
-                                    <i class="fas fa-fire"></i>
-                                    <span><?php echo $recipe['calories'] ?? 'N/A'; ?> cal</span>
-                                </div>
-                                <div class="meta-item difficulty <?php echo $recipe['difficulty']; ?>">
-                                    <i class="fas fa-chart-line"></i>
-                                    <span><?php echo ucfirst($recipe['difficulty']); ?></span>
-                                </div>
+                                <span><i class="far fa-clock"></i> <?php echo $recipe['prep_time'] + $recipe['cook_time']; ?> min</span>
+                                <span><i class="fas fa-fire"></i> <?php echo $recipe['calories'] ?? 'N/A'; ?> cal</span>
                             </div>
-                            
-                            <div class="nutrition-stats">
-                                <div class="stat">
-                                    <span>Protéines</span>
-                                    <strong><?php echo $recipe['protein'] ?? '0'; ?>g</strong>
-                                    <div class="progress-bar">
-                                        <div class="progress" style="width: <?php echo min(($recipe['protein'] ?? 0) * 2, 100); ?>%"></div>
-                                    </div>
-                                </div>
-                                <div class="stat">
-                                    <span>Glucides</span>
-                                    <strong><?php echo $recipe['carbs'] ?? '0'; ?>g</strong>
-                                    <div class="progress-bar">
-                                        <div class="progress" style="width: <?php echo min(($recipe['carbs'] ?? 0), 100); ?>%"></div>
-                                    </div>
-                                </div>
-                                <div class="stat">
-                                    <span>Lipides</span>
-                                    <strong><?php echo $recipe['fats'] ?? '0'; ?>g</strong>
-                                    <div class="progress-bar">
-                                        <div class="progress" style="width: <?php echo min(($recipe['fats'] ?? 0), 100); ?>%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="card-footer">
-                                <a href="index.php?action=frontShowRecipe&id=<?php echo $recipe['id']; ?>" class="btn-view">
-                                    Voir la recette <i class="fas fa-arrow-right"></i>
-                                </a>
-                                <button class="btn-save" onclick="saveRecipe(<?php echo $recipe['id']; ?>)">
-                                    <i class="far fa-bookmark"></i>
-                                </button>
-                            </div>
+                            <a href="index.php?action=frontShowRecipe&id=<?php echo $recipe['id']; ?>" class="btn-view">
+                                Voir la recette <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -208,159 +176,217 @@ if(file_exists($headerPath)) {
 </section>
 
 <style>
-.hero-stats {
-    display: flex;
-    justify-content: center;
-    gap: 3rem;
-    margin-top: 3rem;
-    flex-wrap: wrap;
-}
-
-.hero-stats .stat {
+.hero {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
     text-align: center;
+    padding: 4rem 2rem;
+    margin-top: 70px;
 }
 
-.hero-stats .stat-number {
+.hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+}
+
+.hero h1 {
     font-size: 2rem;
-    font-weight: 800;
-    color: #f093fb;
+    margin-bottom: 1rem;
 }
 
-.hero-stats .stat-label {
-    font-size: 0.85rem;
-    opacity: 0.9;
+.gradient-text {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
-.hero-wave {
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100%;
-    overflow: hidden;
-    line-height: 0;
+.search-bar {
+    max-width: 500px;
+    margin: 2rem auto 0;
 }
 
-.categories-section {
-    padding: 4rem 0;
+.search-bar form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+}
+
+.search-bar button {
+    padding: 0.8rem 1.5rem;
+    background: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+.categories-section, .custom-categories-section {
+    padding: 3rem 0;
     background: white;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    font-size: 1.8rem;
+    color: #1a2a3a;
 }
 
 .categories-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1.5rem;
-    margin-top: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .category-card {
     background: #f8f9fa;
-    padding: 2rem 1rem;
+    padding: 1.5rem;
     text-align: center;
     border-radius: 15px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: transform 0.3s;
 }
 
 .category-card:hover {
-    transform: translateY(-10px);
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-    color: white;
-}
-
-.category-card:hover .category-icon {
-    color: white;
-}
-
-.category-icon {
-    font-size: 2.5rem;
-    color: #2ecc71;
-    margin-bottom: 1rem;
-}
-
-.category-card h3 {
-    margin-bottom: 0.5rem;
-}
-
-.progress-bar {
-    height: 4px;
-    background: #e0e0e0;
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 5px;
-}
-
-.progress {
-    height: 100%;
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-    border-radius: 2px;
-}
-
-.card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1rem;
-}
-
-.btn-save {
-    width: 40px;
-    height: 40px;
-    background: #f8f9fa;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.btn-save:hover {
+    transform: translateY(-5px);
     background: #2ecc71;
     color: white;
 }
 
-.badge.quick {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+.category-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-@media (max-width: 768px) {
-    .hero-stats {
-        gap: 1.5rem;
-    }
-    
-    .hero-stats .stat-number {
-        font-size: 1.5rem;
-    }
-    
-    .categories-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+.category-icon i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.recipes-section {
+    padding: 3rem 0;
+    background: #f8f9fa;
+}
+
+.recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.recipe-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.card-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    color: white;
+}
+
+.badge.vegan { background: #2ecc71; }
+.badge.vegetarian { background: #f39c12; }
+
+.card-image {
+    height: 160px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-placeholder i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.card-content {
+    padding: 1rem;
+}
+
+.card-content h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.recipe-meta {
+    display: flex;
+    gap: 1rem;
+    margin: 0.5rem 0;
+    font-size: 0.7rem;
+    color: #666;
+}
+
+.btn-view {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    background: #2ecc71;
+    color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 0.75rem;
 }
 
 .no-results {
     text-align: center;
-    padding: 4rem;
-    background: #f8f9fa;
-    border-radius: 20px;
+    padding: 3rem;
+    background: white;
+    border-radius: 15px;
 }
 
-.no-results-icon {
-    font-size: 4rem;
-    color: #ccc;
-    margin-bottom: 1rem;
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .recipes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-bar form {
+        flex-direction: column;
+    }
 }
 </style>
 
-<script>
-function saveRecipe(id) {
-    alert('Recette sauvegardée !');
-}
-</script>
-
-<?php 
-// Correction du chemin du footer
-$footerPath = dirname(__DIR__) . '/layout/footer.php';
-if(file_exists($footerPath)) {
-    include $footerPath;
-} else {
-    echo "<!-- Footer non trouvé: " . $footerPath . " -->";
-}
-?>
+<?php include dirname(__DIR__) . '/layout/footer.php'; ?>

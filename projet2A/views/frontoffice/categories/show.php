@@ -1,59 +1,49 @@
 <?php 
-$pageTitle = "Résultats de recherche";
-$activePage = "recipes";
-
-// Déterminer le titre de la recherche
-$searchTitle = "";
-if(isset($_GET['type'])) {
-    switch($_GET['type']) {
-        case 'vegan': $searchTitle = "Recettes Vegan"; break;
-        case 'vegetarian': $searchTitle = "Recettes Végétariennes"; break;
-        case 'gluten_free': $searchTitle = "Recettes Sans Gluten"; break;
-        case 'quick': $searchTitle = "Recettes Rapides (-30 min)"; break;
-        case 'healthy': $searchTitle = "Recettes Healthy (-500 cal)"; break;
-        case 'economique': $searchTitle = "Recettes Économiques"; break;
-        default: $searchTitle = "Résultats de recherche";
-    }
-} elseif(isset($_GET['search'])) {
-    $searchTitle = "Résultats pour : " . htmlspecialchars($_GET['search']);
-}
-
+$pageTitle = "Recettes - " . htmlspecialchars($categorie['nom']);
+$activePage = "categories";
 include dirname(__DIR__) . '/layout/header.php'; 
 ?>
 
-<section class="search-results-section">
+<section class="categorie-recettes-section">
     <div class="container">
-        <div class="section-header" data-aos="fade-up">
-            <h1><?php echo $searchTitle; ?></h1>
-            <p><?php echo count($recipes); ?> recette(s) trouvée(s)</p>
+        <div class="categorie-header" data-aos="fade-up">
+            <div class="categorie-icon" style="background: <?php echo $categorie['couleur']; ?>">
+                <i class="<?php echo $categorie['icon']; ?>"></i>
+            </div>
+            <h1><?php echo htmlspecialchars($categorie['nom']); ?></h1>
+            <p><?php echo htmlspecialchars($categorie['description'] ?? 'Découvrez nos meilleures recettes dans cette catégorie'); ?></p>
+            <div class="recettes-count">
+                <i class="fas fa-utensils"></i>
+                <?php echo count($recettes); ?> recette(s)
+            </div>
         </div>
         
-        <?php if(empty($recipes)): ?>
-            <div class="no-results" data-aos="fade-up">
+        <?php if(empty($recettes)): ?>
+            <div class="no-recettes" data-aos="fade-up">
                 <i class="fas fa-search"></i>
-                <h3>Aucune recette trouvée</h3>
-                <p>Essayez une autre catégorie ou consultez toutes nos recettes</p>
-                <a href="index.php?action=frontRecipes" class="btn-back">
-                    <i class="fas fa-arrow-left"></i> Voir toutes les recettes
+                <h3>Aucune recette dans cette catégorie pour le moment</h3>
+                <p>Consultez d'autres catégories ou revenez plus tard</p>
+                <a href="index.php?action=searchByCategorie" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Voir toutes les catégories
                 </a>
             </div>
         <?php else: ?>
             <div class="recipes-grid">
-                <?php foreach($recipes as $recipe): ?>
+                <?php foreach($recettes as $recette): ?>
                     <div class="recipe-card" data-aos="fade-up">
                         <div class="card-badge">
-                            <?php if($recipe['is_vegan']): ?>
+                            <?php if($recette['is_vegan']): ?>
                                 <span class="badge vegan"><i class="fas fa-seedling"></i> Vegan</span>
-                            <?php elseif($recipe['is_vegetarian']): ?>
+                            <?php elseif($recette['is_vegetarian']): ?>
                                 <span class="badge vegetarian"><i class="fas fa-carrot"></i> Végétarien</span>
                             <?php endif; ?>
-                            <?php if($recipe['is_gluten_free']): ?>
+                            <?php if($recette['is_gluten_free']): ?>
                                 <span class="badge gluten-free"><i class="fas fa-wheat-slash"></i> Sans gluten</span>
                             <?php endif; ?>
                         </div>
                         <div class="card-image">
-                            <?php if($recipe['image_url']): ?>
-                                <img src="<?php echo $recipe['image_url']; ?>" alt="<?php echo htmlspecialchars($recipe['title']); ?>">
+                            <?php if($recette['image_url']): ?>
+                                <img src="<?php echo $recette['image_url']; ?>" alt="<?php echo htmlspecialchars($recette['title']); ?>">
                             <?php else: ?>
                                 <div class="image-placeholder">
                                     <i class="fas fa-utensils"></i>
@@ -61,43 +51,76 @@ include dirname(__DIR__) . '/layout/header.php';
                             <?php endif; ?>
                         </div>
                         <div class="card-content">
-                            <h3><?php echo htmlspecialchars($recipe['title']); ?></h3>
-                            <p><?php echo substr(htmlspecialchars($recipe['description']), 0, 100); ?>...</p>
+                            <h3><?php echo htmlspecialchars($recette['title']); ?></h3>
+                            <p><?php echo substr(htmlspecialchars($recette['description']), 0, 100); ?>...</p>
                             <div class="recipe-meta">
-                                <span><i class="far fa-clock"></i> <?php echo $recipe['prep_time'] + $recipe['cook_time']; ?> min</span>
-                                <span><i class="fas fa-fire"></i> <?php echo $recipe['calories'] ?? 'N/A'; ?> cal</span>
+                                <span><i class="far fa-clock"></i> <?php echo $recette['prep_time'] + $recette['cook_time']; ?> min</span>
+                                <span><i class="fas fa-fire"></i> <?php echo $recette['calories'] ?? 'N/A'; ?> cal</span>
                             </div>
-                            <a href="index.php?action=frontShowRecipe&id=<?php echo $recipe['id']; ?>" class="btn-view">
+                            <a href="index.php?action=frontShowRecipe&id=<?php echo $recette['id']; ?>" class="btn-view">
                                 Voir la recette <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
+            
+            <div class="back-link">
+                <a href="index.php?action=searchByCategorie" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Retour aux catégories
+                </a>
+            </div>
         <?php endif; ?>
     </div>
 </section>
 
 <style>
-.search-results-section {
+.categorie-recettes-section {
     padding: 4rem 0;
-    min-height: 60vh;
+    background: #f8f9fa;
+    min-height: 80vh;
 }
 
-.section-header {
+.categorie-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
 }
 
-.section-header h1 {
+.categorie-icon {
+    width: 80px;
+    height: 80px;
+    background: #2ecc71;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.categorie-icon i {
     font-size: 2rem;
-    color: #1a2a3a;
+    color: white;
+}
+
+.categorie-header h1 {
+    font-size: 2rem;
     margin-bottom: 0.5rem;
+    color: #1a2a3a;
+}
+
+.recettes-count {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.3rem 1rem;
+    background: #e8f5e9;
+    color: #2ecc71;
+    border-radius: 20px;
+    font-size: 0.85rem;
 }
 
 .recipes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 2rem;
 }
 
@@ -107,7 +130,6 @@ include dirname(__DIR__) . '/layout/header.php';
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     transition: transform 0.3s;
-    position: relative;
 }
 
 .recipe-card:hover {
@@ -162,50 +184,31 @@ include dirname(__DIR__) . '/layout/header.php';
 }
 
 .card-content h3 {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-}
-
-.card-content p {
-    font-size: 0.85rem;
-    color: #666;
+    font-size: 1.1rem;
     margin-bottom: 0.5rem;
 }
 
 .recipe-meta {
     display: flex;
     gap: 1rem;
-    font-size: 0.7rem;
+    margin: 0.5rem 0;
+    font-size: 0.8rem;
     color: #666;
-    margin-bottom: 0.5rem;
 }
 
 .btn-view {
     display: inline-block;
-    padding: 0.4rem 1rem;
+    padding: 0.5rem 1rem;
     background: #2ecc71;
     color: white;
     text-decoration: none;
     border-radius: 20px;
-    font-size: 0.75rem;
-}
-
-.no-results {
-    text-align: center;
-    padding: 3rem;
-    background: white;
-    border-radius: 15px;
-}
-
-.no-results i {
-    font-size: 3rem;
-    color: #ccc;
-    margin-bottom: 1rem;
+    font-size: 0.8rem;
 }
 
 .btn-back {
     display: inline-block;
-    margin-top: 1rem;
+    margin-top: 2rem;
     padding: 0.5rem 1rem;
     background: #95a5a6;
     color: white;
@@ -217,12 +220,6 @@ include dirname(__DIR__) . '/layout/header.php';
     .recipes-grid {
         grid-template-columns: 1fr;
     }
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
 }
 </style>
 
