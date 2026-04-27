@@ -1,63 +1,166 @@
 <?php
 require_once dirname(__DIR__) . '/models/Categorie.php';
 require_once dirname(__DIR__) . '/models/Recipe.php';
+require_once dirname(__DIR__) . '/config/database.php';
 
 class CategorieController {
-    private $categorie;
-    private $recipe;
+    private $categorieModel;
+    private $recipeModel;
+    private $db;
 
     public function __construct() {
-        $this->categorie = new Categorie();
-        $this->recipe = new Recipe();
+        $database = new Database();
+        $this->db = $database->getConnection();
+        $this->categorieModel = new Categorie($this->db);
+        $this->recipeModel = new Recipe($this->db);
         
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
     }
 
-    // ==================== VALIDATION PERSONNALISÉE (sans HTML5) ====================
-    
+    // ==================== VALIDATION ====================
     private function validateCategorieData($data) {
         $errors = [];
-        
-        // Validation du nom
         if(empty($data['nom']) || strlen(trim($data['nom'])) < 2) {
             $errors['nom'] = "Le nom doit contenir au moins 2 caractères";
         }
-        
         if(strlen(trim($data['nom'])) > 50) {
             $errors['nom'] = "Le nom ne peut pas dépasser 50 caractères";
         }
-        
-        // Validation des caractères autorisés pour le nom
         if(!empty($data['nom']) && !preg_match('/^[a-zA-Z0-9À-ÿ\s\-éèêëàâäôöûüç]+$/', $data['nom'])) {
             $errors['nom'] = "Le nom contient des caractères non autorisés";
         }
-        
-        // Validation de la description (optionnelle)
         if(!empty($data['description']) && strlen(trim($data['description'])) > 255) {
             $errors['description'] = "La description ne peut pas dépasser 255 caractères";
         }
-        
-        // Validation de l'icône
         if(empty($data['icon'])) {
             $errors['icon'] = "Veuillez sélectionner une icône";
         }
-        
-        // Validation de la couleur
         if(empty($data['couleur'])) {
             $errors['couleur'] = "Veuillez sélectionner une couleur";
         }
-        
         return $errors;
     }
 
-    // ==================== FRONTOFFICE ====================
+    // ==================== LOGIQUE MÉTIER ====================
     
-    // Afficher le formulaire de recherche par catégorie
+    public function readAllCategories() {
+        try {
+            $query = "SELECT * FROM " . $this->categorieModel->getTable() . " ORDER BY nom ASC";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function readOneCategorie($id) {
+        try {
+            $query = "SELECT * FROM " . $this->categorieModel->getTable() . " WHERE idCategorie = :idCategorie LIMIT 0,1";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":idCategorie", $id);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function readAllWithRecettesCount() {
+        try {
+            $query = "SELECT c.*, COUNT(r.id) as nb_recettes 
+                      FROM " . $this->categorieModel->getTable() . " c
+                      LEFT JOIN recipes r ON c.idCategorie = r.idCategorie
+                      GROUP BY c.idCategorie
+                      ORDER BY c.nom ASC";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function createCategorie($data) {
+        try {
+            $query = "INSERT INTO " . $this->categorieModel->getTable() . "
+                      SET nom = :nom, description = :description, icon = :icon, couleur = :couleur";
+            $stmt = $this->db->prepare($query);
+            
+            $stmt->bindParam(":nom", $data['nom']);
+            $stmt->bindParam(":description", $data['description']);
+            $stmt->bindParam(":icon", $data['icon']);
+            $stmt->bindParam(":couleur", $data['couleur']);
+            
+            if($stmt->execute()) {
+                return $this->db->lastInsertId();
+            }
+            return false;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateCategorie($id, $data) {
+        try {
+            $query = "UPDATE " . $this->categorieModel->getTable() . "
+                      SET nom = :nom, description = :description, icon = :icon, couleur = :couleur
+                      WHERE idCategorie = :idCategorie";
+            $stmt = $this->db->prepare($query);
+            
+            $stmt->bindParam(":idCategorie", $id);
+            $stmt->bindParam(":nom", $data['nom']);
+            $stmt->bindParam(":description", $data['description']);
+            $stmt->bindParam(":icon", $data['icon']);
+            $stmt->bindParam(":couleur", $data['couleur']);
+            
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteCategorie($id) {
+        try {
+            $query = "DELETE FROM " . $this->categorieModel->getTable() . " WHERE idCategorie = :idCategorie";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":idCategorie", $id);
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getRecettesByCategorie($idCategorie) {
+        try {
+            $query = "SELECT r.*, c.nom as categorie_nom, c.icon as categorie_icon, c.couleur as categorie_couleur
+                      FROM recipes r
+                      LEFT JOIN " . $this->categorieModel->getTable() . " c ON r.idCategorie = c.idCategorie
+                      WHERE r.idCategorie = :idCategorie
+                      ORDER BY r.created_at DESC";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":idCategorie", $idCategorie);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // ==================== VUES (FRONTOFFICE) ====================
+    
     public function frontSearchByCategorie() {
         try {
-            $stmt = $this->categorie->readAll();
+            $stmt = $this->readAllCategories();
             $categories = [];
             while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $categories[] = $row;
@@ -67,7 +170,7 @@ class CategorieController {
             
             if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idCategorie'])) {
                 $idCategorie = (int)$_POST['idCategorie'];
-                $stmtRecettes = $this->recipe->readByCategorie($idCategorie);
+                $stmtRecettes = $this->getRecettesByCategorie($idCategorie);
                 while($row = $stmtRecettes->fetch(PDO::FETCH_ASSOC)) {
                     $recettes[] = $row;
                 }
@@ -80,14 +183,12 @@ class CategorieController {
         }
     }
     
-    // Afficher les recettes d'une catégorie spécifique
     public function frontRecettesByCategorie($idCategorie) {
         try {
-            $this->categorie->idCategorie = $idCategorie;
-            $categorie = $this->categorie->readOne();
+            $categorie = $this->readOneCategorie($idCategorie);
             
             if($categorie) {
-                $stmt = $this->recipe->readByCategorie($idCategorie);
+                $stmt = $this->getRecettesByCategorie($idCategorie);
                 $recettes = [];
                 while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $recettes[] = $row;
@@ -105,46 +206,40 @@ class CategorieController {
         }
     }
 
-    // ==================== BACKOFFICE ====================
+    // ==================== VUES (BACKOFFICE) ====================
     
-    // Afficher toutes les catégories
     public function backIndex() {
-    try {
-        // Récupérer toutes les catégories avec le nombre de recettes
-        $stmt = $this->categorie->readAllWithRecettesCount();
-        $categories = [];
-        while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $categories[] = $row;
+        try {
+            $stmt = $this->readAllWithRecettesCount();
+            $categories = [];
+            while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $categories[] = $row;
+            }
+            require_once dirname(__DIR__) . '/views/backoffice/categories/index.php';
+        } catch(Exception $e) {
+            $_SESSION['error'] = "Erreur: " . $e->getMessage();
+            $categories = [];
+            require_once dirname(__DIR__) . '/views/backoffice/categories/index.php';
         }
-        
-        // Debug: voir si des catégories sont trouvées
-        // var_dump($categories); // Décommente pour tester
-        
-        require_once dirname(__DIR__) . '/views/backoffice/categories/index.php';
-    } catch(Exception $e) {
-        $_SESSION['error'] = "Erreur: " . $e->getMessage();
-        $categories = [];
-        require_once dirname(__DIR__) . '/views/backoffice/categories/index.php';
     }
-}
     
-    // Créer une catégorie (avec validation)
     public function backCreate() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Validation des données
             $errors = $this->validateCategorieData($_POST);
             
             if(empty($errors)) {
                 try {
-                    $this->categorie->nom = trim($_POST['nom']);
-                    $this->categorie->description = !empty($_POST['description']) ? trim($_POST['description']) : null;
-                    $this->categorie->icon = !empty($_POST['icon']) ? $_POST['icon'] : 'fas fa-tag';
-                    $this->categorie->couleur = !empty($_POST['couleur']) ? $_POST['couleur'] : '#2ecc71';
+                    $data = [
+                        'nom' => trim($_POST['nom']),
+                        'description' => !empty($_POST['description']) ? trim($_POST['description']) : null,
+                        'icon' => !empty($_POST['icon']) ? $_POST['icon'] : 'fas fa-tag',
+                        'couleur' => !empty($_POST['couleur']) ? $_POST['couleur'] : '#2ecc71'
+                    ];
                     
-                    $id = $this->categorie->create();
+                    $id = $this->createCategorie($data);
                     
                     if($id) {
-                        $_SESSION['success'] = "Catégorie \"" . htmlspecialchars($this->categorie->nom) . "\" créée avec succès !";
+                        $_SESSION['success'] = "Catégorie \"" . htmlspecialchars($data['nom']) . "\" créée avec succès !";
                     } else {
                         $_SESSION['error'] = "Erreur lors de la création de la catégorie";
                     }
@@ -160,21 +255,20 @@ class CategorieController {
         exit();
     }
     
-    // Modifier une catégorie (avec validation)
     public function backEdit($id) {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Validation des données
             $errors = $this->validateCategorieData($_POST);
             
             if(empty($errors)) {
                 try {
-                    $this->categorie->idCategorie = $id;
-                    $this->categorie->nom = trim($_POST['nom']);
-                    $this->categorie->description = !empty($_POST['description']) ? trim($_POST['description']) : null;
-                    $this->categorie->icon = !empty($_POST['icon']) ? $_POST['icon'] : 'fas fa-tag';
-                    $this->categorie->couleur = !empty($_POST['couleur']) ? $_POST['couleur'] : '#2ecc71';
+                    $data = [
+                        'nom' => trim($_POST['nom']),
+                        'description' => !empty($_POST['description']) ? trim($_POST['description']) : null,
+                        'icon' => !empty($_POST['icon']) ? $_POST['icon'] : 'fas fa-tag',
+                        'couleur' => !empty($_POST['couleur']) ? $_POST['couleur'] : '#2ecc71'
+                    ];
                     
-                    if($this->categorie->update()) {
+                    if($this->updateCategorie($id, $data)) {
                         $_SESSION['success'] = "Catégorie modifiée avec succès !";
                     } else {
                         $_SESSION['error'] = "Erreur lors de la modification";
@@ -191,21 +285,17 @@ class CategorieController {
         exit();
     }
     
-    // Supprimer une catégorie
     public function backDelete($id) {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
-                $this->categorie->idCategorie = $id;
-                
-                // Vérifier si la catégorie a des recettes
-                $stmt = $this->recipe->readByCategorie($id);
+                $stmt = $this->getRecettesByCategorie($id);
                 $recetteCount = $stmt->rowCount();
                 
                 if($recetteCount > 0) {
                     $_SESSION['warning'] = "Cette catégorie contient $recetteCount recette(s). Les recettes ne seront pas supprimées mais n'auront plus de catégorie.";
                 }
                 
-                if($this->categorie->delete()) {
+                if($this->deleteCategorie($id)) {
                     $_SESSION['success'] = "Catégorie supprimée avec succès !";
                 } else {
                     $_SESSION['error'] = "Erreur lors de la suppression";
@@ -218,20 +308,5 @@ class CategorieController {
         header("Location: index.php?action=backCategories");
         exit();
     }
-    public function readAllWithRecettesCount() {
-    try {
-        $query = "SELECT c.*, COUNT(r.id) as nb_recettes 
-                  FROM " . $this->table . " c
-                  LEFT JOIN recipes r ON c.idCategorie = r.idCategorie
-                  GROUP BY c.idCategorie
-                  ORDER BY c.nom ASC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        return $stmt;
-    } catch(PDOException $e) {
-        error_log("Erreur PDO dans readAllWithRecettesCount(): " . $e->getMessage());
-        return false;
-    }
-}
 }
 ?>

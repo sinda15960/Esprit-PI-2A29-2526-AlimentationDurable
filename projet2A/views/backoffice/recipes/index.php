@@ -89,10 +89,24 @@ if(file_exists($headerPath)) {
         </select>
         
         <!-- BOUTON CRÉER UNE RECETTE -->
-        <a href="index.php?action=backCreateRecipe" class="btn-create">
-            <i class="fas fa-plus"></i> Nouvelle recette
-        </a>
+        <div class="header-buttons">
+            <button class="btn-stats" onclick="showStatsModal()">
+                <i class="fas fa-chart-pie"></i> Statistiques
+            </button>
+            <a href="index.php?action=backCreateRecipe" class="btn-create">
+                <i class="fas fa-plus"></i> Nouvelle recette
+            </a>
+        </div>
     </div>
+</div>
+<!-- LIGNE DES BOUTONS SUPPLEMENTAIRES -->
+<div class="extra-buttons">
+    <button class="btn-surprise" onclick="showSurpriseModal()">
+        🎲 Surprise ! Une recette au hasard
+    </button>
+    <button class="btn-compare" onclick="showCompareModal()">
+        📊 Comparer deux recettes
+    </button>
 </div>
 
 <!-- Bulk Actions Bar -->
@@ -122,7 +136,6 @@ if(file_exists($headerPath)) {
                 <th class="checkbox-col">
                     <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
                 </th>
-                <th>ID</th>
                 <th>Titre</th>
                 <th>Difficulté</th>
                 <th>Temps total</th>
@@ -134,8 +147,8 @@ if(file_exists($headerPath)) {
         </thead>
         <tbody id="recipesTableBody">
             <?php if(empty($recipes)): ?>
-                <tr>
-                    <td colspan="9" style="text-align: center; padding: 3rem;">
+                </tr>
+                    <td colspan="8" style="text-align: center; padding: 3rem;">
                         <i class="fas fa-utensils" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem; display: block;"></i>
                         <h3>Aucune recette trouvée</h3>
                         <p>Commencez par créer votre première recette !</p>
@@ -156,7 +169,6 @@ if(file_exists($headerPath)) {
                         <td class="checkbox-col">
                             <input type="checkbox" class="recipe-select" onchange="updateBulkActions()">
                         </td>
-                        <td><?php echo $recipe['id']; ?></td>
                         <td class="recipe-title">
                             <div class="recipe-title-cell">
                                 <?php if($recipe['image_url']): ?>
@@ -251,8 +263,253 @@ if(file_exists($headerPath)) {
         </div>
     </div>
 </div>
+<!-- MODAL SURPRISE (RECETTE ALEATOIRE) -->
+<div id="surpriseModal" class="modal">
+    <div class="modal-content" style="max-width: 450px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+            <h3><i class="fas fa-dice-d6"></i> Recette surprise 🎲</h3>
+            <span class="close" onclick="closeSurpriseModal()">&times;</span>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+            <div id="surpriseContent">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #9b59b6;"></i>
+                <p>Chargement d'une recette surprise...</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-surprise" onclick="generateRandomRecipe()" style="background: #9b59b6;">
+                🎲 Une autre surprise
+            </button>
+            <button class="btn-cancel" onclick="closeSurpriseModal()">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL COMPARAISON -->
+<div id="compareModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #1abc9c, #16a085);">
+            <h3><i class="fas fa-chart-simple"></i> Comparer deux recettes</h3>
+            <span class="close" onclick="closeCompareModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="compare-selectors">
+                <div class="compare-recipe">
+                    <label>🍽️ Recette 1</label>
+                    <select id="recipe1_select" class="compare-select" onchange="updateCompare()">
+                        <option value="">-- Sélectionnez --</option>
+                        <?php foreach($recipes as $recipe): ?>
+                            <option value="<?php echo $recipe['id']; ?>" 
+                                    data-title="<?php echo htmlspecialchars($recipe['title']); ?>"
+                                    data-calories="<?php echo $recipe['calories'] ?? 'N/A'; ?>"
+                                    data-time="<?php echo $recipe['prep_time'] + $recipe['cook_time']; ?>"
+                                    data-difficulty="<?php echo $recipe['difficulty']; ?>"
+                                    data-vegan="<?php echo $recipe['is_vegan'] ? '✅ Oui' : '❌ Non'; ?>"
+                                    data-veg="<?php echo $recipe['is_vegetarian'] ? '✅ Oui' : '❌ Non'; ?>">
+                                <?php echo htmlspecialchars($recipe['title']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="compare-recipe">
+                    <label>🍽️ Recette 2</label>
+                    <select id="recipe2_select" class="compare-select" onchange="updateCompare()">
+                        <option value="">-- Sélectionnez --</option>
+                        <?php foreach($recipes as $recipe): ?>
+                            <option value="<?php echo $recipe['id']; ?>"
+                                    data-title="<?php echo htmlspecialchars($recipe['title']); ?>"
+                                    data-calories="<?php echo $recipe['calories'] ?? 'N/A'; ?>"
+                                    data-time="<?php echo $recipe['prep_time'] + $recipe['cook_time']; ?>"
+                                    data-difficulty="<?php echo $recipe['difficulty']; ?>"
+                                    data-vegan="<?php echo $recipe['is_vegan'] ? '✅ Oui' : '❌ Non'; ?>"
+                                    data-veg="<?php echo $recipe['is_vegetarian'] ? '✅ Oui' : '❌ Non'; ?>">
+                                <?php echo htmlspecialchars($recipe['title']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="compareResult" style="margin-top: 1.5rem; display: none;">
+                <table class="compare-table">
+                    <thead>
+                        <tr><th>Critère</th><th id="compareTitle1">Recette 1</th><th id="compareTitle2">Recette 2</th><th>Vainqueur 🏆</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><i class="fas fa-fire"></i> Calories</td><td id="compareCalories1">-</td><td id="compareCalories2">-</td><td id="winnerCalories">-</td></tr>
+                        <tr><td><i class="far fa-clock"></i> Temps total</td><td id="compareTime1">-</td><td id="compareTime2">-</td><td id="winnerTime">-</td></tr>
+                        <tr><td><i class="fas fa-chart-line"></i> Difficulté</td><td id="compareDifficulty1">-</td><td id="compareDifficulty2">-</td><td id="winnerDifficulty">-</td></tr>
+                        <tr><td><i class="fas fa-seedling"></i> Vegan</td><td id="compareVegan1">-</td><td id="compareVegan2">-</td><td id="winnerVegan">-</td></tr>
+                        <tr><td><i class="fas fa-carrot"></i> Végétarien</td><td id="compareVegetarian1">-</td><td id="compareVegetarian2">-</td><td id="winnerVegetarian">-</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeCompareModal()">Fermer</button>
+        </div>
+    </div>
+</div>
+<!-- MODAL STATISTIQUES RECETTES -->
+<div id="statsModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+            <h3><i class="fas fa-chart-pie"></i> Statistiques des recettes</h3>
+            <span class="close" onclick="closeStatsModal()">&times;</span>
+        </div>
+        <div class="modal-body" style="text-align: center; padding-top: 0.5rem;">
+            <!-- Résumé compact -->
+            <div style="background:#f8f9fa; border-radius:10px; padding:0.6rem; margin-bottom:0.8rem; text-align:left; display: flex; justify-content: space-around; flex-wrap: wrap;">
+                <div><span style="font-weight:600;">📊 Total :</span> <span style="color:#2ecc71; font-weight:700;" id="statTotalRecettes"><?php echo $totalRecipes; ?></span></div>
+                <div><span style="font-weight:600;">🌱 Vegan :</span> <span style="color:#2ecc71; font-weight:700;" id="statVegan"><?php echo $veganCount; ?></span></div>
+                <div><span style="font-weight:600;">🥕 Végé :</span> <span style="color:#f39c12; font-weight:700;" id="statVegetarian"><?php echo $vegetarianCount; ?></span></div>
+                <div><span style="font-weight:600;">⚡ Rapide :</span> <span style="color:#e74c3c; font-weight:700;" id="statQuick"><?php echo $quickRecipes; ?></span></div>
+            </div>
+            
+            <!-- Roue -->
+            <div style="max-width: 240px; margin: 0 auto;">
+                <canvas id="recipesChart" width="240" height="240"></canvas>
+            </div>
+            
+            <!-- Légende -->
+            <div id="chartLegend" style="display:flex; flex-wrap:wrap; justify-content:center; gap:0.5rem; margin-top:0.8rem; padding-top:0.5rem; border-top:1px solid #e0e0e0;"></div>
+        </div>
+        <div class="modal-footer" style="padding: 0.8rem 1rem;">
+            <button type="button" class="btn-cancel" onclick="closeStatsModal()">Fermer</button>
+        </div>
+    </div>
+</div>
 
 <style>
+/* Style pour la comparaison */
+.compare-selectors {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.compare-recipe label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1a2a3a;
+}
+
+.compare-select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: white;
+    cursor: pointer;
+}
+
+.compare-select:focus {
+    outline: none;
+    border-color: #1abc9c;
+}
+
+.compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #f8f9fa;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.compare-table th {
+    background: #1abc9c;
+    color: white;
+    padding: 12px;
+    text-align: center;
+}
+
+.compare-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.compare-table tr:last-child td {
+    border-bottom: none;
+}
+
+.winner-highlight {
+    background: #d4edda;
+    color: #155724;
+    font-weight: 600;
+}
+/* Boutons supplémentaires */
+.extra-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    justify-content: flex-end;
+}
+
+.btn-surprise {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.2rem;
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-surprise:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(155,89,182,0.3);
+}
+
+.btn-compare {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.2rem;
+    background: linear-gradient(135deg, #1abc9c, #16a085);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-compare:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(26,188,156,0.3);
+}
+.header-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-stats {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-stats:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52,152,219,0.3);
+}
 /* Stats Cards */
 .stats-cards {
     display: grid;
@@ -733,11 +990,212 @@ if(file_exists($headerPath)) {
         text-align: center;
     }
 }
+/* Responsive comparaison */
+@media (max-width: 768px) {
+    .extra-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-surprise, .btn-compare {
+        justify-content: center;
+    }
+    
+    .compare-selectors {
+        grid-template-columns: 1fr;
+    }
+    
+    .compare-table {
+        font-size: 0.75rem;
+    }
+    
+    .compare-table th, .compare-table td {
+        padding: 6px;
+    }
+}
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 let selectedRecipes = new Set();
+let recipesChart = null;
+// ==================== SURPRISE (RECETTE ALEATOIRE) ====================
+function showSurpriseModal() {
+    document.getElementById('surpriseModal').style.display = 'block';
+    generateRandomRecipe();
+}
 
+function closeSurpriseModal() {
+    document.getElementById('surpriseModal').style.display = 'none';
+}
+
+function generateRandomRecipe() {
+    const rows = document.querySelectorAll('#recipesTableBody tr[data-id]');
+    const recipesList = [];
+    
+    rows.forEach(row => {
+        const id = row.getAttribute('data-id');
+        const title = row.querySelector('.recipe-title-cell span')?.innerText || '';
+        const difficulty = row.querySelector('.badge-difficulty')?.innerText.trim() || '';
+        const time = row.querySelector('.time-badge')?.innerText.replace(/min/g, '').trim() || '0';
+        const calories = row.querySelector('.calories-badge')?.innerText.replace('N/A', '0').trim() || '0';
+        const type = row.getAttribute('data-type');
+        
+        if(title) {
+            recipesList.push({ id, title, difficulty, time, calories, type });
+        }
+    });
+    
+    if(recipesList.length === 0) {
+        document.getElementById('surpriseContent').innerHTML = `
+            <i class="fas fa-sad-tear" style="font-size: 3rem; color: #ccc;"></i>
+            <p>Aucune recette disponible pour la surprise !</p>
+            <a href="index.php?action=backCreateRecipe" class="btn-create">Créer une recette</a>
+        `;
+        return;
+    }
+    
+    const randomIndex = Math.floor(Math.random() * recipesList.length);
+    const recipe = recipesList[randomIndex];
+    
+    // Icône selon le type
+    let typeIcon = '';
+    if(recipe.type === 'vegan') typeIcon = '🌱';
+    else if(recipe.type === 'vegetarian') typeIcon = '🥕';
+    else typeIcon = '🍽️';
+    
+    document.getElementById('surpriseContent').innerHTML = `
+        <div style="text-align: center;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🎲🍀</div>
+            <h2 style="color: #9b59b6; margin-bottom: 1rem;">${typeIcon} ${recipe.title}</h2>
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 1rem; margin: 1rem 0;">
+                <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                    <span>⏱️ ${recipe.time} min</span>
+                    <span>🔥 ${recipe.calories} cal</span>
+                    <span>📊 ${recipe.difficulty}</span>
+                </div>
+            </div>
+            <a href="index.php?action=backEditRecipe&id=${recipe.id}" class="btn-action edit" style="padding: 0.5rem 1rem; width: auto;">Voir la recette</a>
+        </div>
+    `;
+}
+
+// ==================== COMPARAISON ====================
+function showCompareModal() {
+    document.getElementById('compareModal').style.display = 'block';
+    // Réinitialiser les selects
+    document.getElementById('recipe1_select').value = '';
+    document.getElementById('recipe2_select').value = '';
+    document.getElementById('compareResult').style.display = 'none';
+}
+
+function closeCompareModal() {
+    document.getElementById('compareModal').style.display = 'none';
+}
+
+function updateCompare() {
+    const select1 = document.getElementById('recipe1_select');
+    const select2 = document.getElementById('recipe2_select');
+    
+    const option1 = select1.options[select1.selectedIndex];
+    const option2 = select2.options[select2.selectedIndex];
+    
+    if(!option1.value || !option2.value) {
+        document.getElementById('compareResult').style.display = 'none';
+        return;
+    }
+    
+    // Récupérer les données
+    const title1 = option1.getAttribute('data-title');
+    const calories1 = parseFloat(option1.getAttribute('data-calories')) || 0;
+    const time1 = parseInt(option1.getAttribute('data-time')) || 0;
+    const difficulty1 = option1.getAttribute('data-difficulty');
+    const vegan1 = option1.getAttribute('data-vegan');
+    const veg1 = option1.getAttribute('data-veg');
+    
+    const title2 = option2.getAttribute('data-title');
+    const calories2 = parseFloat(option2.getAttribute('data-calories')) || 0;
+    const time2 = parseInt(option2.getAttribute('data-time')) || 0;
+    const difficulty2 = option2.getAttribute('data-difficulty');
+    const vegan2 = option2.getAttribute('data-vegan');
+    const veg2 = option2.getAttribute('data-veg');
+    
+    // Mettre à jour les titres
+    document.getElementById('compareTitle1').innerHTML = title1;
+    document.getElementById('compareTitle2').innerHTML = title2;
+    
+    // Mettre à jour les valeurs
+    document.getElementById('compareCalories1').innerHTML = calories1 + ' kcal';
+    document.getElementById('compareCalories2').innerHTML = calories2 + ' kcal';
+    document.getElementById('compareTime1').innerHTML = time1 + ' min';
+    document.getElementById('compareTime2').innerHTML = time2 + ' min';
+    
+    // Difficulté avec icône
+    const getDifficultyIcon = (d) => {
+        if(d === 'facile') return '😊 Facile';
+        if(d === 'moyen') return '😐 Moyen';
+        return '😤 Difficile';
+    };
+    document.getElementById('compareDifficulty1').innerHTML = getDifficultyIcon(difficulty1);
+    document.getElementById('compareDifficulty2').innerHTML = getDifficultyIcon(difficulty2);
+    
+    document.getElementById('compareVegan1').innerHTML = vegan1;
+    document.getElementById('compareVegan2').innerHTML = vegan2;
+    document.getElementById('compareVegetarian1').innerHTML = veg1;
+    document.getElementById('compareVegetarian2').innerHTML = veg2;
+    
+    // Calculer les vainqueurs
+    // Calories : le plus bas gagne
+    if(calories1 && calories2) {
+        const winner = calories1 < calories2 ? title1 : (calories2 < calories1 ? title2 : 'Égalité');
+        document.getElementById('winnerCalories').innerHTML = winner;
+        document.getElementById('winnerCalories').className = calories1 !== calories2 ? 'winner-highlight' : '';
+    } else {
+        document.getElementById('winnerCalories').innerHTML = '-';
+    }
+    
+    // Temps : le plus bas gagne
+    if(time1 && time2) {
+        const winner = time1 < time2 ? title1 : (time2 < time1 ? title2 : 'Égalité');
+        document.getElementById('winnerTime').innerHTML = winner;
+        document.getElementById('winnerTime').className = time1 !== time2 ? 'winner-highlight' : '';
+    } else {
+        document.getElementById('winnerTime').innerHTML = '-';
+    }
+    
+    // Difficulté : facile > moyen > difficile
+    const diffScore = { 'facile': 3, 'moyen': 2, 'difficile': 1 };
+    const score1 = diffScore[difficulty1] || 0;
+    const score2 = diffScore[difficulty2] || 0;
+    if(score1 && score2) {
+        const winner = score1 > score2 ? title1 : (score2 > score1 ? title2 : 'Égalité');
+        document.getElementById('winnerDifficulty').innerHTML = winner;
+        document.getElementById('winnerDifficulty').className = score1 !== score2 ? 'winner-highlight' : '';
+    } else {
+        document.getElementById('winnerDifficulty').innerHTML = '-';
+    }
+    
+    // Vegan : celui qui est vegan gagne
+    if(vegan1 !== vegan2) {
+        const winner = vegan1 === '✅ Oui' ? title1 : title2;
+        document.getElementById('winnerVegan').innerHTML = winner;
+        document.getElementById('winnerVegan').className = 'winner-highlight';
+    } else {
+        document.getElementById('winnerVegan').innerHTML = vegan1 === '✅ Oui' ? 'Les deux sont vegan 🎉' : 'Aucun vegan';
+        document.getElementById('winnerVegan').className = '';
+    }
+    
+    // Végétarien
+    if(veg1 !== veg2) {
+        const winner = veg1 === '✅ Oui' ? title1 : title2;
+        document.getElementById('winnerVegetarian').innerHTML = winner;
+        document.getElementById('winnerVegetarian').className = 'winner-highlight';
+    } else {
+        document.getElementById('winnerVegetarian').innerHTML = veg1 === '✅ Oui' ? 'Les deux sont végétariens 🎉' : 'Aucun végétarien';
+        document.getElementById('winnerVegetarian').className = '';
+    }
+    
+    document.getElementById('compareResult').style.display = 'block';
+}
 // Filtrer les recettes
 function filterRecipes() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -884,6 +1342,86 @@ function showDeleteModal(id, title) {
     }
 }
 
+// STATISTIQUES MODAL
+function showStatsModal() {
+    document.getElementById('statsModal').style.display = 'block';
+    generateRecipesChart();
+}
+
+function closeStatsModal() {
+    document.getElementById('statsModal').style.display = 'none';
+}
+
+function generateRecipesChart() {
+    const ctx = document.getElementById('recipesChart').getContext('2d');
+    
+    // Récupérer les données des recettes depuis le tableau
+    const rows = document.querySelectorAll('#recipesTableBody tr[data-id]');
+    let vegan = 0, vegetarian = 0, standard = 0;
+    
+    rows.forEach(row => {
+        const type = row.getAttribute('data-type');
+        if(type === 'vegan') vegan++;
+        else if(type === 'vegetarian') vegetarian++;
+        else standard++;
+    });
+    
+    // Préparer les données pour le graphique
+    const labels = [];
+    const data = [];
+    const colors = [];
+    
+    if(vegan > 0) { labels.push('Vegan'); data.push(vegan); colors.push('#2ecc71'); }
+    if(vegetarian > 0) { labels.push('Végétarien'); data.push(vegetarian); colors.push('#f39c12'); }
+    if(standard > 0) { labels.push('Standard'); data.push(standard); colors.push('#3498db'); }
+    
+    if(data.length === 0) {
+        ctx.canvas.parentElement.innerHTML = '<div style="text-align:center; padding:1rem;"><i class="fas fa-chart-pie" style="font-size:2rem; color:#ccc;"></i><p style="font-size:0.8rem;">Aucune donnée disponible</p></div>';
+        document.getElementById('chartLegend').innerHTML = '';
+        return;
+    }
+    
+    if(recipesChart) recipesChart.destroy();
+    
+    recipesChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(c) {
+                            const total = c.dataset.data.reduce((a,b)=>a+b,0);
+                            return `${c.label}: ${c.raw} recette(s) (${Math.round((c.raw/total)*100)}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Générer la légende
+    const total = data.reduce((a,b)=>a+b,0);
+    document.getElementById('chartLegend').innerHTML = labels.map((l,i) => `
+        <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem;">
+            <div style="width:10px; height:10px; background:${colors[i]}; border-radius:3px;"></div>
+            <span>${l}</span>
+            <span style="font-weight:600;">${data[i]} (${Math.round((data[i]/total)*100)}%)</span>
+        </div>
+    `).join('');
+}
+
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
     filterRecipes();
@@ -914,6 +1452,8 @@ document.addEventListener('keydown', function(e) {
     if(e.key === 'Escape') {
         const modal = document.getElementById('deleteModal');
         if(modal) modal.style.display = 'none';
+        const statsModal = document.getElementById('statsModal');
+        if(statsModal) statsModal.style.display = 'none';
     }
 });
 </script>

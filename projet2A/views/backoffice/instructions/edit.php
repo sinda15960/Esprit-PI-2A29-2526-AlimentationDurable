@@ -1,114 +1,197 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier l'instruction - BackOffice NutriFlow AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/backoffice.css">
-</head>
-<body>
-    <div class="backoffice-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <i class="fas fa-leaf"></i>
-                    <span>NutriFlow AI</span>
-                    <small>Administration</small>
-                </div>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="index.php?action=backRecipes">
-                    <i class="fas fa-utensils"></i>
-                    <span>Recettes</span>
-                </a>
-                <a href="index.php?action=backInstructions&id=<?php echo $instruction['recipe_id']; ?>" class="active">
-                    <i class="fas fa-list-ol"></i>
-                    <span>Instructions</span>
-                </a>
-            </nav>
-        </aside>
+<?php 
+$pageTitle = "Modifier une instruction";
+$activeMenu = "recipes";
+$breadcrumb = [
+    ['label' => 'Tableau de bord', 'url' => 'index.php?action=backRecipes'],
+    ['label' => 'Recettes', 'url' => 'index.php?action=backRecipes'],
+    ['label' => 'Instructions', 'url' => 'index.php?action=backInstructions&id=' . $instruction['recipe_id']],
+    ['label' => 'Modifier']
+];
 
-        <main class="main-content">
-            <div class="top-bar">
-                <h1><i class="fas fa-edit"></i> Modifier l'étape <?php echo $instruction['step_number']; ?></h1>
-                <a href="index.php?action=backInstructions&id=<?php echo $instruction['recipe_id']; ?>" class="btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Retour
-                </a>
-            </div>
+$headerPath = dirname(__DIR__) . '/../layout/header.php';
+if(file_exists($headerPath)) {
+    include $headerPath;
+}
+?>
 
-            <?php if(isset($_SESSION['errors'])): ?>
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <ul>
-                        <?php foreach($_SESSION['errors'] as $error): ?>
-                            <li><?php echo $error; ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-                <?php unset($_SESSION['errors']); ?>
-            <?php endif; ?>
+<div class="form-container">
+    <form method="POST" class="instruction-form">
+        <div class="form-header">
+            <h2><i class="fas fa-edit"></i> Modifier l'instruction</h2>
+            <p>Étape <?php echo $instruction['step_number']; ?> de la recette</p>
+        </div>
+        
+        <div class="form-group">
+            <label for="step_number">Numéro de l'étape <span class="required">*</span></label>
+            <input type="number" id="step_number" name="step_number" 
+                   value="<?php echo isset($_POST['step_number']) ? $_POST['step_number'] : $instruction['step_number']; ?>"
+                   min="1" required>
+            <small class="form-hint">Exemple : 1, 2, 3...</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description de l'étape <span class="required">*</span></label>
+            <textarea id="description" name="description" rows="5" 
+                      placeholder="Décrivez cette étape de préparation..." required><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : htmlspecialchars($instruction['description']); ?></textarea>
+            <small class="form-hint">Minimum 5 caractères</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="tip">Astuce (optionnel)</label>
+            <input type="text" id="tip" name="tip" 
+                   value="<?php echo isset($_POST['tip']) ? htmlspecialchars($_POST['tip']) : htmlspecialchars($instruction['tip'] ?? ''); ?>"
+                   placeholder="Ex: Ajoutez une pincée de sel pour plus de saveur">
+            <small class="form-hint">Une astuce pour réussir cette étape</small>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-save"></i> Modifier
+            </button>
+            <a href="index.php?action=backInstructions&id=<?php echo $instruction['recipe_id']; ?>" class="btn-cancel">
+                <i class="fas fa-times"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
 
-            <form method="POST" class="form-container" id="instructionForm">
-                <div class="form-sections">
-                    <div class="form-section">
-                        <h2><i class="fas fa-info-circle"></i> Détails de l'étape</h2>
-                        
-                        <div class="form-group">
-                            <label for="step_number">Numéro de l'étape *</label>
-                            <input type="number" id="step_number" name="step_number" required 
-                                   value="<?php echo $instruction['step_number']; ?>">
-                            <div class="error-message" id="stepNumberError"></div>
-                        </div>
+<style>
+.form-container {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
 
-                        <div class="form-group">
-                            <label for="description">Description *</label>
-                            <textarea id="description" name="description" rows="6" required><?php echo htmlspecialchars($instruction['description']); ?></textarea>
-                            <div class="error-message" id="descriptionError"></div>
-                        </div>
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f2f5;
+}
 
-                        <div class="form-group">
-                            <label for="tip">Astuce (optionnel)</label>
-                            <textarea id="tip" name="tip" rows="3"><?php echo htmlspecialchars($instruction['tip']); ?></textarea>
-                        </div>
-                    </div>
+.form-header h2 {
+    font-size: 1.5rem;
+    color: #1a2a3a;
+}
 
-                    <div class="form-actions">
-                        <button type="submit" class="btn-submit">Mettre à jour</button>
-                        <a href="index.php?action=backInstructions&id=<?php echo $instruction['recipe_id']; ?>" class="btn-cancel">Annuler</a>
-                    </div>
-                </div>
-            </form>
-        </main>
-    </div>
+.form-header h2 i {
+    color: #f39c12;
+    margin-right: 0.5rem;
+}
 
-    <script>
-        document.getElementById('instructionForm').addEventListener('submit', function(e) {
-            let isValid = true;
-            
-            const stepNumber = document.getElementById('step_number');
-            const stepNumberError = document.getElementById('stepNumberError');
-            if(stepNumber && (!stepNumber.value || stepNumber.value <= 0)) {
-                stepNumberError.textContent = 'Le numéro de l\'étape doit être un nombre positif';
-                isValid = false;
-            } else if(stepNumberError) {
-                stepNumberError.textContent = '';
-            }
-            
-            const description = document.getElementById('description');
-            const descriptionError = document.getElementById('descriptionError');
-            if(description && description.value.trim().length < 5) {
-                descriptionError.textContent = 'La description doit contenir au moins 5 caractères';
-                isValid = false;
-            } else if(descriptionError) {
-                descriptionError.textContent = '';
-            }
-            
-            if(!isValid) {
-                e.preventDefault();
-            }
-        });
-    </script>
-</body>
-</html>
+.form-header p {
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #1a2a3a;
+}
+
+.required {
+    color: #e74c3c;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #f39c12;
+    box-shadow: 0 0 0 3px rgba(243,156,18,0.1);
+}
+
+.form-hint {
+    display: block;
+    font-size: 0.7rem;
+    color: #999;
+    margin-top: 0.3rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.btn-submit {
+    padding: 0.8rem 2rem;
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(243,156,18,0.3);
+}
+
+.btn-cancel {
+    padding: 0.8rem 2rem;
+    background: #95a5a6;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-cancel:hover {
+    background: #7f8c8d;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn-submit, .btn-cancel {
+        justify-content: center;
+    }
+}
+</style>
+
+<?php 
+$footerPath = dirname(__DIR__) . '/../layout/footer.php';
+if(file_exists($footerPath)) {
+    include $footerPath;
+}
+?>

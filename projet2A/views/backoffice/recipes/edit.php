@@ -54,7 +54,7 @@
                 <?php unset($_SESSION['errors']); ?>
             <?php endif; ?>
 
-            <form method="POST" class="form-container" id="recipeForm">
+            <form method="POST" class="form-container" id="recipeForm" enctype="multipart/form-data">
                 <div class="form-sections">
                     <div class="form-section">
                         <h2><i class="fas fa-info-circle"></i> Informations générales</h2>
@@ -136,10 +136,21 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="image_url">URL de l'image</label>
-                            <input type="text" id="image_url" name="image_url" 
-                                   value="<?php echo htmlspecialchars($recipe['image_url']); ?>"
-                                   placeholder="https://exemple.com/image.jpg">
+                            <label for="image">Image de la recette</label>
+                            <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" class="file-input">
+                            <?php if(!empty($recipe['image_url'])): ?>
+                                <div class="current-image">
+                                    <p>Image actuelle :</p>
+                                    <img src="<?php echo $recipe['image_url']; ?>" alt="Image actuelle" style="max-width: 150px; border-radius: 10px;">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="delete_image" value="1">
+                                        <span class="checkbox-custom"></span>
+                                        Supprimer l'image actuelle
+                                    </label>
+                                </div>
+                            <?php endif; ?>
+                            <small class="form-hint">Formats acceptés : JPG, PNG, GIF, WEBP (max 2MB)</small>
+                            <div class="error-message" id="imageError"></div>
                         </div>
 
                         <div class="checkbox-group">
