@@ -1,0 +1,191 @@
+[21-Apr-2026 03:43:49 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 03:43:49 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 03:50:17 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 03:50:17 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:03:31 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views\frontoffice/../models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:03:31 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views\frontoffice/../models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:6
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(95): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:05:31 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views\frontoffice/../models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:05:31 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views\frontoffice/../models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:6
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(95): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:35 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:35 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:6
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(95): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:37 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:37 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:6
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(95): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:41 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:41 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:6
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(95): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:10:20 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:10:20 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:46
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(44): CategorieController->frontRecettesByCategorie(6)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:10:24 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:10:24 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:46
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(44): CategorieController->frontRecettesByCategorie(11)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:10:35 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:10:35 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:46
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(44): CategorieController->frontRecettesByCategorie(11)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:12:12 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:12:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:46
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(44): CategorieController->frontRecettesByCategorie(4)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:22:24 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:22:24 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:33:56 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:33:56 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:51:51 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:51:51 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:09:55 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 7
+[21-Apr-2026 05:09:55 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:7
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(109): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 7
+[21-Apr-2026 05:16:20 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 126
+[21-Apr-2026 05:16:22 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 126
+[21-Apr-2026 05:16:29 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 126
+[21-Apr-2026 05:27:21 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:27:21 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:27:25 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:27:25 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:27:55 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:27:55 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:31:22 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method CategorieController::backCreate() in C:\xampp1\htdocs\nutriflow-ai\public\index.php:130
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 130
+[21-Apr-2026 05:35:45 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\categories\index.php on line 434
+[21-Apr-2026 05:35:58 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\categories\index.php on line 434
+[21-Apr-2026 05:35:59 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\categories\index.php on line 434
+[21-Apr-2026 06:43:11 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 155
+[21-Apr-2026 06:43:12 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 155
+[21-Apr-2026 15:22:52 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: Too few arguments to function Categorie::__construct(), 0 passed in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php on line 12 and exactly 1 expected in C:\xampp1\htdocs\nutriflow-ai\models\Categorie.php:15
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php(12): Categorie->__construct()
+#1 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(557): require_once('C:\\xampp1\\htdoc...')
+#2 C:\xampp1\htdocs\nutriflow-ai\public\index.php(56): RecipeController->backCreate()
+#3 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\models\Categorie.php on line 15
+[21-Apr-2026 15:24:03 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[21-Apr-2026 15:24:03 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php:161
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(94): InstructionController->backIndex(3)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[21-Apr-2026 15:25:06 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: Too few arguments to function Categorie::__construct(), 0 passed in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php on line 12 and exactly 1 expected in C:\xampp1\htdocs\nutriflow-ai\models\Categorie.php:15
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php(12): Categorie->__construct()
+#1 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(557): require_once('C:\\xampp1\\htdoc...')
+#2 C:\xampp1\htdocs\nutriflow-ai\public\index.php(56): RecipeController->backCreate()
+#3 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\models\Categorie.php on line 15
+[21-Apr-2026 15:33:32 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method Categorie::readAll() in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php:17
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(557): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(56): RecipeController->backCreate()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php on line 17
+[21-Apr-2026 15:35:07 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method Categorie::readAll() in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php:17
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(557): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(56): RecipeController->backCreate()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php on line 17
+[26-Apr-2026 21:19:39 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[26-Apr-2026 21:19:39 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php:161
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(94): InstructionController->backIndex(5)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[26-Apr-2026 21:37:32 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[26-Apr-2026 21:37:32 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php:161
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(94): InstructionController->backIndex(6)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[26-Apr-2026 21:49:30 Europe/Berlin] PHP Warning:  Undefined variable $existingInstructions in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[26-Apr-2026 21:49:30 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php:27
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php(196): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(102): InstructionController->backCreate(5)
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[26-Apr-2026 21:50:33 Europe/Berlin] PHP Warning:  Undefined variable $existingInstructions in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[26-Apr-2026 21:50:33 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php:27
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php(196): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(102): InstructionController->backCreate(6)
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[26-Apr-2026 21:51:05 Europe/Berlin] PHP Warning:  Undefined variable $existingInstructions in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[26-Apr-2026 21:51:05 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php:27
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php(196): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(102): InstructionController->backCreate(6)
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
