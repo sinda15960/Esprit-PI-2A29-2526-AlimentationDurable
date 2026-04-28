@@ -16,12 +16,6 @@ $stmtFeedbacks = $db->query("
 ");
 $feedbacks = $stmtFeedbacks->fetchAll();
 
-// Statistiques pour les graphiques
-$stmtCategories = $db->query("SELECT categorie, COUNT(*) as total FROM allergies GROUP BY categorie");
-$categories = $stmtCategories->fetchAll();
-$stmtGravites = $db->query("SELECT gravite, COUNT(*) as total FROM allergies GROUP BY gravite");
-$gravites = $stmtGravites->fetchAll();
-
 // Les plus recherchées
 $topViewed = $db->query("SELECT id, nom, gravite, vue_count FROM allergies ORDER BY vue_count DESC LIMIT 5")->fetchAll();
 ?>
@@ -34,7 +28,6 @@ $topViewed = $db->query("SELECT id, nom, gravite, vue_count FROM allergies ORDER
     <title>NutriFlow AI - Allergies & Traitements</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -51,7 +44,6 @@ $topViewed = $db->query("SELECT id, nom, gravite, vue_count FROM allergies ORDER
         body.dark-mode .allergy-card,
         body.dark-mode .info-card,
         body.dark-mode .feedback-box,
-        body.dark-mode .stats-section,
         body.dark-mode .advanced-search,
         body.dark-mode .trending-section {
             background: #2d2d44;
@@ -118,6 +110,31 @@ $topViewed = $db->query("SELECT id, nom, gravite, vue_count FROM allergies ORDER
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
+
+        /* NOUVEAUX BOUTONS FEATURE */
+        .feature-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1.5rem auto 0 auto;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            padding: 0 1rem;
+        }
+        .feature-btn {
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .feature-btn:hover { transform: translateY(-3px); }
+        .feature-btn.profile { background: #ff9800; color: white; box-shadow: 0 4px 12px rgba(255,152,0,0.3); }
+        .feature-btn.chatbot { background: #2196F3; color: white; box-shadow: 0 4px 12px rgba(33,150,243,0.3); }
+        .feature-btn.compare { background: #9c27b0; color: white; box-shadow: 0 4px 12px rgba(156,39,176,0.3); }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
         .section-title {
@@ -323,17 +340,6 @@ $topViewed = $db->query("SELECT id, nom, gravite, vue_count FROM allergies ORDER
             border-radius: 10px;
         }
 
-        .stats-section {
-            background: white;
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        }
-        .stats-section h3 { color: #2d5016; margin-bottom: 1rem; text-align: left; }
-        .stats-grid { display: flex; gap: 2rem; justify-content: flex-start; flex-wrap: wrap; }
-        .stats-chart { flex: 0 0 300px; }
-
         .feedback-box {
             background: white;
             border-radius: 24px;
@@ -382,7 +388,8 @@ $topViewed = $db->query("SELECT id, nom, gravite, vue_count FROM allergies ORDER
             .container { padding: 1rem; }
             .search-row { flex-direction: column; }
             .search-group { width: 100%; }
-            .stats-chart { flex: 0 0 100%; }
+            .feature-buttons { flex-direction: column; align-items: stretch; }
+            .feature-btn { justify-content: center; }
         }
     </style>
 </head>
@@ -394,6 +401,19 @@ $topViewed = $db->query("SELECT id, nom, gravite, vue_count FROM allergies ORDER
         <p>plan your meals</p>
         <p class="subtitle">Menu comprends vos allergies, adoptez les bons traitements et vivez sainement.</p>
         <button class="btn-primary" onclick="scrollToAllergies()">En savoir plus</button>
+    </div>
+
+    <!-- NOUVEAUX BOUTONS D'ACCÈS RAPIDE AUX FONCTIONNALITÉS -->
+    <div class="feature-buttons">
+        <a href="profile_builder.php" class="feature-btn profile">
+            <i class="fas fa-id-card"></i> 🆘 Mon profil allergique
+        </a>
+        <a href="chatbot.php" class="feature-btn chatbot">
+            <i class="fas fa-robot"></i> 🤖 Assistant IA
+        </a>
+        <a href="compare_allergies.php" class="feature-btn compare">
+            <i class="fas fa-chart-simple"></i> ⚖️ Comparateur d'allergies
+        </a>
     </div>
 
     <div class="container">
@@ -545,36 +565,9 @@ $topViewed = $db->query("SELECT id, nom, gravite, vue_count FROM allergies ORDER
         </div>
     </div>
 
-    <!-- Statistiques -->
-    <div class="container">
-        <div class="stats-section">
-            <h3>📊 Statistiques des allergies</h3>
-            <div class="stats-grid">
-                <div class="stats-chart"><canvas id="categorieChart" style="max-height: 250px; max-width: 300px;"></canvas></div>
-                <div class="stats-chart"><canvas id="graviteChart" style="max-height: 250px; max-width: 300px;"></canvas></div>
-            </div>
-        </div>
-    </div>
-
     <footer class="footer"><p>© 2024 NutriFlow AI - Mangez sainement, vivez pleinement</p></footer>
 
     <script>
-        // Graphiques
-        const categories = <?php echo json_encode($categories); ?>;
-        const gravites = <?php echo json_encode($gravites); ?>;
-
-        new Chart(document.getElementById('categorieChart'), {
-            type: 'pie',
-            data: { labels: categories.map(c => c.categorie), datasets: [{ data: categories.map(c => c.total), backgroundColor: ['#4caf50', '#ff9800', '#f44336', '#2196F3'] }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-        });
-
-        new Chart(document.getElementById('graviteChart'), {
-            type: 'bar',
-            data: { labels: gravites.map(g => g.gravite), datasets: [{ label: 'Nombre d\'allergies', data: gravites.map(g => g.total), backgroundColor: ['#4caf50', '#ff9800', '#f44336'] }] },
-            options: { responsive: true, maintainAspectRatio: true }
-        });
-
         // Mode sombre
         const darkModeToggle = document.getElementById('darkModeToggle');
         if (localStorage.getItem('darkMode') === 'enabled') {
