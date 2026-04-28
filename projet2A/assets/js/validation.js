@@ -1,115 +1,99 @@
-function validateRegisterForm() {
-    let isValid = true;
-    
-    clearErrors();
-    
-    const username = document.getElementById('username');
-    if(username && username.value.length < 3) {
-        showError('usernameError', 'Username must be at least 3 characters');
-        isValid = false;
+// Validation personnalisée sans HTML5
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('donForm');
+    if(form) {
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            const errors = {};
+            
+            // Validation association
+            const association = document.getElementById('association_id');
+            if(!association.value) {
+                errors.association_id = "Veuillez sélectionner une association";
+                isValid = false;
+            }
+            
+            // Validation nom
+            const donorName = document.getElementById('donor_name');
+            if(!donorName.value || donorName.value.length < 3) {
+                errors.donor_name = "Le nom doit contenir au moins 3 caractères";
+                isValid = false;
+            }
+            
+            // Validation email
+            const email = document.getElementById('donor_email');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if(!email.value || !emailRegex.test(email.value)) {
+                errors.donor_email = "Email invalide";
+                isValid = false;
+            }
+            
+            // Validation type de don
+            const donationType = document.querySelector('input[name="donation_type"]:checked');
+            if(!donationType) {
+                alert("Veuillez sélectionner un type de don");
+                isValid = false;
+            } else if(donationType.value === 'monetary') {
+                const amount = document.getElementById('amount');
+                if(!amount.value || amount.value <= 0 || amount.value > 100000) {
+                    errors.amount = "Montant invalide (minimum DT)";
+                    isValid = false;
+                }
+            } else if(donationType.value === 'food') {
+                const foodType = document.getElementById('food_type');
+                const quantity = document.getElementById('quantity');
+                if(!foodType.value || foodType.value.length < 2) {
+                    errors.food_type = "Type d'aliment invalide";
+                    isValid = false;
+                }
+                if(!quantity.value || quantity.value <= 0 || quantity.value > 10000) {
+                    errors.quantity = "Quantité invalide (entre 1 et 10000)";
+                    isValid = false;
+                }
+            }
+            
+            // Validation paiement
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+            if(!paymentMethod) {
+                alert("Veuillez sélectionner un moyen de paiement");
+                isValid = false;
+            }
+            
+            // Affichage des erreurs
+            document.querySelectorAll('.error-message').forEach(el => el.innerHTML = '');
+            for(const [field, message] of Object.entries(errors)) {
+                const errorDiv = document.querySelector(`.error-message[data-field="${field}"]`);
+                if(errorDiv) errorDiv.innerHTML = message;
+            }
+            
+            if(!isValid) {
+                e.preventDefault();
+            }
+        });
     }
     
-    const email = document.getElementById('email');
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(email && !emailRegex.test(email.value)) {
-        showError('emailError', 'Please enter a valid email address');
-        isValid = false;
+    // Gestion dynamique des champs selon le type de don
+    const radioButtons = document.querySelectorAll('input[name="donation_type"]');
+    const monetaryFields = document.getElementById('monetaryFields');
+    const foodFields = document.getElementById('foodFields');
+    
+    if(radioButtons) {
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if(this.value === 'monetary') {
+                    monetaryFields.style.display = 'block';
+                    foodFields.style.display = 'none';
+                } else if(this.value === 'food') {
+                    monetaryFields.style.display = 'none';
+                    foodFields.style.display = 'block';
+                } else {
+                    monetaryFields.style.display = 'none';
+                    foodFields.style.display = 'none';
+                }
+            });
+            
+            // Déclencher au chargement
+            if(radio.checked) radio.dispatchEvent(new Event('change'));
+        });
     }
-    
-    const password = document.getElementById('password');
-    if(password && password.value.length < 6) {
-        showError('passwordError', 'Password must be at least 6 characters');
-        isValid = false;
-    }
-    
-    const confirmPassword = document.getElementById('confirm_password');
-    if(password && confirmPassword && password.value !== confirmPassword.value) {
-        showError('confirmPasswordError', 'Passwords do not match');
-        isValid = false;
-    }
-    
-    const age = document.getElementById('age');
-    if(age && age.value && (age.value < 1 || age.value > 120)) {
-        showError('ageError', 'Age must be between 1 and 120');
-        isValid = false;
-    }
-    
-    const weight = document.getElementById('weight');
-    if(weight && weight.value && (weight.value < 20 || weight.value > 300)) {
-        showError('weightError', 'Weight must be between 20 and 300 kg');
-        isValid = false;
-    }
-    
-    const height = document.getElementById('height');
-    if(height && height.value && (height.value < 100 || height.value > 250)) {
-        showError('heightError', 'Height must be between 100 and 250 cm');
-        isValid = false;
-    }
-    
-    return isValid;
-}
-
-function validateLoginForm() {
-    let isValid = true;
-    clearErrors();
-    
-    const email = document.getElementById('email');
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(email && !emailRegex.test(email.value)) {
-        showError('emailError', 'Please enter a valid email address');
-        isValid = false;
-    }
-    
-    const password = document.getElementById('password');
-    if(password && password.value.length === 0) {
-        showError('passwordError', 'Password is required');
-        isValid = false;
-    }
-    
-    return isValid;
-}
-
-function validateProfileForm() {
-    let isValid = true;
-    clearErrors();
-    
-    const username = document.getElementById('username');
-    if(username && username.value.length < 3) {
-        showError('usernameError', 'Username must be at least 3 characters');
-        isValid = false;
-    }
-    
-    const age = document.getElementById('age');
-    if(age && age.value && (age.value < 1 || age.value > 120)) {
-        showError('ageError', 'Age must be between 1 and 120');
-        isValid = false;
-    }
-    
-    const weight = document.getElementById('weight');
-    if(weight && weight.value && (weight.value < 20 || weight.value > 300)) {
-        showError('weightError', 'Weight must be between 20 and 300 kg');
-        isValid = false;
-    }
-    
-    const height = document.getElementById('height');
-    if(height && height.value && (height.value < 100 || height.value > 250)) {
-        showError('heightError', 'Height must be between 100 and 250 cm');
-        isValid = false;
-    }
-    
-    return isValid;
-}
-
-function showError(elementId, message) {
-    const errorElement = document.getElementById(elementId);
-    if(errorElement) {
-        errorElement.textContent = message;
-    }
-}
-
-function clearErrors() {
-    const errorElements = document.querySelectorAll('.error-text');
-    errorElements.forEach(element => {
-        element.textContent = '';
-    });
-}
+});
