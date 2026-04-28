@@ -1,22 +1,30 @@
 <?php
 class Database {
-    private $host = "localhost";
-    private $db_name = "nutriflow_ai";
-    private $username = "root";
-    private $password = "";
-    public $conn;
-
-    public function getConnection() {
-        $this->conn = null;
+    private static $instance = null;
+    private $pdo;
+    
+    private function __construct() {
         try {
-            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name . ";charset=utf8", 
-                                  $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        } catch(PDOException $exception) {
-            die("Connection error: " . $exception->getMessage());
+            $this->pdo = new PDO(
+                'mysql:host=localhost;dbname=nutriflow_ai;charset=utf8mb4',
+                'root',
+                '',
+                array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
+            );
+        } catch(PDOException $e) {
+            die("Erreur : " . $e->getMessage());
         }
-        return $this->conn;
+    }
+    
+    public static function getInstance() {
+        if(self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    public function getConnection() {
+        return $this->pdo;
     }
 }
 ?>
