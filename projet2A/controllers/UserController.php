@@ -1,123 +1,26 @@
 <?php
-require_once dirname(__DIR__) . '/config/session.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once dirname(__DIR__) . '/models/User.php';
 
-class AdminController {
+class UserController {
     private $userModel;
 
     public function __construct() {
         $this->userModel = new User();
-        if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-            header("Location: index.php?action=login");
-            exit();
-        }
     }
 
-    public function dashboard() {
-        $users = $this->getAllUsers();
-        $unreadCount = $this->getUnreadCount();
-        $page_title = "Dashboard - NutriFlow AI Admin";
-        $page_heading = "Dashboard";
-        $active_page = "dashboard";
-        $breadcrumb = [['label' => 'Dashboard']];
+    public function showRegister() {
+        $page_title = "Sign Up - NutriFlow AI";
+        $active_page = "register";
         ob_start();
-        include dirname(__DIR__) . '/views/back/dashboard.php';
+        include dirname(__DIR__) . '/views/front/register.php';
         $content = ob_get_clean();
-        include dirname(__DIR__) . '/views/back/layout.php';
+        include dirname(__DIR__) . '/views/front/layout.php';
     }
 
-    public function listUsers() {
-        $users = $this->getAllUsers();
-        $page_title = "Users Management - NutriFlow AI Admin";
-        $page_heading = "Users Management";
-        $active_page = "users";
-        $breadcrumb = [
-            ['label' => 'Dashboard', 'url' => 'index.php?action=admin_dashboard'],
-            ['label' => 'Users']
-        ];
-        ob_start();
-        include dirname(__DIR__) . '/views/back/users.php';
-        $content = ob_get_clean();
-        include dirname(__DIR__) . '/views/back/layout.php';
-    }
-
-    public function editUser() {
-        if(isset($_GET['id'])) {
-            $user = $this->getUserById($_GET['id']);
-            if(!$user) {
-                header("Location: index.php?action=admin_users");
-                exit();
-            }
-            $page_title = "Edit User - NutriFlow AI Admin";
-            $page_heading = "Edit User";
-            $active_page = "users";
-            $breadcrumb = [
-                ['label' => 'Dashboard', 'url' => 'index.php?action=admin_dashboard'],
-                ['label' => 'Users', 'url' => 'index.php?action=admin_users'],
-                ['label' => 'Edit User']
-            ];
-            ob_start();
-            include dirname(__DIR__) . '/views/back/edit-user.php';
-            $content = ob_get_clean();
-            include dirname(__DIR__) . '/views/back/layout.php';
-        }
-    }
-
-    public function updateUser() {
-        if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_GET['id'])) {
-            $data = [
-                'username' => $_POST['username'],
-                'email' => $_POST['email'],
-                'full_name' => $_POST['full_name'],
-                'phone' => $_POST['phone'],
-                'age' => $_POST['age'],
-                'role' => $_POST['role']
-            ];
-            
-            if($this->updateUserByAdmin($_GET['id'], $data)) {
-                $_SESSION['success'] = "User updated successfully";
-            } else {
-                $_SESSION['error'] = "Update failed";
-            }
-            header("Location: index.php?action=admin_users");
-            exit();
-        }
-    }
-
-    public function deleteUser() {
-        if(isset($_GET['id'])) {
-            if($_GET['id'] == $_SESSION['user_id']) {
-                $_SESSION['error'] = "You cannot delete your own account";
-            } else {
-                if($this->deleteUserById($_GET['id'])) {
-                    $_SESSION['success'] = "User deleted successfully";
-                } else {
-                    $_SESSION['error'] = "Delete failed";
-                }
-            }
-        }
-        header("Location: index.php?action=admin_users");
-        exit();
-    }
-
-    // === ADD USER METHODS ===
-    
-    public function addUser() {
-        $page_title = "Add User - NutriFlow AI Admin";
-        $page_heading = "Add New User";
-        $active_page = "users";
-        $breadcrumb = [
-            ['label' => 'Dashboard', 'url' => 'index.php?action=admin_dashboard'],
-            ['label' => 'Users', 'url' => 'index.php?action=admin_users'],
-            ['label' => 'Add User']
-        ];
-        ob_start();
-        include dirname(__DIR__) . '/views/back/add-user.php';
-        $content = ob_get_clean();
-        include dirname(__DIR__) . '/views/back/layout.php';
-    }
-
-    public function createUser() {
+    public function register() {
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors = [];
             
@@ -145,451 +48,538 @@ class AdminController {
             if(!empty($_POST['height']) && ($_POST['height'] < 100 || $_POST['height'] > 250)) {
                 $errors['height'] = "Height must be between 100 and 250 cm";
             }
-            
+
             if(empty($errors)) {
-                if($this->createNewUser($_POST)) {
-                    $_SESSION['success'] = "User created successfully!";
-                    $this->addNotification('user', "New user {$_POST['username']} has joined NutriFlow AI!", 'index.php?action=admin_users');
-                    header("Location: index.php?action=admin_users");
+                $this->userModel->setUsername($_POST['username']);
+                $this->userModel->setEmail($_POST['email']);
+                $this->userModel->setPassword($_POST['password']);
+                $this->userModel->setFullName($_POST['full_name'] ?? '');
+                $this->userModel->setPhone($_POST['phone'] ?? '');
+                $this->userModel->setAge(!empty($_POST['age']) ? $_POST['age'] : null);
+                $this->userModel->setWeight(!empty($_POST['weight']) ? $_POST['weight'] : null);
+                $this->userModel->setHeight(!empty($_POST['height']) ? $_POST['height'] : null);
+                $this->userModel->setDietaryPreference($_POST['dietary_preference'] ?? '');
+
+                if($this->registerUser()) {
+                    $newUserId = $this->userModel->getConnection()->lastInsertId();
+                    $_SESSION['new_user_id'] = $newUserId;
+                    
+                    if($this->isAdminEmail($_POST['email'])) {
+                        $_SESSION['success'] = "Admin account created successfully! Please login.";
+                    } else {
+                        $_SESSION['success'] = "Registration successful! Please login.";
+                    }
+                    header("Location: index.php?action=register");
                     exit();
                 } else {
-                    $_SESSION['error'] = "Failed to create user";
+                    $errors['general'] = "Registration failed. Please try again.";
                 }
             }
             $_SESSION['errors'] = $errors;
             $_SESSION['old'] = $_POST;
-            header("Location: index.php?action=admin_add_user");
+            header("Location: index.php?action=register");
             exit();
         }
     }
 
-    // === DISABLE/ENABLE USER METHODS ===
-    
-    public function disableUser() {
-        if(isset($_GET['id'])) {
-            $id = $_GET['id'];
+    public function showLogin() {
+        $page_title = "Login - NutriFlow AI";
+        $active_page = "login";
+        ob_start();
+        include dirname(__DIR__) . '/views/front/login.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/front/layout.php';
+    }
+
+    public function login() {
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $errors = [];
             
-            if($id == $_SESSION['user_id']) {
-                $_SESSION['error'] = "You cannot disable your own account";
-            } else {
-                $user = $this->getUserById($id);
-                if($this->setUserStatus($id, 0)) {
-                    $_SESSION['success'] = "User has been disabled successfully";
-                    $this->addNotification('alert', "User {$user['username']} has been disabled", 'index.php?action=admin_users');
-                    $this->sendAccountDisabledEmail($user['email'], $user['username']);
+            if(empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+                $errors['email'] = "Valid email is required";
+            }
+            if(empty($_POST['password'])) {
+                $errors['password'] = "Password is required";
+            }
+
+            if(empty($errors)) {
+                if($this->loginUser($_POST['email'], $_POST['password'], isset($_POST['remember_me']))) {
+                    if($this->userModel->getRole() == 'admin') {
+                        header("Location: index.php?action=admin_dashboard");
+                    } else {
+                        header("Location: index.php?action=profile");
+                    }
+                    exit();
                 } else {
-                    $_SESSION['error'] = "Failed to disable user";
+                    if(!isset($_SESSION['error']) && !isset($_SESSION['account_disabled'])) {
+                        $errors['login'] = "Invalid email or password";
+                    }
                 }
             }
+            $_SESSION['errors'] = $errors;
+            $_SESSION['old'] = ['email' => $_POST['email']];
+            header("Location: index.php?action=login");
+            exit();
         }
-        header("Location: index.php?action=admin_users");
-        exit();
     }
 
-    public function enableUser() {
-        if(isset($_GET['id'])) {
-            $id = $_GET['id'];
+    public function showProfile() {
+        if(!isset($_SESSION['user_id'])) {
+            header("Location: index.php?action=login");
+            exit();
+        }
+        if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
+            header("Location: index.php?action=admin_dashboard");
+            exit();
+        }
+        $page_title = "My Profile - NutriFlow AI";
+        $active_page = "profile";
+        ob_start();
+        include dirname(__DIR__) . '/views/front/profile.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/front/layout.php';
+    }
+
+    public function updateProfile() {
+        if(!isset($_SESSION['user_id'])) {
+            header("Location: index.php?action=login");
+            exit();
+        }
+
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $errors = [];
             
-            $user = $this->getUserById($id);
-            $userEmail = $user['email'];
-            $username = $user['username'];
+            if(empty($_POST['username']) || strlen($_POST['username']) < 3) {
+                $errors['username'] = "Username must be at least 3 characters";
+            }
+            if(!empty($_POST['age']) && ($_POST['age'] < 1 || $_POST['age'] > 120)) {
+                $errors['age'] = "Age must be between 1 and 120";
+            }
+            if(!empty($_POST['weight']) && ($_POST['weight'] < 20 || $_POST['weight'] > 300)) {
+                $errors['weight'] = "Weight must be between 20 and 300 kg";
+            }
+            if(!empty($_POST['height']) && ($_POST['height'] < 100 || $_POST['height'] > 250)) {
+                $errors['height'] = "Height must be between 100 and 250 cm";
+            }
+
+            if(empty($errors)) {
+                if($this->updateUserProfile($_SESSION['user_id'], $_POST)) {
+                    $_SESSION['username'] = $_POST['username'];
+                    $_SESSION['full_name'] = $_POST['full_name'];
+                    $_SESSION['phone'] = $_POST['phone'];
+                    $_SESSION['age'] = $_POST['age'];
+                    $_SESSION['weight'] = $_POST['weight'];
+                    $_SESSION['height'] = $_POST['height'];
+                    $_SESSION['dietary_preference'] = $_POST['dietary_preference'];
+                    $_SESSION['success'] = "Profile updated successfully!";
+                } else {
+                    $_SESSION['error'] = "Update failed.";
+                }
+            }
+            $_SESSION['errors'] = $errors;
+            header("Location: index.php?action=profile");
+            exit();
+        }
+    }
+
+    public function logout() {
+        if(isset($_COOKIE['remember_token'])) {
+            setcookie('remember_token', '', time() - 3600, '/');
             
-            if($this->setUserStatus($id, 1)) {
-                $_SESSION['success'] = "User has been enabled successfully";
-                $this->addNotification('success', "User {$username} has been reactivated", 'index.php?action=admin_users');
-                $this->sendAccountReactivatedEmail($userEmail, $username);
-                
-                $query = "UPDATE " . $this->userModel->getTable() . " SET needs_welcome_message = 1 WHERE id = :id";
+            if(isset($_SESSION['user_id'])) {
+                $query = "UPDATE " . $this->userModel->getTable() . " SET remember_token = NULL, token_expires = NULL WHERE id = :id";
                 $stmt = $this->userModel->getConnection()->prepare($query);
-                $stmt->bindParam(":id", $id);
+                $stmt->bindParam(":id", $_SESSION['user_id']);
                 $stmt->execute();
+            }
+        }
+        
+        session_destroy();
+        header("Location: index.php?action=home");
+        exit();
+    }
+
+    public function showHome() {
+        $page_title = "NutriFlow AI - Healthy Eating Made Smart";
+        $active_page = "home";
+        ob_start();
+        include dirname(__DIR__) . '/views/front/home.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/front/layout.php';
+    }
+
+    public function deleteAccount() {
+        if(!isset($_SESSION['user_id'])) {
+            header("Location: index.php?action=login");
+            exit();
+        }
+        
+        if($_SERVER['REQUEST_METHOD'] == 'GET') {
+            $user_id = $_SESSION['user_id'];
+            
+            $user = $this->getUserById($user_id);
+            if(!$user) {
+                header("Location: index.php?action=home");
+                exit();
+            }
+            
+            if($this->deleteUserAccount($user_id)) {
+                session_destroy();
+                session_start();
+                $_SESSION['account_deleted'] = "Your account has been successfully deleted. We're sad to see you go!";
+                header("Location: index.php?action=home");
+                exit();
             } else {
-                $_SESSION['error'] = "Failed to enable user";
+                $_SESSION['error'] = "Failed to delete account. Please try again.";
+                header("Location: index.php?action=profile");
+                exit();
             }
         }
-        header("Location: index.php?action=admin_users");
-        exit();
     }
 
-    // === CONTACT MESSAGES METHODS ===
+    // === FORGOT PASSWORD METHODS ===
     
-    public function getContactMessages() {
-        $query = "SELECT * FROM contact_messages ORDER BY created_at DESC";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        return $stmt->fetchAll();
+    public function showForgotPassword() {
+        $page_title = "Forgot Password - NutriFlow AI";
+        ob_start();
+        include dirname(__DIR__) . '/views/front/forgot-password.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/front/layout.php';
     }
 
-    public function getUnreadCount() {
-        $query = "SELECT COUNT(*) as count FROM contact_messages WHERE status = 'unread'";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetch();
-        return $result['count'];
-    }
-
-    public function markAsRead($id) {
-        $query = "UPDATE contact_messages SET status = 'read' WHERE id = :id";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->bindParam(":id", $id);
-        return $stmt->execute();
-    }
-
-    public function deleteMessage($id) {
-        $query = "DELETE FROM contact_messages WHERE id = :id";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->bindParam(":id", $id);
-        return $stmt->execute();
-    }
-
-    // === ANALYTICS & GRAPHS ===
-    
-    public function getAnalyticsData() {
-        header('Content-Type: application/json');
+    public function showResetPassword() {
+        $page_title = "Reset Password - NutriFlow AI";
+        $token = $_GET['token'] ?? '';
         
-        $query = "SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count 
-                  FROM " . $this->userModel->getTable() . " 
-                  WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-                  GROUP BY DATE_FORMAT(created_at, '%Y-%m')
-                  ORDER BY month ASC";
+        $query = "SELECT id FROM " . $this->userModel->getTable() . " WHERE reset_token = :token AND reset_expires > NOW()";
         $stmt = $this->userModel->getConnection()->prepare($query);
+        $stmt->bindParam(":token", $token);
         $stmt->execute();
-        $registrations = $stmt->fetchAll();
         
-        $query = "SELECT DATE(login_time) as date, COUNT(DISTINCT user_id) as count 
-                  FROM user_login_logs 
-                  WHERE login_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-                  GROUP BY DATE(login_time)
-                  ORDER BY date ASC";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        $activity = $stmt->fetchAll();
-        
-        $query = "SELECT dietary_preference, COUNT(*) as count 
-                  FROM " . $this->userModel->getTable() . " 
-                  WHERE dietary_preference IS NOT NULL AND dietary_preference != ''
-                  GROUP BY dietary_preference";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        $dietary = $stmt->fetchAll();
-        
-        echo json_encode([
-            'success' => true,
-            'registrations' => $registrations,
-            'activity' => $activity,
-            'dietary' => $dietary
-        ]);
-        exit();
-    }
-
-    // === NOTIFICATIONS ===
-    
-    public function getNotifications() {
-        header('Content-Type: application/json');
-        $query = "SELECT * FROM admin_notifications ORDER BY created_at DESC LIMIT 20";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        $notifications = $stmt->fetchAll();
-        
-        $query = "SELECT COUNT(*) as count FROM admin_notifications WHERE is_read = 0";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        $unreadCount = $stmt->fetch()['count'];
-        
-        echo json_encode(['success' => true, 'notifications' => $notifications, 'unreadCount' => $unreadCount]);
-        exit();
-    }
-
-    public function markNotificationRead() {
-        $id = $_GET['id'] ?? 0;
-        $query = "UPDATE admin_notifications SET is_read = 1 WHERE id = :id";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->bindParam(":id", $id);
-        $success = $stmt->execute();
-        echo json_encode(['success' => $success]);
-        exit();
-    }
-
-    public function addNotification($type, $message, $link = null) {
-        $query = "INSERT INTO admin_notifications (type, message, link) VALUES (:type, :message, :link)";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->bindParam(":type", $type);
-        $stmt->bindParam(":message", $message);
-        $stmt->bindParam(":link", $link);
-        return $stmt->execute();
-    }
-
-    // === WORLD MAP ===
-    
-    public function getUserLocations() {
-        header('Content-Type: application/json');
-        $query = "SELECT country, COUNT(*) as count, latitude, longitude 
-                  FROM user_login_logs 
-                  WHERE country IS NOT NULL 
-                  GROUP BY country 
-                  ORDER BY count DESC 
-                  LIMIT 20";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        $locations = $stmt->fetchAll();
-        echo json_encode(['success' => true, 'locations' => $locations]);
-        exit();
-    }
-
-    // === EXPORT REPORTS ===
-    
-    public function exportUsers() {
-        $format = $_GET['format'] ?? 'csv';
-        $users = $this->getAllUsers();
-        
-        if($format === 'csv') {
-            header('Content-Type: text/csv');
-            header('Content-Disposition: attachment; filename="users_export_' . date('Y-m-d') . '.csv"');
-            
-            $output = fopen('php://output', 'w');
-            fputcsv($output, ['ID', 'Username', 'Email', 'Full Name', 'Phone', 'Age', 'Role', 'Status', 'Registered']);
-            
-            foreach($users as $user) {
-                fputcsv($output, [
-                    $user['id'],
-                    $user['username'],
-                    $user['email'],
-                    $user['full_name'] ?? '',
-                    $user['phone'] ?? '',
-                    $user['age'] ?? '',
-                    $user['role'],
-                    $user['is_active'] == 1 ? 'Active' : 'Disabled',
-                    $user['created_at']
-                ]);
-            }
-            fclose($output);
+        if($stmt->rowCount() == 0) {
+            $_SESSION['error'] = "Invalid or expired reset link.";
+            header("Location: index.php?action=forgot_password");
             exit();
-        } elseif($format === 'excel') {
-            header('Content-Type: application/vnd.ms-excel');
-            header('Content-Disposition: attachment; filename="users_export_' . date('Y-m-d') . '.xls"');
+        }
+        
+        ob_start();
+        include dirname(__DIR__) . '/views/front/reset-password.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/front/layout.php';
+    }
+
+    public function sendResetLink() {
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $email = $_POST['email'];
             
-            echo '<table border="1">';
-            echo '<tr><th>ID</th><th>Username</th><th>Email</th><th>Full Name</th><th>Phone</th><th>Age</th><th>Role</th><th>Status</th><th>Registered</th></tr>';
-            foreach($users as $user) {
-                echo '<tr>';
-                echo '<td>' . $user['id'] . '</td>';
-                echo '<td>' . htmlspecialchars($user['username']) . '</td>';
-                echo '<td>' . htmlspecialchars($user['email']) . '</td>';
-                echo '<td>' . htmlspecialchars($user['full_name'] ?? '') . '</td>';
-                echo '<td>' . htmlspecialchars($user['phone'] ?? '') . '</td>';
-                echo '<td>' . ($user['age'] ?? '') . '</td>';
-                echo '<td>' . $user['role'] . '</td>';
-                echo '<td>' . ($user['is_active'] == 1 ? 'Active' : 'Disabled') . '</td>';
-                echo '<td>' . $user['created_at'] . '</td>';
-                echo '</tr>';
+            $query = "SELECT id FROM " . $this->userModel->getTable() . " WHERE email = :email";
+            $stmt = $this->userModel->getConnection()->prepare($query);
+            $stmt->bindParam(":email", $email);
+            $stmt->execute();
+            
+            if($stmt->rowCount() > 0) {
+                $user = $stmt->fetch();
+                $token = bin2hex(random_bytes(32));
+                $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
+                
+                $query = "UPDATE " . $this->userModel->getTable() . " SET reset_token = :token, reset_expires = :expires WHERE id = :id";
+                $stmt = $this->userModel->getConnection()->prepare($query);
+                $stmt->bindParam(":token", $token);
+                $stmt->bindParam(":expires", $expires);
+                $stmt->bindParam(":id", $user['id']);
+                $stmt->execute();
+                
+                $resetLink = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']) . "/index.php?action=reset_password&token=" . $token;
+                
+                $_SESSION['success'] = "Password reset link: " . $resetLink;
+            } else {
+                $_SESSION['error'] = "Email address not found.";
             }
-            echo '</table>';
+            header("Location: index.php?action=forgot_password");
             exit();
         }
     }
 
-    public function exportMessages() {
-        $format = $_GET['format'] ?? 'csv';
-        $messages = $this->getContactMessages();
-        
-        if($format === 'csv') {
-            header('Content-Type: text/csv');
-            header('Content-Disposition: attachment; filename="messages_export_' . date('Y-m-d') . '.csv"');
+    public function resetPassword() {
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $token = $_GET['token'];
+            $password = $_POST['password'];
+            $confirm_password = $_POST['confirm_password'];
             
-            $output = fopen('php://output', 'w');
-            fputcsv($output, ['ID', 'Name', 'Email', 'Message', 'Status', 'Date']);
-            
-            foreach($messages as $msg) {
-                fputcsv($output, [
-                    $msg['id'],
-                    $msg['name'],
-                    $msg['email'],
-                    $msg['message'],
-                    $msg['status'],
-                    $msg['created_at']
-                ]);
+            if(strlen($password) < 6) {
+                $_SESSION['error'] = "Password must be at least 6 characters";
+                header("Location: index.php?action=reset_password&token=" . $token);
+                exit();
             }
-            fclose($output);
-            exit();
-        } elseif($format === 'excel') {
-            header('Content-Type: application/vnd.ms-excel');
-            header('Content-Disposition: attachment; filename="messages_export_' . date('Y-m-d') . '.xls"');
             
-            echo '<table border="1">';
-            echo '<tr><th>ID</th><th>Name</th><th>Email</th><th>Message</th><th>Status</th><th>Date</th></tr>';
-            foreach($messages as $msg) {
-                echo '<tr>';
-                echo '<td>' . $msg['id'] . '</td>';
-                echo '<td>' . htmlspecialchars($msg['name']) . '</td>';
-                echo '<td>' . htmlspecialchars($msg['email']) . '</td>';
-                echo '<td>' . htmlspecialchars($msg['message']) . '</td>';
-                echo '<td>' . $msg['status'] . '</td>';
-                echo '<td>' . $msg['created_at'] . '</td>';
-                echo '</tr>';
+            if($password !== $confirm_password) {
+                $_SESSION['error'] = "Passwords do not match";
+                header("Location: index.php?action=reset_password&token=" . $token);
+                exit();
             }
-            echo '</table>';
+            
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            
+            $query = "UPDATE " . $this->userModel->getTable() . " SET password = :password, reset_token = NULL, reset_expires = NULL WHERE reset_token = :token AND reset_expires > NOW()";
+            $stmt = $this->userModel->getConnection()->prepare($query);
+            $stmt->bindParam(":password", $hashedPassword);
+            $stmt->bindParam(":token", $token);
+            
+            if($stmt->execute() && $stmt->rowCount() > 0) {
+                $_SESSION['success'] = "Password reset successfully! Please login with your new password.";
+                header("Location: index.php?action=login");
+            } else {
+                $_SESSION['error'] = "Invalid or expired reset link.";
+                header("Location: index.php?action=forgot_password");
+            }
             exit();
         }
     }
 
-    // === WIDGET SETTINGS ===
+    // === REMEMBER ME METHOD ===
     
-    public function saveWidgetSettings() {
+    public function checkRememberMe() {
+        if(isset($_COOKIE['remember_token'])) {
+            $token = $_COOKIE['remember_token'];
+            $query = "SELECT * FROM " . $this->userModel->getTable() . " WHERE remember_token = :token AND token_expires > NOW() LIMIT 1";
+            $stmt = $this->userModel->getConnection()->prepare($query);
+            $stmt->bindParam(":token", $token);
+            $stmt->execute();
+            
+            if($stmt->rowCount() > 0) {
+                $row = $stmt->fetch();
+                
+                if(isset($row['is_active']) && $row['is_active'] == 0) {
+                    setcookie('remember_token', '', time() - 3600, '/');
+                    return false;
+                }
+                
+                $_SESSION['user_id'] = $row['id'];
+                $_SESSION['username'] = $row['username'];
+                $_SESSION['email'] = $row['email'];
+                $_SESSION['full_name'] = $row['full_name'];
+                $_SESSION['phone'] = $row['phone'];
+                $_SESSION['age'] = $row['age'];
+                $_SESSION['weight'] = $row['weight'];
+                $_SESSION['height'] = $row['height'];
+                $_SESSION['dietary_preference'] = $row['dietary_preference'];
+                $_SESSION['role'] = $row['role'];
+                
+                if(isset($row['needs_welcome_message']) && $row['needs_welcome_message'] == 1) {
+                    $_SESSION['account_reactivated'] = "🎉 Your account has been reactivated! Welcome back to NutriFlow AI! 🎉";
+                    $updateQuery = "UPDATE " . $this->userModel->getTable() . " SET needs_welcome_message = 0 WHERE id = :id";
+                    $updateStmt = $this->userModel->getConnection()->prepare($updateQuery);
+                    $updateStmt->bindParam(":id", $row['id']);
+                    $updateStmt->execute();
+                }
+                
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // === SOCIAL LOGIN AJAX ===
+    
+    public function socialLoginAjax() {
         header('Content-Type: application/json');
+        
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $data = json_decode(file_get_contents('php://input'), true);
-            $widgets = $data['widgets'] ?? [];
-            $_SESSION['admin_widgets'] = $widgets;
-            echo json_encode(['success' => true]);
+            $email = $data['email'] ?? '';
+            $username = $data['username'] ?? '';
+            $provider = $data['provider'] ?? '';
+            
+            if(empty($email)) {
+                echo json_encode(['success' => false, 'message' => 'Email required']);
+                exit();
+            }
+            
+            $query = "SELECT * FROM " . $this->userModel->getTable() . " WHERE email = :email LIMIT 1";
+            $stmt = $this->userModel->getConnection()->prepare($query);
+            $stmt->bindParam(":email", $email);
+            $stmt->execute();
+            
+            if($stmt->rowCount() > 0) {
+                $row = $stmt->fetch();
+                
+                if(isset($row['is_active']) && $row['is_active'] == 0) {
+                    echo json_encode(['success' => false, 'message' => 'Account disabled']);
+                    exit();
+                }
+                
+                $_SESSION['user_id'] = $row['id'];
+                $_SESSION['username'] = $row['username'];
+                $_SESSION['email'] = $row['email'];
+                $_SESSION['full_name'] = $row['full_name'];
+                $_SESSION['phone'] = $row['phone'];
+                $_SESSION['age'] = $row['age'];
+                $_SESSION['weight'] = $row['weight'];
+                $_SESSION['height'] = $row['height'];
+                $_SESSION['dietary_preference'] = $row['dietary_preference'];
+                $_SESSION['role'] = $row['role'];
+                
+                echo json_encode(['success' => true, 'action' => 'login']);
+            } else {
+                $newUsername = !empty($username) ? $username : explode('@', $email)[0];
+                $checkQuery = "SELECT id FROM " . $this->userModel->getTable() . " WHERE username = :username";
+                $checkStmt = $this->userModel->getConnection()->prepare($checkQuery);
+                $checkStmt->bindParam(":username", $newUsername);
+                $checkStmt->execute();
+                if($checkStmt->rowCount() > 0) {
+                    $newUsername = $newUsername . rand(100, 999);
+                }
+                
+                $randomPassword = bin2hex(random_bytes(8));
+                $hashedPassword = password_hash($randomPassword, PASSWORD_DEFAULT);
+                
+                $query = "INSERT INTO " . $this->userModel->getTable() . " (username, email, password, role, is_active, needs_welcome_message) VALUES (:username, :email, :password, 'user', 1, 0)";
+                $stmt = $this->userModel->getConnection()->prepare($query);
+                $stmt->bindParam(":username", $newUsername);
+                $stmt->bindParam(":email", $email);
+                $stmt->bindParam(":password", $hashedPassword);
+                $stmt->execute();
+                
+                $newId = $this->userModel->getConnection()->lastInsertId();
+                
+                $_SESSION['user_id'] = $newId;
+                $_SESSION['username'] = $newUsername;
+                $_SESSION['email'] = $email;
+                $_SESSION['full_name'] = '';
+                $_SESSION['phone'] = '';
+                $_SESSION['age'] = null;
+                $_SESSION['weight'] = null;
+                $_SESSION['height'] = null;
+                $_SESSION['dietary_preference'] = '';
+                $_SESSION['role'] = 'user';
+                
+                echo json_encode(['success' => true, 'action' => 'register']);
+            }
             exit();
         }
     }
 
-    public function getWidgetSettings() {
-        header('Content-Type: application/json');
-        $widgets = $_SESSION['admin_widgets'] ?? [
-            'stats' => true,
-            'analytics' => true,
-            'worldmap' => true,
-            'notifications' => true,
-            'messages' => true
-        ];
-        echo json_encode(['success' => true, 'widgets' => $widgets]);
-        exit();
-    }
-
-    // === EMAIL NOTIFICATION METHODS ===
+    // === CONTACT MESSAGE METHOD ===
     
-    private function sendAccountDisabledEmail($email, $username) {
-        $subject = "Your NutriFlow AI Account Has Been Disabled";
-        $message = "
-        <html>
-        <head>
-            <title>Account Disabled</title>
-        </head>
-        <body>
-            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #fef2f2; border-radius: 10px;'>
-                <div style='text-align: center;'>
-                    <span style='font-size: 50px;'>🥗</span>
-                    <h2 style='color: #dc2626;'>NutriFlow AI</h2>
-                </div>
-                <div style='background: white; padding: 20px; border-radius: 10px;'>
-                    <h3>Hello $username,</h3>
-                    <p>Your NutriFlow AI account has been <strong style='color: #dc2626;'>disabled</strong> by the administrator.</p>
-                    <p>If you believe this is a mistake or want to reactivate your account, please contact us:</p>
-                    <div style='text-align: center; margin: 30px 0;'>
-                        <a href='mailto:admin@nutriflowai.com' 
-                           style='background: #dc2626; 
-                                  color: white; 
-                                  padding: 12px 30px; 
-                                  text-decoration: none; 
-                                  border-radius: 25px;
-                                  display: inline-block;'>
-                            Contact Administrator
-                        </a>
-                    </div>
-                    <p style='color: #666; font-size: 12px;'>We hope to see you back soon!</p>
-                </div>
-                <div style='text-align: center; margin-top: 20px; font-size: 12px; color: #999;'>
-                    <p>&copy; 2025 NutriFlow AI. All rights reserved.</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        ";
+    public function sendContactMessage() {
+        header('Content-Type: application/json');
         
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= "From: NutriFlow AI <admin@nutriflowai.com>" . "\r\n";
-        
-        mail($email, $subject, $message, $headers);
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $name = $_POST['name'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $message = $_POST['message'] ?? '';
+            
+            if(empty($name) || empty($email) || empty($message)) {
+                echo json_encode(['success' => false, 'message' => 'All fields are required']);
+                exit();
+            }
+            
+            if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                echo json_encode(['success' => false, 'message' => 'Invalid email address']);
+                exit();
+            }
+            
+            $query = "INSERT INTO contact_messages (name, email, message, status) VALUES (:name, :email, :message, 'unread')";
+            $stmt = $this->userModel->getConnection()->prepare($query);
+            $stmt->bindParam(":name", $name);
+            $stmt->bindParam(":email", $email);
+            $stmt->bindParam(":message", $message);
+            
+            if($stmt->execute()) {
+                echo json_encode(['success' => true, 'message' => 'Message sent successfully']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to send message']);
+            }
+            exit();
+        }
     }
 
-    private function sendAccountReactivatedEmail($email, $username) {
-        $subject = "Your NutriFlow AI Account Has Been Reactivated";
-        $message = "
-        <html>
-        <head>
-            <title>Account Reactivated</title>
-        </head>
-        <body>
-            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f0fdf4; border-radius: 10px;'>
-                <div style='text-align: center;'>
-                    <span style='font-size: 50px;'>🥗</span>
-                    <h2 style='color: #16a34a;'>NutriFlow AI</h2>
-                </div>
-                <div style='background: white; padding: 20px; border-radius: 10px;'>
-                    <h3>Hello $username,</h3>
-                    <p>Good news! Your NutriFlow AI account has been <strong style='color: #16a34a;'>reactivated</strong> by the administrator.</p>
-                    <p>You can now log in to your account and continue your nutrition journey.</p>
-                    <div style='text-align: center; margin: 30px 0;'>
-                        <a href='http://{$_SERVER['HTTP_HOST']}/nutriflow/index.php?action=login' 
-                           style='background: linear-gradient(135deg, #16a34a, #14532d); 
-                                  color: white; 
-                                  padding: 12px 30px; 
-                                  text-decoration: none; 
-                                  border-radius: 25px;
-                                  display: inline-block;'>
-                            Login to Your Account
-                        </a>
-                    </div>
-                    <p style='color: #666; font-size: 12px;'>If you have any questions, please contact us at admin@nutriflowai.com</p>
-                </div>
-                <div style='text-align: center; margin-top: 20px; font-size: 12px; color: #999;'>
-                    <p>&copy; 2025 NutriFlow AI. All rights reserved.</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        ";
+    // === FACE ID METHODS (DEMO MODE) ===
+    
+    public function saveFaceSignature() {
+        header('Content-Type: application/json');
         
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= "From: NutriFlow AI <admin@nutriflowai.com>" . "\r\n";
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $userId = $data['user_id'] ?? 0;
+            $faceSignature = $data['face_signature'] ?? '';
+            
+            if($userId && $faceSignature) {
+                // Supprimer l'ancienne signature si elle existe
+                $deleteQuery = "DELETE FROM user_face_data WHERE user_id = :user_id";
+                $deleteStmt = $this->userModel->getConnection()->prepare($deleteQuery);
+                $deleteStmt->bindParam(":user_id", $userId);
+                $deleteStmt->execute();
+                
+                // Insérer la nouvelle signature
+                $query = "INSERT INTO user_face_data (user_id, face_signature) VALUES (:user_id, :signature)";
+                $stmt = $this->userModel->getConnection()->prepare($query);
+                $stmt->bindParam(":user_id", $userId);
+                $stmt->bindParam(":signature", $faceSignature);
+                
+                if($stmt->execute()) {
+                    $updateQuery = "UPDATE " . $this->userModel->getTable() . " SET has_face_id = 1 WHERE id = :id";
+                    $updateStmt = $this->userModel->getConnection()->prepare($updateQuery);
+                    $updateStmt->bindParam(":id", $userId);
+                    $updateStmt->execute();
+                    
+                    echo json_encode(['success' => true]);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Database error']);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Invalid data']);
+            }
+            exit();
+        }
+    }
+
+    public function loginWithFace() {
+        header('Content-Type: application/json');
         
-        mail($email, $subject, $message, $headers);
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // MODE DÉMO : Accepte toujours la connexion avec le premier utilisateur
+            // Dans un vrai système, on comparerait la signature faciale avec la base de données
+            
+            // Récupérer le premier utilisateur actif (id = 1 généralement)
+            $userQuery = "SELECT * FROM " . $this->userModel->getTable() . " WHERE id = 1 AND is_active = 1 LIMIT 1";
+            $userStmt = $this->userModel->getConnection()->prepare($userQuery);
+            $userStmt->execute();
+            $user = $userStmt->fetch();
+            
+            // Si le premier utilisateur n'existe pas, prendre n'importe quel utilisateur actif
+            if(!$user) {
+                $userQuery = "SELECT * FROM " . $this->userModel->getTable() . " WHERE is_active = 1 LIMIT 1";
+                $userStmt = $this->userModel->getConnection()->prepare($userQuery);
+                $userStmt->execute();
+                $user = $userStmt->fetch();
+            }
+            
+            if($user) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['full_name'] = $user['full_name'];
+                $_SESSION['phone'] = $user['phone'];
+                $_SESSION['age'] = $user['age'];
+                $_SESSION['weight'] = $user['weight'];
+                $_SESSION['height'] = $user['height'];
+                $_SESSION['dietary_preference'] = $user['dietary_preference'];
+                $_SESSION['role'] = $user['role'];
+                
+                echo json_encode(['success' => true, 'user' => $user]);
+                exit();
+            }
+            
+            echo json_encode(['success' => false, 'message' => 'No user found. Please register first.']);
+            exit();
+        }
     }
 
     // === PRIVATE METHODS ===
     
-    private function getAllUsers() {
-        $query = "SELECT * FROM " . $this->userModel->getTable() . " ORDER BY created_at DESC";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        return $stmt->fetchAll();
-    }
-
-    private function getUserById($id) {
-        $query = "SELECT * FROM " . $this->userModel->getTable() . " WHERE id = :id LIMIT 1";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->bindParam(":id", $id);
-        $stmt->execute();
-        return $stmt->fetch();
-    }
-
-    private function updateUserByAdmin($id, $data) {
-        $query = "UPDATE " . $this->userModel->getTable() . " 
-                  SET username=:username, email=:email, full_name=:full_name, 
-                      phone=:phone, age=:age, role=:role 
-                  WHERE id = :id";
-        
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->bindParam(":username", $data['username']);
-        $stmt->bindParam(":email", $data['email']);
-        $stmt->bindParam(":full_name", $data['full_name']);
-        $stmt->bindParam(":phone", $data['phone']);
-        $stmt->bindParam(":age", $data['age']);
-        $stmt->bindParam(":role", $data['role']);
-        $stmt->bindParam(":id", $id);
-        
-        return $stmt->execute();
-    }
-
-    private function deleteUserById($id) {
-        $query = "DELETE FROM " . $this->userModel->getTable() . " WHERE id = :id";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->bindParam(":id", $id);
-        return $stmt->execute();
+    private function isAdminEmail($email) {
+        return strpos($email, '_admin@gmail.com') !== false;
     }
 
     private function emailExists($email) {
@@ -600,35 +590,130 @@ class AdminController {
         return $stmt->rowCount() > 0;
     }
 
-    private function createNewUser($data) {
-        $hashed_password = password_hash($data['password'], PASSWORD_DEFAULT);
+    private function registerUser() {
+        $role = $this->isAdminEmail($this->userModel->getEmail()) ? 'admin' : 'user';
         
         $query = "INSERT INTO " . $this->userModel->getTable() . " 
                   SET username=:username, email=:email, password=:password, 
                       full_name=:full_name, phone=:phone, age=:age, 
                       weight=:weight, height=:height, dietary_preference=:dietary_preference,
-                      role=:role, is_active=1, needs_welcome_message=0";
+                      role=:role, is_active=1, needs_welcome_message=0, has_face_id=0";
+        
+        $stmt = $this->userModel->getConnection()->prepare($query);
+        
+        $hashed_password = password_hash($this->userModel->getPassword(), PASSWORD_DEFAULT);
+        
+        $stmt->bindParam(":username", $this->userModel->getUsername());
+        $stmt->bindParam(":email", $this->userModel->getEmail());
+        $stmt->bindParam(":password", $hashed_password);
+        $stmt->bindParam(":full_name", $this->userModel->getFullName());
+        $stmt->bindParam(":phone", $this->userModel->getPhone());
+        $stmt->bindParam(":age", $this->userModel->getAge());
+        $stmt->bindParam(":weight", $this->userModel->getWeight());
+        $stmt->bindParam(":height", $this->userModel->getHeight());
+        $stmt->bindParam(":dietary_preference", $this->userModel->getDietaryPreference());
+        $stmt->bindParam(":role", $role);
+        
+        return $stmt->execute();
+    }
+
+    private function loginUser($email, $password, $remember = false) {
+        $query = "SELECT * FROM " . $this->userModel->getTable() . " WHERE email = :email LIMIT 1";
+        $stmt = $this->userModel->getConnection()->prepare($query);
+        $stmt->bindParam(":email", $email);
+        $stmt->execute();
+        
+        if($stmt->rowCount() > 0) {
+            $row = $stmt->fetch();
+            
+            if(isset($row['is_active']) && $row['is_active'] == 0) {
+                $_SESSION['account_disabled'] = "Your account has been disabled. Please contact the administrator at admin@nutriflowai.com";
+                return false;
+            }
+            
+            if(password_verify($password, $row['password'])) {
+                $this->userModel->setId($row['id']);
+                $this->userModel->setUsername($row['username']);
+                $this->userModel->setEmail($row['email']);
+                $this->userModel->setFullName($row['full_name']);
+                $this->userModel->setPhone($row['phone']);
+                $this->userModel->setAge($row['age']);
+                $this->userModel->setWeight($row['weight']);
+                $this->userModel->setHeight($row['height']);
+                $this->userModel->setDietaryPreference($row['dietary_preference']);
+                $this->userModel->setRole($row['role']);
+                
+                $_SESSION['user_id'] = $this->userModel->getId();
+                $_SESSION['username'] = $this->userModel->getUsername();
+                $_SESSION['email'] = $this->userModel->getEmail();
+                $_SESSION['full_name'] = $this->userModel->getFullName();
+                $_SESSION['phone'] = $this->userModel->getPhone();
+                $_SESSION['age'] = $this->userModel->getAge();
+                $_SESSION['weight'] = $this->userModel->getWeight();
+                $_SESSION['height'] = $this->userModel->getHeight();
+                $_SESSION['dietary_preference'] = $this->userModel->getDietaryPreference();
+                $_SESSION['role'] = $this->userModel->getRole();
+                
+                if(isset($row['needs_welcome_message']) && $row['needs_welcome_message'] == 1) {
+                    $_SESSION['account_reactivated'] = "🎉 Your account has been reactivated! Welcome back to NutriFlow AI! 🎉";
+                    $updateQuery = "UPDATE " . $this->userModel->getTable() . " SET needs_welcome_message = 0 WHERE id = :id";
+                    $updateStmt = $this->userModel->getConnection()->prepare($updateQuery);
+                    $updateStmt->bindParam(":id", $row['id']);
+                    $updateStmt->execute();
+                }
+                
+                if($remember) {
+                    $token = bin2hex(random_bytes(32));
+                    $expires = date('Y-m-d H:i:s', strtotime('+30 days'));
+                    
+                    $query = "UPDATE " . $this->userModel->getTable() . " SET remember_token = :token, token_expires = :expires WHERE id = :id";
+                    $stmt = $this->userModel->getConnection()->prepare($query);
+                    $stmt->bindParam(":token", $token);
+                    $stmt->bindParam(":expires", $expires);
+                    $stmt->bindParam(":id", $row['id']);
+                    $stmt->execute();
+                    
+                    setcookie('remember_token', $token, time() + (86400 * 30), "/");
+                }
+                
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function updateUserProfile($id, $data) {
+        $query = "UPDATE " . $this->userModel->getTable() . " 
+                  SET username=:username, full_name=:full_name, phone=:phone, 
+                      age=:age, weight=:weight, height=:height, 
+                      dietary_preference=:dietary_preference 
+                  WHERE id = :id";
         
         $stmt = $this->userModel->getConnection()->prepare($query);
         
         $stmt->bindParam(":username", $data['username']);
-        $stmt->bindParam(":email", $data['email']);
-        $stmt->bindParam(":password", $hashed_password);
         $stmt->bindParam(":full_name", $data['full_name']);
         $stmt->bindParam(":phone", $data['phone']);
         $stmt->bindParam(":age", $data['age']);
         $stmt->bindParam(":weight", $data['weight']);
         $stmt->bindParam(":height", $data['height']);
         $stmt->bindParam(":dietary_preference", $data['dietary_preference']);
-        $stmt->bindParam(":role", $data['role']);
+        $stmt->bindParam(":id", $id);
         
         return $stmt->execute();
     }
 
-    private function setUserStatus($id, $status) {
-        $query = "UPDATE " . $this->userModel->getTable() . " SET is_active = :status WHERE id = :id";
+    private function getUserById($id) {
+        $query = "SELECT * FROM " . $this->userModel->getTable() . " WHERE id = :id LIMIT 1";
         $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->bindParam(":status", $status);
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
+        return $stmt->fetch();
+    }
+
+    private function deleteUserAccount($id) {
+        $query = "DELETE FROM " . $this->userModel->getTable() . " WHERE id = :id";
+        $stmt = $this->userModel->getConnection()->prepare($query);
         $stmt->bindParam(":id", $id);
         return $stmt->execute();
     }
