@@ -19,6 +19,7 @@
     </div>
     <div class="sort-buttons">
         <button class="sort-btn" data-sort="username">Sort by Username 🔽</button>
+        <button class="sort-btn" data-sort="full_name">Sort by Full Name 🔽</button>
         <button class="sort-btn" data-sort="email">Sort by Email 🔽</button>
         <button class="sort-btn" data-sort="date">Sort by Date 🔽</button>
     </div>
@@ -38,6 +39,7 @@
                 <th>Age</th>
                 <th>Role</th>
                 <th>Status</th>
+                <th class="sortable" data-sort="date">Registered <span class="sort-icon">↕️</span></th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -49,20 +51,21 @@
                 data-role="<?php echo $user['role']; ?>"
                 data-status="<?php echo isset($user['is_active']) && $user['is_active'] == 1 ? 'active' : 'disabled'; ?>"
                 data-date="<?php echo strtotime($user['created_at']); ?>">
-                <td><?php echo htmlspecialchars($user['username']); ?></td>
-                <td><?php echo htmlspecialchars($user['full_name'] ?? '-'); ?></td>
-                <td><?php echo htmlspecialchars($user['email']); ?></tr>
-                <td><?php echo htmlspecialchars($user['phone'] ?? '-'); ?></td>
-                <td><?php echo $user['age'] ?? '-'; ?></td>
-                <td><span class="role-badge <?php echo $user['role']; ?>"><?php echo $user['role']; ?></span></td>
-                <td>
+                <td class="col-username"><?php echo htmlspecialchars($user['username']); ?></td>
+                <td class="col-fullname"><?php echo htmlspecialchars($user['full_name'] ?? '-'); ?></td>
+                <td class="col-email"><?php echo htmlspecialchars($user['email']); ?></td>
+                <td class="col-phone"><?php echo htmlspecialchars($user['phone'] ?? '-'); ?></td>
+                <td class="col-age"><?php echo $user['age'] ?? '-'; ?></td>
+                <td class="col-role"><span class="role-badge <?php echo $user['role']; ?>"><?php echo $user['role']; ?></span></td>
+                <td class="col-status">
                     <?php if(isset($user['is_active']) && $user['is_active'] == 1): ?>
                         <span class="status-badge active">🟢 Active</span>
                     <?php else: ?>
                         <span class="status-badge inactive">🔴 Disabled</span>
                     <?php endif; ?>
                 </td>
-                <td class="actions">
+                <td class="col-date"><?php echo date('d/m/Y H:i', strtotime($user['created_at'])); ?></td>
+                <td class="col-actions">
                     <a href="index.php?action=admin_edit_user&id=<?php echo $user['id']; ?>" class="btn-edit">Edit</a>
                     <?php if($user['id'] != $_SESSION['user_id']): ?>
                         <?php if(isset($user['is_active']) && $user['is_active'] == 1): ?>
@@ -148,6 +151,7 @@
 .sort-buttons {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .sort-btn {
@@ -333,6 +337,13 @@
     background: #ecfdf5;
 }
 
+/* Date column style */
+.col-date {
+    white-space: nowrap;
+    font-size: 0.85rem;
+    color: #475569;
+}
+
 @media (max-width: 768px) {
     .search-filter-bar {
         flex-direction: column;
@@ -358,7 +369,8 @@ let currentSortDirection = 'asc';
 
 function filterAndSortUsers() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const rows = document.querySelectorAll('#usersTableBody tr');
+    const tbody = document.getElementById('usersTableBody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
     let visibleCount = 0;
     
     rows.forEach(row => {
@@ -444,28 +456,36 @@ function sortTable(column, direction) {
         }
     });
     
-    // Reorder rows
+    // Clear tbody and re-append sorted rows
     rows.forEach(row => tbody.appendChild(row));
     
     // Update sort buttons styling
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.classList.remove('active');
+        // Reset text (remove arrows)
+        const originalText = btn.textContent.replace(/[🔼🔽]/g, '').trim();
+        btn.textContent = originalText + ' 🔽';
     });
+    
     const activeSortBtn = document.querySelector(`.sort-btn[data-sort="${column}"]`);
     if(activeSortBtn) {
         activeSortBtn.classList.add('active');
-        activeSortBtn.textContent = `Sort by ${getColumnName(column)} ${direction === 'asc' ? '🔼' : '🔽'}`;
+        const originalText = activeSortBtn.textContent.replace(/[🔼🔽]/g, '').trim();
+        activeSortBtn.textContent = originalText + (direction === 'asc' ? ' 🔼' : ' 🔽');
     }
-}
-
-function getColumnName(column) {
-    const names = {
-        username: 'Username',
-        full_name: 'Name',
-        email: 'Email',
-        date: 'Date'
-    };
-    return names[column] || column;
+    
+    // Update column header sort icons
+    document.querySelectorAll('.sortable').forEach(th => {
+        const thSort = th.dataset.sort;
+        const sortIcon = th.querySelector('.sort-icon');
+        if(sortIcon) {
+            if(thSort === column) {
+                sortIcon.textContent = direction === 'asc' ? '🔼' : '🔽';
+            } else {
+                sortIcon.textContent = '↕️';
+            }
+        }
+    });
 }
 
 // Event listeners
@@ -499,6 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentSortDirection = 'asc';
             }
             sortTable(currentSort, currentSortDirection);
+            filterAndSortUsers();
         });
     });
     
@@ -513,6 +534,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentSortDirection = 'asc';
             }
             sortTable(currentSort, currentSortDirection);
+            filterAndSortUsers();
         });
     });
     
