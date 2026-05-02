@@ -60,42 +60,7 @@
         </div>
     </div>
 
-    <!-- Analytics Section (Widget 2) -->
-    <div id="widget-analytics" class="analytics-section">
-        <h3>📊 Analytics</h3>
-        <div class="charts-wrapper">
-            <div class="chart-container">
-                <canvas id="userChart"></canvas>
-                <p class="chart-label">User Registrations (Last 6 months)</p>
-            </div>
-            <div class="chart-container">
-                <canvas id="activityChart"></canvas>
-                <p class="chart-label">Daily Active Users (Last 7 days)</p>
-            </div>
-            <div class="chart-container">
-                <canvas id="dietaryChart"></canvas>
-                <p class="chart-label">Dietary Preferences</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- World Map Section (Widget 3) -->
-    <div id="widget-worldmap" class="worldmap-section">
-        <h3>🌍 User Locations</h3>
-        <div id="worldMap" style="height: 400px;"></div>
-        <p class="map-note">📍 Showing user locations based on login activity</p>
-    </div>
-
-    <!-- AI Assistant Section (Widget 4) -->
-    <div id="widget-aiassistant" class="aiassistant-section">
-        <h3>🤖 AI Assistant</h3>
-        <div class="ai-insights" id="aiInsights">
-            <div class="loading">Loading insights...</div>
-        </div>
-        <div class="ai-tip" id="aiTip"></div>
-    </div>
-
-    <!-- Notifications Section (Widget 5) -->
+    <!-- Notifications Section (Widget 4) -->
     <div id="widget-notifications" class="notifications-section">
         <h3>🔔 Notifications <span class="notification-badge" id="notificationBadge">0</span></h3>
         <div class="notifications-list" id="notificationsList">
@@ -103,7 +68,7 @@
         </div>
     </div>
 
-    <!-- Contact Messages Section (Widget 6) -->
+    <!-- Contact Messages Section (Widget 5) -->
     <div id="widget-messages" class="contact-messages-section">
         <div class="section-header">
             <h3>📬 Contact Messages</h3>
@@ -266,9 +231,6 @@
             <p>Select which widgets to display:</p>
             <div class="widget-options">
                 <label><input type="checkbox" value="stats" checked> 📊 Statistics Cards</label>
-                <label><input type="checkbox" value="analytics" checked> 📈 Analytics Charts</label>
-                <label><input type="checkbox" value="worldmap" checked> 🌍 World Map</label>
-                <label><input type="checkbox" value="aiassistant" checked> 🤖 AI Assistant</label>
                 <label><input type="checkbox" value="notifications" checked> 🔔 Notifications</label>
                 <label><input type="checkbox" value="messages" checked> 📬 Contact Messages</label>
             </div>
@@ -329,102 +291,6 @@
 .btn-settings:hover {
     background: #e2e8f0;
     transform: translateY(-2px);
-}
-
-/* Analytics Section */
-.analytics-section {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.analytics-section h3 {
-    margin-bottom: 1rem;
-    color: #2d3748;
-}
-
-.charts-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.chart-container {
-    flex: 1;
-    min-width: 250px;
-    text-align: center;
-}
-
-.chart-label {
-    font-size: 0.8rem;
-    color: #718096;
-    margin-top: 0.5rem;
-}
-
-canvas {
-    max-height: 250px;
-    width: 100%;
-}
-
-/* World Map Section */
-.worldmap-section {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.worldmap-section h3 {
-    margin-bottom: 1rem;
-    color: #2d3748;
-}
-
-.map-note {
-    font-size: 0.7rem;
-    color: #94a3b8;
-    margin-top: 0.5rem;
-    text-align: center;
-}
-
-/* AI Assistant Section */
-.aiassistant-section {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    color: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.aiassistant-section h3 {
-    margin-bottom: 1rem;
-}
-
-.ai-insights {
-    background: rgba(255,255,255,0.2);
-    border-radius: 12px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
-
-.ai-insight-item {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
-}
-
-.ai-insight-item:last-child {
-    border-bottom: none;
-}
-
-.ai-tip {
-    background: rgba(255,255,255,0.15);
-    border-radius: 12px;
-    padding: 0.75rem;
-    font-size: 0.85rem;
-    font-style: italic;
 }
 
 /* Notifications Section */
@@ -828,14 +694,6 @@ canvas {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .charts-wrapper {
-        flex-direction: column;
-    }
-    
-    .chart-container {
-        width: 100%;
-    }
-    
     .section-header {
         flex-direction: column;
         align-items: flex-start;
@@ -857,134 +715,7 @@ canvas {
 }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
 <script>
-// ========== CHARTS ==========
-let userChart, activityChart, dietaryChart;
-
-function loadCharts() {
-    fetch('index.php?action=admin_analytics')
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                // User registrations chart
-                const userCtx = document.getElementById('userChart').getContext('2d');
-                const months = data.registrations.map(r => r.month);
-                const userCounts = data.registrations.map(r => r.count);
-                
-                if(userChart) userChart.destroy();
-                userChart = new Chart(userCtx, {
-                    type: 'line',
-                    data: {
-                        labels: months,
-                        datasets: [{
-                            label: 'New Users',
-                            data: userCounts,
-                            borderColor: '#16a34a',
-                            backgroundColor: 'rgba(22, 163, 74, 0.1)',
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: true }
-                });
-                
-                // Activity chart
-                const activityCtx = document.getElementById('activityChart').getContext('2d');
-                const dates = data.activity.map(a => a.date);
-                const activityCounts = data.activity.map(a => a.count);
-                
-                if(activityChart) activityChart.destroy();
-                activityChart = new Chart(activityCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: dates,
-                        datasets: [{
-                            label: 'Active Users',
-                            data: activityCounts,
-                            backgroundColor: '#f59e0b',
-                            borderRadius: 8
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: true }
-                });
-                
-                // Dietary chart
-                const dietaryCtx = document.getElementById('dietaryChart').getContext('2d');
-                const labels = data.dietary.map(d => d.dietary_preference);
-                const counts = data.dietary.map(d => d.count);
-                
-                if(dietaryChart) dietaryChart.destroy();
-                dietaryChart = new Chart(dietaryCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: counts,
-                            backgroundColor: ['#16a34a', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4']
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: true }
-                });
-            }
-        })
-        .catch(error => console.error('Error loading charts:', error));
-}
-
-// ========== WORLD MAP ==========
-let map;
-
-function loadWorldMap() {
-    fetch('index.php?action=admin_get_locations')
-        .then(response => response.json())
-        .then(data => {
-            const mapContainer = document.getElementById('worldMap');
-            if(!mapContainer) return;
-            
-            if(data.success && data.locations.length > 0) {
-                if(!map) {
-                    map = L.map('worldMap').setView([20, 0], 2);
-                    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                    }).addTo(map);
-                }
-                
-                data.locations.forEach(loc => {
-                    if(loc.latitude && loc.longitude) {
-                        L.circleMarker([parseFloat(loc.latitude), parseFloat(loc.longitude)], {
-                            radius: Math.min(20, 5 + parseInt(loc.count)),
-                            color: '#16a34a',
-                            fillColor: '#16a34a',
-                            fillOpacity: 0.5
-                        }).bindPopup(`<b>${loc.country}</b><br>Users: ${loc.count}`).addTo(map);
-                    }
-                });
-            } else {
-                mapContainer.innerHTML = '<div class="no-messages">📍 No location data available yet</div>';
-            }
-        })
-        .catch(error => console.error('Error loading map:', error));
-}
-
-// ========== AI ASSISTANT ==========
-function loadAIAssistant() {
-    fetch('index.php?action=admin_ai_assistant')
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                const insightsHtml = data.insights.map(insight => 
-                    `<div class="ai-insight-item">${escapeHtml(insight)}</div>`
-                ).join('');
-                document.getElementById('aiInsights').innerHTML = insightsHtml;
-                document.getElementById('aiTip').innerHTML = data.tipOfDay;
-            }
-        })
-        .catch(error => console.error('Error loading AI assistant:', error));
-}
-
 // ========== NOTIFICATIONS ==========
 let notificationInterval;
 
@@ -1100,9 +831,6 @@ function saveWidgetSettings() {
 function applyWidgetVisibility(widgets) {
     const elements = {
         'stats': document.getElementById('widget-stats'),
-        'analytics': document.getElementById('widget-analytics'),
-        'worldmap': document.getElementById('widget-worldmap'),
-        'aiassistant': document.getElementById('widget-aiassistant'),
         'notifications': document.getElementById('widget-notifications'),
         'messages': document.getElementById('widget-messages')
     };
@@ -1119,15 +847,9 @@ function loadContactMessages() {
     fetch('index.php?action=admin_get_messages')
         .then(response => response.json())
         .then(data => {
-            updateUnreadCount(data.unreadCount);
             renderMessages(data.messages);
         })
         .catch(error => console.error('Error:', error));
-}
-
-function updateUnreadCount(count) {
-    const badge = document.getElementById('unreadCount');
-    if(badge) badge.textContent = count;
 }
 
 function renderMessages(messages) {
@@ -1203,9 +925,6 @@ function closeModal() {
 
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', function() {
-    loadCharts();
-    loadWorldMap();
-    loadAIAssistant();
     loadNotifications();
     loadContactMessages();
     loadWidgetSettings();
