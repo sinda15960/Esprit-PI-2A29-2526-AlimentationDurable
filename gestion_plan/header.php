@@ -62,6 +62,17 @@
             background: rgba(255,255,255,0.15); border-radius: 20px;
             padding: 5px 14px; font-size: 0.85rem; color: #fff;
         }
+        .btn-coach {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: #fff !important;
+            border: none;
+            font-weight: 600;
+            animation: pulse-coach 2s infinite;
+        }
+        @keyframes pulse-coach {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,53,0.5); }
+            50%       { box-shadow: 0 0 0 6px rgba(255,107,53,0); }
+        }
     </style>
 </head>
 <body>
@@ -90,11 +101,12 @@ $isBack = (isset($_GET['office']) && $_GET['office'] === 'back');
     <div class="container">
         <a class="navbar-brand" href="index.php?module=objectif&action=index&office=front">🥗 EAT HEALTHY</a>
         <div class="ms-auto d-flex gap-2 align-items-center flex-wrap">
-            <a href="index.php?module=objectif&action=index&office=front" class="btn btn-sm btn-light">🎯 Objectifs</a>
-            <a href="index.php?module=programme&action=index&office=front" class="btn btn-sm btn-light">📋 Programmes</a>
-            <a href="index.php?module=exercice&action=index&office=front" class="btn btn-sm btn-light">🏋️ Exercices</a>
+            <a href="index.php?module=objectif&action=index&office=front"    class="btn btn-sm btn-light">🎯 Objectifs</a>
+            <a href="index.php?module=programme&action=index&office=front"   class="btn btn-sm btn-light">📋 Programmes</a>
+            <a href="index.php?module=exercice&action=index&office=front"    class="btn btn-sm btn-light">🏋️ Exercices</a>
             <a href="index.php?module=statistique&action=index&office=front" class="btn btn-sm btn-light">📊 Statistiques</a>
-            <a href="index.php?module=favori&action=index&office=front" class="btn btn-sm btn-light">❤️ Favoris</a>
+            <a href="index.php?module=favori&action=index&office=front"      class="btn btn-sm btn-light">❤️ Favoris</a>
+            <a href="index.php?module=coach&action=index&office=front"       class="btn btn-sm btn-coach">🤖 Coach IA</a>
             <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <a href="index.php?module=objectif&action=index&office=back" class="btn btn-sm btn-warning">⚙️ Admin</a>
             <?php endif; ?>

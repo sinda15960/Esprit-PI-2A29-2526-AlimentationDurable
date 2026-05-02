@@ -30,6 +30,7 @@ $controllers = [
     'statistique' => __DIR__ . '/controllers/StatistiqueController.php',
     'favori'      => __DIR__ . '/controllers/FavoriController.php',
     'pdf'         => __DIR__ . '/controllers/PdfController.php',
+    'coach'       => __DIR__ . '/controllers/CoachController.php',
 ];
 
 if (isset($controllers[$module])) {
