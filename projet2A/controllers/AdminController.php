@@ -336,127 +336,6 @@ class AdminController {
         exit();
     }
 
-    // === AI ASSISTANT WITH CHATGPT ===
-    
-    private function getNewUsersCount() {
-        $lastWeek = date('Y-m-d', strtotime('-7 days'));
-        $query = "SELECT COUNT(*) as count FROM " . $this->userModel->getTable() . " WHERE DATE(created_at) >= :lastWeek";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->bindParam(":lastWeek", $lastWeek);
-        $stmt->execute();
-        $result = $stmt->fetch();
-        return $result['count'];
-    }
-
-    private function getInactiveUsersCount() {
-        $query = "SELECT COUNT(*) as count FROM " . $this->userModel->getTable() . " 
-                  WHERE last_login IS NULL OR DATE(last_login) <= DATE_SUB(NOW(), INTERVAL 30 DAY)";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetch();
-        return $result['count'];
-    }
-
-    private function getDisabledAccountsCount() {
-        $query = "SELECT COUNT(*) as count FROM " . $this->userModel->getTable() . " WHERE is_active = 0";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetch();
-        return $result['count'];
-    }
-
-    private function getTotalMessagesCount() {
-        $query = "SELECT COUNT(*) as count FROM contact_messages";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetch();
-        return $result['count'];
-    }
-
-    private function getMostPopularDiet() {
-        $query = "SELECT dietary_preference, COUNT(*) as count 
-                  FROM " . $this->userModel->getTable() . " 
-                  WHERE dietary_preference IS NOT NULL AND dietary_preference != ''
-                  GROUP BY dietary_preference 
-                  ORDER BY count DESC 
-                  LIMIT 1";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetch();
-        return $result ? $result['dietary_preference'] : 'Non déterminé';
-    }
-
-    public function getAIAssistant() {
-        header('Content-Type: application/json');
-        
-        // Inclure la configuration OpenAI
-        require_once dirname(__DIR__) . '/config/openai.php';
-        
-        // Collecter les données
-        $totalUsers = count($this->getAllUsers());
-        $newUsers = $this->getNewUsersCount();
-        $inactiveUsers = $this->getInactiveUsersCount();
-        $unreadMessages = $this->getUnreadCount();
-        $totalMessages = $this->getTotalMessagesCount();
-        $disabledAccounts = $this->getDisabledAccountsCount();
-        $popularDiet = $this->getMostPopularDiet();
-        
-        // Récupérer les 3 derniers utilisateurs
-        $query = "SELECT username, created_at FROM " . $this->userModel->getTable() . " ORDER BY created_at DESC LIMIT 3";
-        $stmt = $this->userModel->getConnection()->prepare($query);
-        $stmt->execute();
-        $recentUsers = $stmt->fetchAll();
-        
-        $recentActivities = [];
-        foreach($recentUsers as $user) {
-            $recentActivities[] = "- Nouvel utilisateur: " . $user['username'];
-        }
-        
-        // Construire le prompt pour ChatGPT
-        $prompt = "Analyse ces données pour NutriFlow AI:
-
-STATISTIQUES:
-- Total utilisateurs: {$totalUsers}
-- Nouveaux cette semaine: {$newUsers}
-- Inactifs (>30 jours): {$inactiveUsers}
-- Messages non lus: {$unreadMessages}
-- Comptes désactivés: {$disabledAccounts}
-- Régime populaire: {$popularDiet}
-
-" . implode("\n", $recentActivities) . "
-
-Donne:
-1. Un diagnostic de la plateforme (1 phrase)
-2. 2 conseils pratiques
-3. Un message d'encouragement
-
-Sois concis, professionnel. Réponds en français.";
-        
-        // Appeler ChatGPT
-        $aiResponse = callOpenAI($prompt, 400);
-        
-        $lines = explode("\n", $aiResponse);
-        $insights = array_filter($lines, function($line) { return trim($line) != ''; });
-        
-        if(empty($insights)) {
-            $insights = [
-                "✅ Plateforme en bonne santé avec {$totalUsers} utilisateurs.",
-                "💡 Engage les utilisateurs inactifs avec des emails personnalisés.",
-                "🎉 Continue ton excellent travail !"
-            ];
-        }
-        
-        $insightsArray = array_values($insights);
-        $tipOfDay = "💡 " . (isset($insightsArray[1]) ? $insightsArray[1] : "Continue d'offrir une excellente expérience à tes utilisateurs !");
-        
-        echo json_encode([
-            'success' => true,
-            'insights' => $insightsArray,
-            'tipOfDay' => $tipOfDay
-        ]);
-        exit();
-    }
-
     // === EXPORT REPORTS ===
     
     public function exportUsers() {
@@ -537,7 +416,7 @@ Sois concis, professionnel. Réponds en français.";
             header('Content-Disposition: attachment; filename="messages_export_' . date('Y-m-d') . '.xls"');
             
             echo '<table border="1">';
-            echo '<tr><th>ID</th><th>Name</th><th>Email</th><th>Message</th><th>Status</th><th>Date</th></td>';
+            echo '<tr><th>ID</th><th>Name</th><th>Email</th><th>Message</th><th>Status</th><th>Date</th></tr>';
             foreach($messages as $msg) {
                 echo '<tr>';
                 echo '<td>' . $msg['id'] . '</td>';
@@ -572,7 +451,6 @@ Sois concis, professionnel. Réponds en français.";
             'stats' => true,
             'analytics' => true,
             'worldmap' => true,
-            'aiassistant' => true,
             'notifications' => true,
             'messages' => true
         ];
