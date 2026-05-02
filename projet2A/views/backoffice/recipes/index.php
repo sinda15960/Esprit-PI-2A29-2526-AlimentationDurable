@@ -88,8 +88,11 @@ if(file_exists($headerPath)) {
             <option value="standard">Standard</option>
         </select>
         
-        <!-- BOUTON CRÉER UNE RECETTE -->
+        <!-- BOUTONS -->
         <div class="header-buttons">
+            <button class="btn-meal-planner" onclick="showMealPlannerModal()">
+                🍽️ Planificateur de repas
+            </button>
             <button class="btn-stats" onclick="showStatsModal()">
                 <i class="fas fa-chart-pie"></i> Statistiques
             </button>
@@ -99,6 +102,7 @@ if(file_exists($headerPath)) {
         </div>
     </div>
 </div>
+
 <!-- LIGNE DES BOUTONS SUPPLEMENTAIRES -->
 <div class="extra-buttons">
     <button class="btn-surprise" onclick="showSurpriseModal()">
@@ -147,7 +151,7 @@ if(file_exists($headerPath)) {
         </thead>
         <tbody id="recipesTableBody">
             <?php if(empty($recipes)): ?>
-                </tr>
+                <tr>
                     <td colspan="8" style="text-align: center; padding: 3rem;">
                         <i class="fas fa-utensils" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem; display: block;"></i>
                         <h3>Aucune recette trouvée</h3>
@@ -164,7 +168,8 @@ if(file_exists($headerPath)) {
                         data-difficulty="<?php echo $recipe['difficulty']; ?>"
                         data-type="<?php echo $recipe['is_vegan'] ? 'vegan' : ($recipe['is_vegetarian'] ? 'vegetarian' : 'standard'); ?>"
                         data-time="<?php echo $recipe['prep_time'] + $recipe['cook_time']; ?>"
-                        data-date="<?php echo $recipe['created_at']; ?>">
+                        data-date="<?php echo $recipe['created_at']; ?>"
+                        data-calories="<?php echo $recipe['calories'] ?? 0; ?>">
                         
                         <td class="checkbox-col">
                             <input type="checkbox" class="recipe-select" onchange="updateBulkActions()">
@@ -263,6 +268,7 @@ if(file_exists($headerPath)) {
         </div>
     </div>
 </div>
+
 <!-- MODAL SURPRISE (RECETTE ALEATOIRE) -->
 <div id="surpriseModal" class="modal">
     <div class="modal-content" style="max-width: 450px;">
@@ -350,6 +356,7 @@ if(file_exists($headerPath)) {
         </div>
     </div>
 </div>
+
 <!-- MODAL STATISTIQUES RECETTES -->
 <div id="statsModal" class="modal">
     <div class="modal-content" style="max-width: 500px;">
@@ -358,7 +365,6 @@ if(file_exists($headerPath)) {
             <span class="close" onclick="closeStatsModal()">&times;</span>
         </div>
         <div class="modal-body" style="text-align: center; padding-top: 0.5rem;">
-            <!-- Résumé compact -->
             <div style="background:#f8f9fa; border-radius:10px; padding:0.6rem; margin-bottom:0.8rem; text-align:left; display: flex; justify-content: space-around; flex-wrap: wrap;">
                 <div><span style="font-weight:600;">📊 Total :</span> <span style="color:#2ecc71; font-weight:700;" id="statTotalRecettes"><?php echo $totalRecipes; ?></span></div>
                 <div><span style="font-weight:600;">🌱 Vegan :</span> <span style="color:#2ecc71; font-weight:700;" id="statVegan"><?php echo $veganCount; ?></span></div>
@@ -366,16 +372,122 @@ if(file_exists($headerPath)) {
                 <div><span style="font-weight:600;">⚡ Rapide :</span> <span style="color:#e74c3c; font-weight:700;" id="statQuick"><?php echo $quickRecipes; ?></span></div>
             </div>
             
-            <!-- Roue -->
             <div style="max-width: 240px; margin: 0 auto;">
                 <canvas id="recipesChart" width="240" height="240"></canvas>
             </div>
             
-            <!-- Légende -->
             <div id="chartLegend" style="display:flex; flex-wrap:wrap; justify-content:center; gap:0.5rem; margin-top:0.8rem; padding-top:0.5rem; border-top:1px solid #e0e0e0;"></div>
         </div>
         <div class="modal-footer" style="padding: 0.8rem 1rem;">
             <button type="button" class="btn-cancel" onclick="closeStatsModal()">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PLANIFICATEUR DE REPAS -->
+<div id="mealPlannerModal" class="modal">
+    <div class="modal-content" style="max-width: 750px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+            <h3><i class="fas fa-calendar-week"></i> Planificateur de repas intelligent</h3>
+            <span class="close" onclick="closeMealPlannerModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="planner-step" id="step1">
+                <h4>📋 Étape 1 : Quels sont tes objectifs ?</h4>
+                <p class="step-hint">Tu peux sélectionner plusieurs objectifs</p>
+                <div class="goal-options-multi">
+                    <div class="goal-card-multi" data-goal="lose" onclick="toggleGoal('lose')">
+                        <i class="fas fa-arrow-down"></i>
+                        <h3>🔻 Perdre du poids</h3>
+                        <p>Déficit calorique (-500 kcal/jour)</p>
+                        <div class="check-mark">✓</div>
+                    </div>
+                    <div class="goal-card-multi" data-goal="maintain" onclick="toggleGoal('maintain')">
+                        <i class="fas fa-equals"></i>
+                        <h3>⚖️ Maintenir mon poids</h3>
+                        <p>Équilibre calorique</p>
+                        <div class="check-mark">✓</div>
+                    </div>
+                    <div class="goal-card-multi" data-goal="gain" onclick="toggleGoal('gain')">
+                        <i class="fas fa-arrow-up"></i>
+                        <h3>🔺 Prendre du poids</h3>
+                        <p>Suralimentation (+300 kcal/jour)</p>
+                        <div class="check-mark">✓</div>
+                    </div>
+                    <div class="goal-card-multi" data-goal="muscle" onclick="toggleGoal('muscle')">
+                        <i class="fas fa-dumbbell"></i>
+                        <h3>💪 Gain de masse musculaire</h3>
+                        <p>Protéines ++, calories contrôlées</p>
+                        <div class="check-mark">✓</div>
+                    </div>
+                    <div class="goal-card-multi" data-goal="energy" onclick="toggleGoal('energy')">
+                        <i class="fas fa-bolt"></i>
+                        <h3>⚡ Plus d'énergie</h3>
+                        <p>Glucides complexes, vitamines</p>
+                        <div class="check-mark">✓</div>
+                    </div>
+                    <div class="goal-card-multi" data-goal="detox" onclick="toggleGoal('detox')">
+                        <i class="fas fa-leaf"></i>
+                        <h3>🍃 Détox / Léger</h3>
+                        <p>Repas légers, peu d'huile</p>
+                        <div class="check-mark">✓</div>
+                    </div>
+                </div>
+                
+                <div class="comment-section">
+                    <label><i class="fas fa-comment"></i> Commentaire / Précisions (optionnel) :</label>
+                    <textarea id="userComment" rows="3" placeholder="Exemple: Je fais du sport 3x par semaine, je veux perdre du ventre mais garder mes muscles. Je n'aime pas le poisson..."></textarea>
+                </div>
+            </div>
+            
+            <div class="planner-step" id="step2" style="display:none;">
+                <h4>📊 Étape 2 : Tes informations</h4>
+                <div class="form-row-planner">
+                    <div class="form-group-planner">
+                        <label>👤 Âge (ans)</label>
+                        <input type="number" id="age" min="15" max="100" value="30">
+                    </div>
+                    <div class="form-group-planner">
+                        <label>⚖️ Poids (kg)</label>
+                        <input type="number" id="weight" min="30" max="200" value="70">
+                    </div>
+                    <div class="form-group-planner">
+                        <label>📏 Taille (cm)</label>
+                        <input type="number" id="height" min="100" max="250" value="170">
+                    </div>
+                    <div class="form-group-planner">
+                        <label>🏃 Niveau d'activité</label>
+                        <select id="activity">
+                            <option value="1.2">Sédentaire (peu ou pas d'exercice)</option>
+                            <option value="1.375">Légèrement actif (1-3 jours/semaine)</option>
+                            <option value="1.55" selected>Modérément actif (3-5 jours/semaine)</option>
+                            <option value="1.725">Très actif (6-7 jours/semaine)</option>
+                            <option value="1.9">Extrêmement actif (sportif pro)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="calorie-result" id="calorieResult">
+                    <span>🔥 Besoin calorique estimé : <strong id="maintenanceCalories">0</strong> kcal/jour</span>
+                    <div id="goalAdjustment" style="font-size:0.85rem; margin-top:5px;"></div>
+                </div>
+            </div>
+            
+            <div class="planner-step" id="step3" style="display:none;">
+                <h4>🍽️ Étape 3 : Ton menu personnalisé</h4>
+                <div id="mealPlanResult">
+                    <div class="loading-spinner" style="text-align:center;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+                        <p>Génération de ton menu sur mesure...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="planner-nav">
+                <button id="prevBtn" class="btn-prev" onclick="changeStep(-1)" style="display:none;">⬅️ Précédent</button>
+                <button id="nextBtn" class="btn-next" onclick="changeStep(1)">Suivant ➡️</button>
+                <button id="generateBtn" class="btn-generate" onclick="generateMealPlan()" style="display:none;">🎯 Générer mon menu</button>
+                <button id="closePlanBtn" class="btn-cancel-plan" onclick="closeMealPlannerModal()" style="display:none;">Fermer</button>
+            </div>
         </div>
     </div>
 </div>
@@ -388,14 +500,12 @@ if(file_exists($headerPath)) {
     gap: 1.5rem;
     margin-bottom: 1rem;
 }
-
 .compare-recipe label {
     display: block;
     font-weight: 600;
     margin-bottom: 0.5rem;
     color: #1a2a3a;
 }
-
 .compare-select {
     width: 100%;
     padding: 0.8rem;
@@ -405,12 +515,10 @@ if(file_exists($headerPath)) {
     background: white;
     cursor: pointer;
 }
-
 .compare-select:focus {
     outline: none;
     border-color: #1abc9c;
 }
-
 .compare-table {
     width: 100%;
     border-collapse: collapse;
@@ -418,29 +526,26 @@ if(file_exists($headerPath)) {
     border-radius: 10px;
     overflow: hidden;
 }
-
 .compare-table th {
     background: #1abc9c;
     color: white;
     padding: 12px;
     text-align: center;
 }
-
 .compare-table td {
     padding: 10px;
     text-align: center;
     border-bottom: 1px solid #e0e0e0;
 }
-
 .compare-table tr:last-child td {
     border-bottom: none;
 }
-
 .winner-highlight {
     background: #d4edda;
     color: #155724;
     font-weight: 600;
 }
+
 /* Boutons supplémentaires */
 .extra-buttons {
     display: flex;
@@ -448,7 +553,6 @@ if(file_exists($headerPath)) {
     margin-bottom: 1.5rem;
     justify-content: flex-end;
 }
-
 .btn-surprise {
     display: inline-flex;
     align-items: center;
@@ -463,12 +567,10 @@ if(file_exists($headerPath)) {
     font-weight: 600;
     transition: all 0.3s;
 }
-
 .btn-surprise:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(155,89,182,0.3);
 }
-
 .btn-compare {
     display: inline-flex;
     align-items: center;
@@ -483,7 +585,6 @@ if(file_exists($headerPath)) {
     font-weight: 600;
     transition: all 0.3s;
 }
-
 .btn-compare:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(26,188,156,0.3);
@@ -491,8 +592,8 @@ if(file_exists($headerPath)) {
 .header-buttons {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
 }
-
 .btn-stats {
     display: inline-flex;
     align-items: center;
@@ -505,11 +606,27 @@ if(file_exists($headerPath)) {
     cursor: pointer;
     font-size: 0.9rem;
 }
-
 .btn-stats:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(52,152,219,0.3);
 }
+.btn-meal-planner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.btn-meal-planner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(231,76,60,0.3);
+}
+
 /* Stats Cards */
 .stats-cards {
     display: grid;
@@ -517,7 +634,6 @@ if(file_exists($headerPath)) {
     gap: 20px;
     margin-bottom: 30px;
 }
-
 .stat-card {
     background: white;
     border-radius: 15px;
@@ -528,23 +644,19 @@ if(file_exists($headerPath)) {
     box-shadow: 0 5px 15px rgba(0,0,0,0.08);
     transition: transform 0.3s;
 }
-
 .stat-card:hover {
     transform: translateY(-5px);
 }
-
 .stat-info h3 {
     font-size: 0.85rem;
     color: #999;
     margin-bottom: 5px;
 }
-
 .stat-info .number {
     font-size: 2rem;
     font-weight: 700;
     color: #1a2a3a;
 }
-
 .stat-icon {
     width: 50px;
     height: 50px;
@@ -554,7 +666,6 @@ if(file_exists($headerPath)) {
     align-items: center;
     justify-content: center;
 }
-
 .stat-icon i {
     font-size: 1.5rem;
     color: white;
@@ -569,13 +680,11 @@ if(file_exists($headerPath)) {
     margin-bottom: 1.5rem;
     flex-wrap: wrap;
 }
-
 .search-box {
     flex: 1;
     position: relative;
     max-width: 300px;
 }
-
 .search-box i {
     position: absolute;
     left: 12px;
@@ -583,7 +692,6 @@ if(file_exists($headerPath)) {
     transform: translateY(-50%);
     color: #999;
 }
-
 .search-box input {
     width: 100%;
     padding: 10px 10px 10px 35px;
@@ -591,14 +699,12 @@ if(file_exists($headerPath)) {
     border-radius: 8px;
     font-size: 0.9rem;
 }
-
 .filter-group {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
     align-items: center;
 }
-
 .filter-select {
     padding: 10px;
     border: 1px solid #e0e0e0;
@@ -620,7 +726,6 @@ if(file_exists($headerPath)) {
     font-weight: 600;
     transition: all 0.3s;
 }
-
 .btn-create:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(46,204,113,0.3);
@@ -633,51 +738,42 @@ if(file_exists($headerPath)) {
     overflow-x: auto;
     box-shadow: 0 5px 20px rgba(0,0,0,0.08);
 }
-
 .data-table {
     width: 100%;
     border-collapse: collapse;
     min-width: 900px;
 }
-
 .data-table thead {
     background: linear-gradient(135deg, #2ecc71, #27ae60);
     color: white;
 }
-
 .data-table th {
     padding: 1rem;
     text-align: left;
     font-weight: 600;
 }
-
 .data-table td {
     padding: 1rem;
     border-bottom: 1px solid #e0e0e0;
 }
-
 .data-table tbody tr:hover {
     background: #f8f9fa;
 }
-
 .checkbox-col {
     width: 40px;
     text-align: center;
 }
-
 .recipe-title-cell {
     display: flex;
     align-items: center;
     gap: 10px;
 }
-
 .recipe-thumb {
     width: 40px;
     height: 40px;
     border-radius: 8px;
     object-fit: cover;
 }
-
 .recipe-thumb-placeholder {
     width: 40px;
     height: 40px;
@@ -699,22 +795,18 @@ if(file_exists($headerPath)) {
     align-items: center;
     gap: 0.3rem;
 }
-
 .badge-difficulty.facile {
     background: #d4edda;
     color: #155724;
 }
-
 .badge-difficulty.moyen {
     background: #fff3cd;
     color: #856404;
 }
-
 .badge-difficulty.difficile {
     background: #f8d7da;
     color: #721c24;
 }
-
 .badge-type {
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
@@ -724,22 +816,18 @@ if(file_exists($headerPath)) {
     align-items: center;
     gap: 0.3rem;
 }
-
 .badge-type.vegan {
     background: #2ecc71;
     color: white;
 }
-
 .badge-type.vegetarian {
     background: #f39c12;
     color: white;
 }
-
 .badge-type.standard {
     background: #3498db;
     color: white;
 }
-
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -749,16 +837,13 @@ if(file_exists($headerPath)) {
     font-size: 0.75rem;
     font-weight: 600;
 }
-
 .status-badge.active {
     background: #d4edda;
     color: #155724;
 }
-
 .status-badge i {
     font-size: 0.5rem;
 }
-
 .time-badge, .calories-badge {
     display: inline-flex;
     align-items: center;
@@ -774,7 +859,6 @@ if(file_exists($headerPath)) {
     display: flex;
     gap: 0.5rem;
 }
-
 .btn-action {
     width: 32px;
     height: 32px;
@@ -787,27 +871,22 @@ if(file_exists($headerPath)) {
     border: none;
     cursor: pointer;
 }
-
 .btn-action.view {
     background: #3498db;
     color: white;
 }
-
 .btn-action.edit {
     background: #f39c12;
     color: white;
 }
-
 .btn-action.instructions {
     background: #9b59b6;
     color: white;
 }
-
 .btn-action.delete {
     background: #e74c3c;
     color: white;
 }
-
 .btn-action:hover {
     transform: scale(1.1);
 }
@@ -824,12 +903,10 @@ if(file_exists($headerPath)) {
     align-items: center;
     animation: slideDown 0.3s ease;
 }
-
 .bulk-buttons {
     display: flex;
     gap: 1rem;
 }
-
 .btn-bulk-delete, .btn-bulk-cancel {
     padding: 0.5rem 1rem;
     border: none;
@@ -838,17 +915,14 @@ if(file_exists($headerPath)) {
     font-weight: 600;
     transition: transform 0.3s;
 }
-
 .btn-bulk-delete {
     background: #e74c3c;
     color: white;
 }
-
 .btn-bulk-cancel {
     background: rgba(255,255,255,0.2);
     color: white;
 }
-
 .btn-bulk-delete:hover, .btn-bulk-cancel:hover {
     transform: translateY(-2px);
 }
@@ -865,7 +939,6 @@ if(file_exists($headerPath)) {
     background: rgba(0,0,0,0.5);
     animation: fadeIn 0.3s;
 }
-
 .modal-content {
     background: white;
     margin: 10% auto;
@@ -874,7 +947,6 @@ if(file_exists($headerPath)) {
     border-radius: 15px;
     animation: slideDown 0.3s;
 }
-
 .modal-header {
     padding: 1rem 1.5rem;
     background: linear-gradient(135deg, #e74c3c, #c0392b);
@@ -884,16 +956,13 @@ if(file_exists($headerPath)) {
     justify-content: space-between;
     align-items: center;
 }
-
 .modal-header .close {
     font-size: 1.5rem;
     cursor: pointer;
 }
-
 .modal-body {
     padding: 1.5rem;
 }
-
 .warning-box, .info-box {
     padding: 1rem;
     border-radius: 10px;
@@ -902,17 +971,14 @@ if(file_exists($headerPath)) {
     align-items: center;
     gap: 0.5rem;
 }
-
 .warning-box {
     background: #f8d7da;
     color: #721c24;
 }
-
 .info-box {
     background: #d1ecf1;
     color: #0c5460;
 }
-
 .modal-footer {
     padding: 1rem 1.5rem;
     display: flex;
@@ -920,7 +986,6 @@ if(file_exists($headerPath)) {
     gap: 1rem;
     border-top: 1px solid #e0e0e0;
 }
-
 .btn-confirm {
     padding: 0.5rem 1.5rem;
     background: #e74c3c;
@@ -929,7 +994,6 @@ if(file_exists($headerPath)) {
     border-radius: 5px;
     cursor: pointer;
 }
-
 .btn-cancel {
     padding: 0.5rem 1.5rem;
     background: #95a5a6;
@@ -939,12 +1003,237 @@ if(file_exists($headerPath)) {
     cursor: pointer;
 }
 
+/* Planificateur de repas */
+.step-hint {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+.goal-options-multi {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1rem 0;
+}
+.goal-card-multi {
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+.goal-card-multi:hover {
+    transform: translateY(-3px);
+    border-color: #e74c3c;
+}
+.goal-card-multi.selected {
+    border-color: #e74c3c;
+    background: #fff5f5;
+}
+.goal-card-multi .check-mark {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+.goal-card-multi.selected .check-mark {
+    display: flex;
+}
+.goal-card-multi i {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+.goal-card-multi h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+.goal-card-multi p {
+    font-size: 0.7rem;
+    color: #666;
+}
+.comment-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+.comment-section label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+.comment-section textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+}
+.form-row-planner {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 1rem 0;
+}
+.form-group-planner label {
+    display: block;
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+    color: #666;
+}
+.form-group-planner input, .form-group-planner select {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+.calorie-result {
+    background: #e8f5e9;
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    margin-top: 1rem;
+}
+.planner-step {
+    min-height: 400px;
+}
+.planner-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+.btn-prev, .btn-next, .btn-generate, .btn-cancel-plan {
+    padding: 0.6rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-prev {
+    background: #95a5a6;
+    color: white;
+}
+.btn-next {
+    background: #3498db;
+    color: white;
+}
+.btn-generate {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+.btn-cancel-plan {
+    background: #95a5a6;
+    color: white;
+}
+.meal-plan-week {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+.meal-day {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 0.8rem;
+    border-left: 4px solid #e74c3c;
+}
+.meal-day-title {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+.meal-day-title i {
+    margin-right: 0.5rem;
+}
+.meal-recipe {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.3rem 0;
+}
+.meal-recipe-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.meal-recipe-calories {
+    font-weight: 600;
+    color: #e74c3c;
+}
+.meal-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    background: #e8f5e9;
+    color: #2ecc71;
+}
+.summary-box {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-top: 1rem;
+    text-align: center;
+}
+.summary-box h4 {
+    margin-bottom: 0.5rem;
+}
+.user-comment-display {
+    background: #fff3cd;
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #856404;
+}
+.goals-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.goal-tag {
+    background: #e74c3c;
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+}
+.progress-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.5rem auto;
+    font-weight: bold;
+    font-size: 1.2rem;
+    background: conic-gradient(#2ecc71 0deg, #e0e0e0 0deg);
+}
+
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
-
 @keyframes slideDown {
     from {
         transform: translateY(-50px);
@@ -961,55 +1250,52 @@ if(file_exists($headerPath)) {
     .stats-cards {
         grid-template-columns: repeat(2, 1fr);
     }
-    
     .search-filter-bar {
         flex-direction: column;
     }
-    
     .search-box {
         max-width: 100%;
         width: 100%;
     }
-    
     .filter-group {
         width: 100%;
         justify-content: space-between;
     }
-    
     .filter-select {
         flex: 1;
     }
-    
     .action-buttons {
         flex-direction: column;
     }
-    
     .bulk-actions-bar {
         flex-direction: column;
         gap: 1rem;
         text-align: center;
     }
-}
-/* Responsive comparaison */
-@media (max-width: 768px) {
     .extra-buttons {
         flex-direction: column;
     }
-    
     .btn-surprise, .btn-compare {
         justify-content: center;
     }
-    
     .compare-selectors {
         grid-template-columns: 1fr;
     }
-    
     .compare-table {
         font-size: 0.75rem;
     }
-    
     .compare-table th, .compare-table td {
         padding: 6px;
+    }
+    .header-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    .goal-options-multi {
+        grid-template-columns: 1fr;
+    }
+    .form-row-planner {
+        grid-template-columns: 1fr;
     }
 }
 </style>
@@ -1018,7 +1304,258 @@ if(file_exists($headerPath)) {
 <script>
 let selectedRecipes = new Set();
 let recipesChart = null;
-// ==================== SURPRISE (RECETTE ALEATOIRE) ====================
+let currentStep = 1;
+let selectedGoals = [];
+let userData = {};
+
+// ==================== PLANIFICATEUR DE REPAS ====================
+function showMealPlannerModal() {
+    document.getElementById('mealPlannerModal').style.display = 'block';
+    resetPlanner();
+}
+
+function closeMealPlannerModal() {
+    document.getElementById('mealPlannerModal').style.display = 'none';
+    resetPlanner();
+}
+
+function resetPlanner() {
+    currentStep = 1;
+    selectedGoals = [];
+    document.querySelectorAll('.goal-card-multi').forEach(card => card.classList.remove('selected'));
+    document.getElementById('userComment').value = '';
+    document.getElementById('step1').style.display = 'block';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('prevBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    document.getElementById('generateBtn').style.display = 'none';
+    document.getElementById('closePlanBtn').style.display = 'none';
+    
+    document.getElementById('age').addEventListener('input', updateCalorieEstimate);
+    document.getElementById('weight').addEventListener('input', updateCalorieEstimate);
+    document.getElementById('height').addEventListener('input', updateCalorieEstimate);
+    document.getElementById('activity').addEventListener('change', updateCalorieEstimate);
+    updateCalorieEstimate();
+}
+
+function toggleGoal(goal) {
+    const card = document.querySelector(`.goal-card-multi[data-goal="${goal}"]`);
+    const index = selectedGoals.indexOf(goal);
+    
+    if (index === -1) {
+        selectedGoals.push(goal);
+        card.classList.add('selected');
+    } else {
+        selectedGoals.splice(index, 1);
+        card.classList.remove('selected');
+    }
+}
+
+function updateCalorieEstimate() {
+    const age = parseInt(document.getElementById('age').value) || 30;
+    const weight = parseInt(document.getElementById('weight').value) || 70;
+    const height = parseInt(document.getElementById('height').value) || 170;
+    const activity = parseFloat(document.getElementById('activity').value) || 1.55;
+    
+    // Formule de Mifflin-St Jeor (mixte)
+    let bmr = 10 * weight + 6.25 * height - 5 * age;
+    let maintenance = Math.round(bmr * activity);
+    
+    let adjustment = 0;
+    let adjustmentText = "";
+    
+    if (selectedGoals.includes('lose')) adjustment -= 500;
+    if (selectedGoals.includes('gain')) adjustment += 300;
+    if (selectedGoals.includes('muscle')) adjustment += 200;
+    
+    if (adjustment < 0) adjustmentText = `⚠️ Déficit de ${Math.abs(adjustment)} kcal/jour pour perdre du poids`;
+    else if (adjustment > 0) adjustmentText = `📈 Surplus de ${adjustment} kcal/jour pour ${selectedGoals.includes('muscle') ? 'prendre du muscle' : 'prendre du poids'}`;
+    else adjustmentText = `⚖️ Équilibre calorique pour maintenir ton poids`;
+    
+    const targetCalories = maintenance + adjustment;
+    
+    document.getElementById('maintenanceCalories').innerHTML = maintenance;
+    document.getElementById('goalAdjustment').innerHTML = adjustmentText;
+    
+    userData.maintenanceCalories = maintenance;
+    userData.targetCalories = targetCalories;
+    userData.adjustment = adjustment;
+}
+
+function changeStep(direction) {
+    if (direction === 1) {
+        if (currentStep === 1) {
+            if (selectedGoals.length === 0) {
+                alert("Veuillez sélectionner au moins un objectif !");
+                return;
+            }
+            currentStep = 2;
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            document.getElementById('prevBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('generateBtn').style.display = 'inline-block';
+            updateCalorieEstimate();
+        }
+    } else if (direction === -1) {
+        if (currentStep === 2) {
+            currentStep = 1;
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step1').style.display = 'block';
+            document.getElementById('prevBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('generateBtn').style.display = 'none';
+        }
+    }
+}
+
+function generateMealPlan() {
+    currentStep = 3;
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'block';
+    document.getElementById('generateBtn').style.display = 'none';
+    document.getElementById('closePlanBtn').style.display = 'inline-block';
+    document.getElementById('prevBtn').style.display = 'none';
+    
+    const age = parseInt(document.getElementById('age').value);
+    const weight = parseInt(document.getElementById('weight').value);
+    const height = parseInt(document.getElementById('height').value);
+    const comment = document.getElementById('userComment').value;
+    
+    userData.age = age;
+    userData.weight = weight;
+    userData.height = height;
+    userData.comment = comment;
+    userData.goals = [...selectedGoals];
+    
+    // Récupérer les recettes depuis le tableau
+    const rows = document.querySelectorAll('#recipesTableBody tr[data-id]');
+    const recipesList = [];
+    
+    rows.forEach(row => {
+        const id = row.getAttribute('data-id');
+        const title = row.querySelector('.recipe-title-cell span')?.innerText || '';
+        const calories = parseInt(row.getAttribute('data-calories')) || 300;
+        const type = row.getAttribute('data-type');
+        const difficulty = row.getAttribute('data-difficulty');
+        
+        if(title && calories > 0) {
+            recipesList.push({ id, title, calories, type, difficulty });
+        }
+    });
+    
+    if(recipesList.length === 0) {
+        document.getElementById('mealPlanResult').innerHTML = '<div style="text-align:center; padding:2rem;"><i class="fas fa-sad-tear" style="font-size:3rem; color:#ccc;"></i><p>Aucune recette disponible pour générer un menu</p><a href="index.php?action=backCreateRecipe" class="btn-create">Créer une recette</a></div>';
+        return;
+    }
+    
+    // Filtrer les recettes selon les objectifs
+    let filteredRecipes = [...recipesList];
+    
+    if (selectedGoals.includes('detox')) {
+        filteredRecipes = filteredRecipes.filter(r => r.calories <= 450);
+    }
+    if (selectedGoals.includes('muscle')) {
+        filteredRecipes = filteredRecipes.filter(r => r.calories >= 350);
+    }
+    
+    if (filteredRecipes.length === 0) filteredRecipes = [...recipesList];
+    
+    // Générer 7 jours sans répétition
+    const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+    const generatedPlan = [];
+    let usedRecipes = [];
+    
+    for (let i = 0; i < days.length; i++) {
+        let availableRecipes = filteredRecipes.filter(r => !usedRecipes.includes(r.id));
+        if (availableRecipes.length === 0) {
+            availableRecipes = [...filteredRecipes];
+            usedRecipes = [];
+        }
+        
+        const randomIndex = Math.floor(Math.random() * availableRecipes.length);
+        const selectedRecipe = availableRecipes[randomIndex];
+        usedRecipes.push(selectedRecipe.id);
+        
+        generatedPlan.push({
+            day: days[i],
+            recipe: selectedRecipe.title,
+            calories: selectedRecipe.calories,
+            type: selectedRecipe.type,
+            id: selectedRecipe.id
+        });
+    }
+    
+    displayMealPlan(generatedPlan, userData);
+}
+
+function displayMealPlan(plan, userData) {
+    const container = document.getElementById('mealPlanResult');
+    
+    const totalCalories = plan.reduce((sum, day) => sum + day.calories, 0);
+    const averageCalories = Math.round(totalCalories / 7);
+    const targetCalories = userData.targetCalories || 2000;
+    const isTargetReached = averageCalories <= targetCalories + 100 && averageCalories >= targetCalories - 100;
+    const percentage = Math.min(100, Math.round((averageCalories / targetCalories) * 100));
+    
+    const getTypeIcon = (type) => {
+        if (type === 'vegan') return '🌱';
+        if (type === 'vegetarian') return '🥕';
+        return '🍽️';
+    };
+    
+    let html = `<div class="meal-plan-week">`;
+    
+    plan.forEach(day => {
+        html += `
+            <div class="meal-day">
+                <div class="meal-day-title">
+                    <i class="fas fa-calendar-day"></i> ${day.day}
+                </div>
+                <div class="meal-recipe">
+                    <div class="meal-recipe-name">
+                        ${getTypeIcon(day.type)} <strong>${day.recipe}</strong>
+                    </div>
+                    <div class="meal-recipe-calories">${day.calories} kcal</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `</div>
+        <div class="summary-box">
+            <h4>📊 Résumé de ta semaine</h4>
+            <p>📅 Moyenne journalière : <strong>${averageCalories} kcal</strong> (objectif: ${targetCalories} kcal)</p>
+            <p>🍽️ Total semaine : <strong>${totalCalories} kcal</strong></p>
+            <div class="progress-circle" style="background: conic-gradient(#2ecc71 0deg, #2ecc71 ${percentage * 3.6}deg, #e0e0e0 ${percentage * 3.6}deg);">
+                ${percentage}%
+            </div>
+            ${isTargetReached ? '<p style="color:#2ecc71;">✅ Objectif calorique atteint !</p>' : '<p style="color:#e74c3c;">⚠️ Ajuste tes portions pour atteindre ton objectif</p>'}
+    `;
+    
+    if (userData.goals && userData.goals.length > 0) {
+        const goalNames = {
+            'lose': '🔻 Perte de poids',
+            'maintain': '⚖️ Maintien',
+            'gain': '🔺 Prise de poids',
+            'muscle': '💪 Gain musculaire',
+            'energy': '⚡ Plus d\'énergie',
+            'detox': '🍃 Détox/Léger'
+        };
+        html += `<div class="goals-tags">${userData.goals.map(g => `<span class="goal-tag">${goalNames[g] || g}</span>`).join('')}</div>`;
+    }
+    
+    if (userData.comment && userData.comment.trim() !== '') {
+        html += `<div class="user-comment-display"><i class="fas fa-quote-left"></i> "${userData.comment}"</div>`;
+    }
+    
+    html += `</div>`;
+    
+    container.innerHTML = html;
+}
+
+// ==================== SURPRISE ====================
 function showSurpriseModal() {
     document.getElementById('surpriseModal').style.display = 'block';
     generateRandomRecipe();
@@ -1057,7 +1594,6 @@ function generateRandomRecipe() {
     const randomIndex = Math.floor(Math.random() * recipesList.length);
     const recipe = recipesList[randomIndex];
     
-    // Icône selon le type
     let typeIcon = '';
     if(recipe.type === 'vegan') typeIcon = '🌱';
     else if(recipe.type === 'vegetarian') typeIcon = '🥕';
@@ -1082,7 +1618,6 @@ function generateRandomRecipe() {
 // ==================== COMPARAISON ====================
 function showCompareModal() {
     document.getElementById('compareModal').style.display = 'block';
-    // Réinitialiser les selects
     document.getElementById('recipe1_select').value = '';
     document.getElementById('recipe2_select').value = '';
     document.getElementById('compareResult').style.display = 'none';
@@ -1104,7 +1639,6 @@ function updateCompare() {
         return;
     }
     
-    // Récupérer les données
     const title1 = option1.getAttribute('data-title');
     const calories1 = parseFloat(option1.getAttribute('data-calories')) || 0;
     const time1 = parseInt(option1.getAttribute('data-time')) || 0;
@@ -1119,17 +1653,13 @@ function updateCompare() {
     const vegan2 = option2.getAttribute('data-vegan');
     const veg2 = option2.getAttribute('data-veg');
     
-    // Mettre à jour les titres
     document.getElementById('compareTitle1').innerHTML = title1;
     document.getElementById('compareTitle2').innerHTML = title2;
-    
-    // Mettre à jour les valeurs
     document.getElementById('compareCalories1').innerHTML = calories1 + ' kcal';
     document.getElementById('compareCalories2').innerHTML = calories2 + ' kcal';
     document.getElementById('compareTime1').innerHTML = time1 + ' min';
     document.getElementById('compareTime2').innerHTML = time2 + ' min';
     
-    // Difficulté avec icône
     const getDifficultyIcon = (d) => {
         if(d === 'facile') return '😊 Facile';
         if(d === 'moyen') return '😐 Moyen';
@@ -1137,14 +1667,11 @@ function updateCompare() {
     };
     document.getElementById('compareDifficulty1').innerHTML = getDifficultyIcon(difficulty1);
     document.getElementById('compareDifficulty2').innerHTML = getDifficultyIcon(difficulty2);
-    
     document.getElementById('compareVegan1').innerHTML = vegan1;
     document.getElementById('compareVegan2').innerHTML = vegan2;
     document.getElementById('compareVegetarian1').innerHTML = veg1;
     document.getElementById('compareVegetarian2').innerHTML = veg2;
     
-    // Calculer les vainqueurs
-    // Calories : le plus bas gagne
     if(calories1 && calories2) {
         const winner = calories1 < calories2 ? title1 : (calories2 < calories1 ? title2 : 'Égalité');
         document.getElementById('winnerCalories').innerHTML = winner;
@@ -1153,7 +1680,6 @@ function updateCompare() {
         document.getElementById('winnerCalories').innerHTML = '-';
     }
     
-    // Temps : le plus bas gagne
     if(time1 && time2) {
         const winner = time1 < time2 ? title1 : (time2 < time1 ? title2 : 'Égalité');
         document.getElementById('winnerTime').innerHTML = winner;
@@ -1162,7 +1688,6 @@ function updateCompare() {
         document.getElementById('winnerTime').innerHTML = '-';
     }
     
-    // Difficulté : facile > moyen > difficile
     const diffScore = { 'facile': 3, 'moyen': 2, 'difficile': 1 };
     const score1 = diffScore[difficulty1] || 0;
     const score2 = diffScore[difficulty2] || 0;
@@ -1174,7 +1699,6 @@ function updateCompare() {
         document.getElementById('winnerDifficulty').innerHTML = '-';
     }
     
-    // Vegan : celui qui est vegan gagne
     if(vegan1 !== vegan2) {
         const winner = vegan1 === '✅ Oui' ? title1 : title2;
         document.getElementById('winnerVegan').innerHTML = winner;
@@ -1184,7 +1708,6 @@ function updateCompare() {
         document.getElementById('winnerVegan').className = '';
     }
     
-    // Végétarien
     if(veg1 !== veg2) {
         const winner = veg1 === '✅ Oui' ? title1 : title2;
         document.getElementById('winnerVegetarian').innerHTML = winner;
@@ -1196,7 +1719,8 @@ function updateCompare() {
     
     document.getElementById('compareResult').style.display = 'block';
 }
-// Filtrer les recettes
+
+// ==================== FILTRES ====================
 function filterRecipes() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const difficultyFilter = document.getElementById('difficultyFilter').value;
@@ -1229,7 +1753,7 @@ function filterRecipes() {
     });
 }
 
-// Sélectionner tout
+// ==================== SELECTIONS ====================
 function toggleSelectAll() {
     const selectAllCheckbox = document.getElementById('selectAll');
     const checkboxes = document.querySelectorAll('.recipe-select');
@@ -1249,7 +1773,6 @@ function toggleSelectAll() {
     updateBulkActions();
 }
 
-// Mettre à jour les actions groupées
 function updateBulkActions() {
     const checkboxes = document.querySelectorAll('.recipe-select');
     const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
@@ -1280,7 +1803,6 @@ function updateBulkActions() {
     }
 }
 
-// Effacer la sélection
 function clearSelection() {
     const checkboxes = document.querySelectorAll('.recipe-select');
     checkboxes.forEach(checkbox => {
@@ -1295,7 +1817,6 @@ function clearSelection() {
     }
 }
 
-// Suppression groupée
 function bulkDelete() {
     const selected = Array.from(document.querySelectorAll('.recipe-select:checked'))
         .map(cb => cb.closest('tr').getAttribute('data-id'))
@@ -1308,7 +1829,7 @@ function bulkDelete() {
     }
 }
 
-// Modal suppression
+// ==================== MODAL SUPPRESSION ====================
 function showDeleteModal(id, title) {
     const modal = document.getElementById('deleteModal');
     const deleteTitle = document.getElementById('deleteRecipeTitle');
@@ -1342,7 +1863,7 @@ function showDeleteModal(id, title) {
     }
 }
 
-// STATISTIQUES MODAL
+// ==================== STATISTIQUES ====================
 function showStatsModal() {
     document.getElementById('statsModal').style.display = 'block';
     generateRecipesChart();
@@ -1355,7 +1876,6 @@ function closeStatsModal() {
 function generateRecipesChart() {
     const ctx = document.getElementById('recipesChart').getContext('2d');
     
-    // Récupérer les données des recettes depuis le tableau
     const rows = document.querySelectorAll('#recipesTableBody tr[data-id]');
     let vegan = 0, vegetarian = 0, standard = 0;
     
@@ -1366,7 +1886,6 @@ function generateRecipesChart() {
         else standard++;
     });
     
-    // Préparer les données pour le graphique
     const labels = [];
     const data = [];
     const colors = [];
@@ -1411,7 +1930,6 @@ function generateRecipesChart() {
         }
     });
     
-    // Générer la légende
     const total = data.reduce((a,b)=>a+b,0);
     document.getElementById('chartLegend').innerHTML = labels.map((l,i) => `
         <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem;">
@@ -1422,11 +1940,10 @@ function generateRecipesChart() {
     `).join('');
 }
 
-// Initialisation
+// ==================== INITIALISATION ====================
 document.addEventListener('DOMContentLoaded', function() {
     filterRecipes();
     
-    // Animation des lignes
     const rows = document.querySelectorAll('#recipesTableBody tr');
     rows.forEach((row, index) => {
         if(row.getAttribute('data-id')) {
@@ -1442,7 +1959,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Raccourcis clavier
 document.addEventListener('keydown', function(e) {
     if(e.ctrlKey && e.key === 'f') {
         e.preventDefault();
@@ -1454,6 +1970,12 @@ document.addEventListener('keydown', function(e) {
         if(modal) modal.style.display = 'none';
         const statsModal = document.getElementById('statsModal');
         if(statsModal) statsModal.style.display = 'none';
+        const plannerModal = document.getElementById('mealPlannerModal');
+        if(plannerModal) plannerModal.style.display = 'none';
+        const surpriseModal = document.getElementById('surpriseModal');
+        if(surpriseModal) surpriseModal.style.display = 'none';
+        const compareModal = document.getElementById('compareModal');
+        if(compareModal) compareModal.style.display = 'none';
     }
 });
 </script>
