@@ -153,9 +153,29 @@ require_once 'C:/xampp/htdocs/gestion_plan/header.php';
 
 </div>
 
+<!-- Profil utilisateur passé en JS -->
 <script>
-const COACH_CONTEXT       = <?= json_encode($contexte) ?>;
-const conversationHistory = [];
+const PROFIL = <?= json_encode([
+    'nom'           => $user['nom']                        ?? '',
+    'objectif_titre'=> $objectif['titre']                  ?? null,
+    'objectif_type' => $objectif['type_objectif']          ?? null,
+    'imc'           => $imc,
+    'poids_actuel'  => $objectif['poids_actuel']           ?? null,
+    'poids_cible'   => $objectif['poids_cible']            ?? null,
+    'termines'      => $stats['termines']                  ?? 0,
+    'total'         => $stats['total']                     ?? 0,
+    'streak'        => $streak,
+    'jours_inactif' => $joursInactif,
+    'niveau'        => $niveau,
+    'moy_reps'      => $stats['moy_reps']                  ?? null,
+    'moy_poids'     => $stats['moy_poids']                 ?? null,
+    'nb_difficile'  => $stats['nb_difficile']              ?? 0,
+    'nb_facile'     => $stats['nb_facile']                 ?? 0,
+    'total_minutes' => $stats['total_minutes']             ?? 0,
+    'maladies'      => $objectif['maladies']               ?? null,
+    'preferences'   => $objectif['preferences']            ?? null,
+    'programme_nom' => $programme['nom']                   ?? null,
+]) ?>;
 
 const chatBox         = document.getElementById('chatBox');
 const userInput       = document.getElementById('userInput');
@@ -188,7 +208,10 @@ function ajouterMessage(texte, role) {
     avatar.textContent = role === 'coach' ? '🤖' : '👤';
     const bubble = document.createElement('div');
     bubble.className = 'msg-bubble';
-    bubble.innerHTML = texte.replace(/\n/g, '<br>');
+    // Convertit **texte** en gras et \n en retour ligne
+    bubble.innerHTML = texte
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
     div.appendChild(avatar);
     div.appendChild(bubble);
     chatBox.insertBefore(div, typingIndicator);
@@ -204,6 +227,7 @@ async function envoyerMessage() {
     const texte = userInput.value.trim();
     chatError.style.display = 'none';
 
+    // Validation JS
     if (!texte) {
         chatError.textContent = '⚠️ Écrivez un message avant d\'envoyer.';
         chatError.style.display = 'block';
@@ -220,38 +244,29 @@ async function envoyerMessage() {
     btnEnvoyer.disabled = true;
 
     ajouterMessage(texte, 'user');
-    conversationHistory.push({ role: 'user', content: texte });
     setTyping(true);
 
     try {
-        // Appel au proxy PHP local
         const response = await fetch('coach_proxy.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                system:   COACH_CONTEXT,
-                messages: conversationHistory
+                message: texte,
+                profil:  PROFIL
             })
         });
 
         const data = await response.json();
 
-        if (!response.ok) {
-            throw new Error(data.error || 'Erreur serveur ' + response.status);
+        if (!response.ok || data.error) {
+            throw new Error(data.error || 'Erreur serveur');
         }
 
-        const reponse = data.content
-            .filter(b => b.type === 'text')
-            .map(b => b.text)
-            .join('');
-
-        conversationHistory.push({ role: 'assistant', content: reponse });
         setTyping(false);
-        ajouterMessage(reponse, 'coach');
+        ajouterMessage(data.reponse, 'coach');
 
     } catch (err) {
         setTyping(false);
-        conversationHistory.pop();
         chatError.textContent = '⚠️ Erreur : ' + err.message;
         chatError.style.display = 'block';
     } finally {
