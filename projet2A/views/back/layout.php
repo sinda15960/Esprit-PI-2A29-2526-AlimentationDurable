@@ -19,14 +19,56 @@
             </div>
             
             <nav class="sidebar-nav">
+                <!-- Dashboard -->
                 <a href="index.php?action=admin_dashboard" class="nav-item <?php echo ($active_page ?? '') == 'dashboard' ? 'active' : ''; ?>">
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Dashboard</span>
                 </a>
+                
+                <!-- User Management -->
                 <a href="index.php?action=admin_users" class="nav-item <?php echo ($active_page ?? '') == 'users' ? 'active' : ''; ?>">
                     <span class="nav-icon">👥</span>
                     <span class="nav-text">Users Management</span>
                 </a>
+                
+                <!-- Premium Features -->
+                <div class="nav-divider"></div>
+                <a href="index.php?action=admin_globe" class="nav-item <?php echo ($active_page ?? '') == 'globe' ? 'active' : ''; ?>">
+                    <span class="nav-icon">🌍</span>
+                    <span class="nav-text">Live Globe 3D</span>
+                </a>
+                <a href="index.php?action=admin_secret" class="nav-item <?php echo ($active_page ?? '') == 'secret' ? 'active' : ''; ?>">
+                    <span class="nav-icon">🤫</span>
+                    <span class="nav-text">Secret Zone</span>
+                </a>
+                <a href="index.php?action=admin_terminal" class="nav-item <?php echo ($active_page ?? '') == 'terminal' ? 'active' : ''; ?>">
+                    <span class="nav-icon">💻</span>
+                    <span class="nav-text">Retro Terminal</span>
+                </a>
+                
+                <!-- TOP 5 New Features -->
+                <div class="nav-divider"></div>
+                <a href="index.php?action=admin_incognito" class="nav-item <?php echo ($active_page ?? '') == 'incognito' ? 'active' : ''; ?>">
+                    <span class="nav-icon">🕵️</span>
+                    <span class="nav-text">Incognito Mode</span>
+                </a>
+                <a href="index.php?action=admin_shortcuts" class="nav-item <?php echo ($active_page ?? '') == 'shortcuts' ? 'active' : ''; ?>">
+                    <span class="nav-icon">⌨️</span>
+                    <span class="nav-text">Shortcuts</span>
+                </a>
+                <a href="index.php?action=admin_comparison" class="nav-item <?php echo ($active_page ?? '') == 'comparison' ? 'active' : ''; ?>">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Comparison</span>
+                </a>
+                <a href="index.php?action=admin_leaderboard" class="nav-item <?php echo ($active_page ?? '') == 'leaderboard' ? 'active' : ''; ?>">
+                    <span class="nav-icon">🏆</span>
+                    <span class="nav-text">Leaderboard</span>
+                </a>
+                <a href="index.php?action=admin_cleaner" class="nav-item <?php echo ($active_page ?? '') == 'cleaner' ? 'active' : ''; ?>">
+                    <span class="nav-icon">🧹</span>
+                    <span class="nav-text">DB Cleaner</span>
+                </a>
+                
                 <div class="nav-divider"></div>
                 <a href="index.php?action=home" class="nav-item">
                     <span class="nav-icon">🏠</span>
