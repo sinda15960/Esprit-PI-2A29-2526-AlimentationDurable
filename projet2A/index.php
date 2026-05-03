@@ -14,7 +14,7 @@ if(!isset($_SESSION['user_id'])) {
 }
 
 switch($action) {
-    // FRONT ROUTES
+    // ========== FRONT ROUTES ==========
     case 'home':
         $userController->showHome();
         break;
@@ -66,7 +66,7 @@ switch($action) {
         $userController->sendContactMessage();
         break;
     
-    // FACE ID ROUTES
+    // ========== FACE ID ROUTES ==========
     case 'save_face_signature':
         $userController->saveFaceSignature();
         break;
@@ -74,7 +74,7 @@ switch($action) {
         $userController->loginWithFace();
         break;
     
-    // ADMIN ROUTES
+    // ========== ADMIN ROUTES ==========
     case 'admin_dashboard':
         $adminController = new AdminController();
         $adminController->dashboard();
@@ -113,7 +113,7 @@ switch($action) {
         $adminController->enableUser();
         break;
     
-    // ADMIN CONTACT MESSAGES ROUTES
+    // ========== ADMIN CONTACT MESSAGES ROUTES ==========
     case 'admin_get_messages':
         $adminController = new AdminController();
         $messages = $adminController->getContactMessages();
@@ -136,13 +136,13 @@ switch($action) {
         echo json_encode(['success' => $success]);
         break;
     
-    // ADMIN ANALYTICS ROUTES
+    // ========== ADMIN ANALYTICS ROUTES ==========
     case 'admin_analytics':
         $adminController = new AdminController();
         $adminController->getAnalyticsData();
         break;
     
-    // ADMIN NOTIFICATIONS ROUTES
+    // ========== ADMIN NOTIFICATIONS ROUTES ==========
     case 'admin_get_notifications':
         $adminController = new AdminController();
         $adminController->getNotifications();
@@ -152,19 +152,13 @@ switch($action) {
         $adminController->markNotificationRead();
         break;
     
-    // ADMIN WORLD MAP ROUTE
+    // ========== ADMIN WORLD MAP ROUTE ==========
     case 'admin_get_locations':
         $adminController = new AdminController();
         $adminController->getUserLocations();
         break;
     
-    // ADMIN AI ASSISTANT ROUTE
-    case 'admin_ai_assistant':
-        $adminController = new AdminController();
-        $adminController->getAIAssistant();
-        break;
-    
-    // ADMIN EXPORT ROUTES
+    // ========== ADMIN EXPORT ROUTES ==========
     case 'admin_export_users':
         $adminController = new AdminController();
         $adminController->exportUsers();
@@ -174,7 +168,7 @@ switch($action) {
         $adminController->exportMessages();
         break;
     
-    // ADMIN WIDGET SETTINGS ROUTES
+    // ========== ADMIN WIDGET SETTINGS ROUTES ==========
     case 'admin_save_widgets':
         $adminController = new AdminController();
         $adminController->saveWidgetSettings();
@@ -182,6 +176,42 @@ switch($action) {
     case 'admin_get_widgets':
         $adminController = new AdminController();
         $adminController->getWidgetSettings();
+        break;
+    
+    // ========== PREMIUM FEATURES ==========
+    case 'admin_globe':
+        $adminController = new AdminController();
+        $adminController->showGlobe();
+        break;
+    case 'admin_secret':
+        $adminController = new AdminController();
+        $adminController->showSecretZone();
+        break;
+    case 'admin_terminal':
+        $adminController = new AdminController();
+        $adminController->showTerminal();
+        break;
+    
+    // ========== TOP 5 NEW FEATURES ==========
+    case 'admin_incognito':
+        $adminController = new AdminController();
+        $adminController->showIncognito();
+        break;
+    case 'admin_shortcuts':
+        $adminController = new AdminController();
+        $adminController->showShortcuts();
+        break;
+    case 'admin_comparison':
+        $adminController = new AdminController();
+        $adminController->showComparison();
+        break;
+    case 'admin_leaderboard':
+        $adminController = new AdminController();
+        $adminController->showLeaderboard();
+        break;
+    case 'admin_cleaner':
+        $adminController = new AdminController();
+        $adminController->showCleaner();
         break;
     
     default:
