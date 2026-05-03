@@ -35,26 +35,6 @@
                     </div>
                 </div>
 
-                <!-- Password Strength Game Section -->
-                <div class="password-strength-container">
-                    <div class="strength-bars">
-                        <div class="strength-bar" id="bar1"></div>
-                        <div class="strength-bar" id="bar2"></div>
-                        <div class="strength-bar" id="bar3"></div>
-                        <div class="strength-bar" id="bar4"></div>
-                    </div>
-                    <div class="strength-feedback" id="strengthFeedback">
-                        <span class="strength-icon" id="strengthIcon">🔒</span>
-                        <span class="strength-text" id="strengthText">Enter a password</span>
-                    </div>
-                    <div class="strength-tips" id="strengthTips">
-                        <div class="tip-item" id="tipLength">📏 At least 8 characters</div>
-                        <div class="tip-item" id="tipUpper">🔠 Uppercase letter</div>
-                        <div class="tip-item" id="tipNumber">🔢 Number</div>
-                        <div class="tip-item" id="tipSpecial">✨ Special character (!@#$%)</div>
-                    </div>
-                </div>
-
                 <?php if(isset($_SESSION['errors'])): ?>
                     <div class="error-messages">
                         <?php foreach($_SESSION['errors'] as $error): ?>
@@ -132,7 +112,7 @@
     </div>
 </div>
 
-<!-- Modal Social Login Simulation -->
+<!-- Modals -->
 <div id="socialLoginModal" class="modal">
     <div class="modal-content" style="max-width: 400px;">
         <div class="modal-header" id="socialModalHeader">
@@ -176,7 +156,6 @@
     </div>
 </div>
 
-<!-- Success Modal after social login -->
 <div id="socialSuccessModal" class="modal">
     <div class="modal-content" style="max-width: 380px;">
         <div class="modal-header" style="background: linear-gradient(135deg, #16a34a, #14532d);">
@@ -192,7 +171,6 @@
     </div>
 </div>
 
-<!-- Contact Admin Modal -->
 <div id="contactModal" class="modal">
     <div class="modal-content" style="max-width: 450px;">
         <div class="modal-header" style="background: linear-gradient(135deg, #dc2626, #b91c1c);">
@@ -229,7 +207,6 @@
 </div>
 
 <style>
-/* AI Features Section */
 .ai-features {
     display: flex;
     gap: 1rem;
@@ -285,7 +262,6 @@
     margin-top: 0.5rem;
 }
 
-/* Face Camera Styles */
 .face-camera {
     margin-top: 1rem;
     background: linear-gradient(135deg, #1a1a2e, #16213e);
@@ -359,83 +335,6 @@
     background: rgba(255,255,255,0.3);
 }
 
-/* Password Strength Game Styles */
-.password-strength-container {
-    margin-bottom: 1.5rem;
-    padding: 0.75rem;
-    background: #f8fafc;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.strength-bars {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 10px;
-}
-
-.strength-bar {
-    height: 6px;
-    flex: 1;
-    background: #e2e8f0;
-    border-radius: 3px;
-    transition: all 0.3s ease;
-}
-
-.strength-bar.weak {
-    background: #ef4444;
-}
-.strength-bar.fair {
-    background: #f59e0b;
-}
-.strength-bar.good {
-    background: #8b5cf6;
-}
-.strength-bar.strong {
-    background: #10b981;
-}
-
-.strength-feedback {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-}
-
-.strength-icon {
-    font-size: 1.2rem;
-}
-
-.strength-text {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #4a5568;
-}
-
-.strength-tips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 8px;
-}
-
-.tip-item {
-    font-size: 0.7rem;
-    padding: 3px 8px;
-    background: white;
-    border-radius: 20px;
-    color: #718096;
-    transition: all 0.3s ease;
-}
-
-.tip-item.completed {
-    background: #dcfce7;
-    color: #166534;
-    text-decoration: line-through;
-    opacity: 0.7;
-}
-
-/* Account Disabled Message */
 .error-message-disabled {
     background: #fee2e2;
     border-left: 4px solid #dc2626;
@@ -480,7 +379,6 @@
     background: #b91c1c;
 }
 
-/* Social Login Modal Styles */
 .spinner {
     width: 40px;
     height: 40px;
@@ -493,11 +391,13 @@
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
 .social-info {
     background: #f8fafc;
     padding: 1rem;
     border-radius: 16px;
 }
+
 .btn-feature {
     cursor: pointer;
     transition: all 0.3s;
@@ -507,7 +407,6 @@
     transform: translateY(-2px);
 }
 
-/* Error messages */
 .error-messages {
     margin-bottom: 1rem;
 }
@@ -547,18 +446,79 @@
     background: #cbd5e0;
 }
 
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 20px;
+    animation: slideDownModal 0.3s ease;
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.modal-close {
+    font-size: 1.75rem;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.modal-close:hover {
+    opacity: 0.7;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem 1.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes slideDownModal {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 
 <script>
-// ========== FACE LOGIN WITH RECOGNITION ==========
+// ========== FACE LOGIN ==========
 let faceVideo = null;
 let faceCanvas = null;
 let faceStream = null;
-let faceDetectionInterval = null;
 let capturedFrames = [];
 let isCapturing = false;
 
@@ -716,14 +676,16 @@ async function recognizeFace(signature) {
         
         const data = await response.json();
         
-        console.log('Face recognition response:', data);
-        
         if(data.success) {
             faceProgressBar.style.width = '100%';
             faceStatus.innerHTML = '🎉 Face recognized! Logging in...';
             
             setTimeout(() => {
-                window.location.href = 'index.php?action=profile';
+                if(data.user && data.user.role === 'admin') {
+                    window.location.href = 'index.php?action=admin_dashboard';
+                } else {
+                    window.location.href = 'index.php?action=profile';
+                }
             }, 1000);
         } else {
             faceStatus.innerHTML = '❌ ' + (data.message || 'Face not recognized. Please use email login.');
@@ -771,7 +733,6 @@ function stopFaceLogin() {
 
 // ========== VOICE TO TEXT ==========
 let recognition = null;
-let isListening = false;
 
 function startVoiceRecognition() {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -791,7 +752,6 @@ function startVoiceRecognition() {
     const emailInput = document.getElementById('email');
     
     recognition.onstart = function() {
-        isListening = true;
         voiceBtn.classList.add('listening');
         voiceStatus.innerHTML = '🎤 Listening... Speak your email address';
         voiceStatus.style.color = '#ef4444';
@@ -827,129 +787,13 @@ function startVoiceRecognition() {
     };
     
     recognition.onend = function() {
-        isListening = false;
         voiceBtn.classList.remove('listening');
     };
     
     recognition.start();
 }
 
-// ========== PASSWORD STRENGTH GAME ==========
-const passwordInput = document.getElementById('password');
-const bars = {
-    bar1: document.getElementById('bar1'),
-    bar2: document.getElementById('bar2'),
-    bar3: document.getElementById('bar3'),
-    bar4: document.getElementById('bar4')
-};
-const strengthText = document.getElementById('strengthText');
-const strengthIcon = document.getElementById('strengthIcon');
-const tips = {
-    length: document.getElementById('tipLength'),
-    upper: document.getElementById('tipUpper'),
-    number: document.getElementById('tipNumber'),
-    special: document.getElementById('tipSpecial')
-};
-
-function checkPasswordStrength(password) {
-    let score = 0;
-    let checks = {
-        length: false,
-        upper: false,
-        number: false,
-        special: false
-    };
-    
-    if(password.length >= 8) {
-        score++;
-        checks.length = true;
-    }
-    
-    if(/[A-Z]/.test(password)) {
-        score++;
-        checks.upper = true;
-    }
-    
-    if(/[0-9]/.test(password)) {
-        score++;
-        checks.number = true;
-    }
-    
-    if(/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-        score++;
-        checks.special = true;
-    }
-    
-    const barKeys = ['bar1', 'bar2', 'bar3', 'bar4'];
-    for(let i = 0; i < barKeys.length; i++) {
-        if(i < score) {
-            if(score === 1) bars[barKeys[i]].className = 'strength-bar weak';
-            else if(score === 2) bars[barKeys[i]].className = 'strength-bar fair';
-            else if(score === 3) bars[barKeys[i]].className = 'strength-bar good';
-            else if(score === 4) bars[barKeys[i]].className = 'strength-bar strong';
-        } else {
-            bars[barKeys[i]].className = 'strength-bar';
-        }
-    }
-    
-    if(password.length === 0) {
-        strengthText.textContent = 'Enter a password';
-        strengthIcon.textContent = '🔒';
-    } else if(score === 1) {
-        strengthText.textContent = 'Weak - Needs improvement';
-        strengthIcon.textContent = '😟';
-    } else if(score === 2) {
-        strengthText.textContent = 'Fair - Getting there!';
-        strengthIcon.textContent = '😐';
-    } else if(score === 3) {
-        strengthText.textContent = 'Good - Almost perfect!';
-        strengthIcon.textContent = '😎';
-    } else if(score === 4) {
-        strengthText.textContent = 'Strong - Excellent password! 💪';
-        strengthIcon.textContent = '🦸';
-    }
-    
-    updateTip(tips.length, checks.length, 'At least 8 characters');
-    updateTip(tips.upper, checks.upper, 'Uppercase letter');
-    updateTip(tips.number, checks.number, 'Number');
-    updateTip(tips.special, checks.special, 'Special character');
-    
-    return score;
-}
-
-function updateTip(element, isCompleted, text) {
-    if(isCompleted) {
-        element.classList.add('completed');
-        element.innerHTML = `✅ ${text}`;
-    } else {
-        element.classList.remove('completed');
-        element.innerHTML = `❌ ${text}`;
-    }
-}
-
-if(passwordInput) {
-    passwordInput.addEventListener('input', function() {
-        const password = this.value;
-        if(password.length === 0) {
-            const barsElements = document.querySelectorAll('.strength-bar');
-            barsElements.forEach(bar => bar.className = 'strength-bar');
-            strengthText.textContent = 'Enter a password';
-            strengthIcon.textContent = '🔒';
-            
-            document.querySelectorAll('.tip-item').forEach(tip => {
-                tip.classList.remove('completed');
-                if(tip.id === 'tipLength') tip.innerHTML = '📏 At least 8 characters';
-                else if(tip.id === 'tipUpper') tip.innerHTML = '🔠 Uppercase letter';
-                else if(tip.id === 'tipNumber') tip.innerHTML = '🔢 Number';
-                else if(tip.id === 'tipSpecial') tip.innerHTML = '✨ Special character (!@#$%)';
-            });
-        } else {
-            checkPasswordStrength(password);
-        }
-    });
-}
-
-// ========== SOCIAL LOGIN FUNCTIONS ==========
+// ========== SOCIAL LOGIN ==========
 let currentSocialProvider = '';
 
 function openSocialLogin(provider) {
@@ -1071,7 +915,7 @@ function redirectAfterSocialLogin() {
     window.location.href = 'index.php?action=profile';
 }
 
-// ========== CONTACT MODAL FUNCTIONS ==========
+// ========== CONTACT MODAL ==========
 function openContactModal() {
     document.getElementById('contactModal').style.display = 'block';
     document.getElementById('contactSuccess').style.display = 'none';
@@ -1131,7 +975,7 @@ function sendContactMessage(event) {
     });
 }
 
-// ========== CLOSE MODALS WHEN CLICKING OUTSIDE ==========
+// ========== CLOSE MODALS ==========
 window.onclick = function(event) {
     const socialModal = document.getElementById('socialLoginModal');
     const successModal = document.getElementById('socialSuccessModal');
@@ -1141,7 +985,7 @@ window.onclick = function(event) {
     if (event.target == contactModal) closeContactModal();
 }
 
-// ========== LOGIN FORM VALIDATION ==========
+// ========== LOGIN VALIDATION ==========
 function validateLoginForm() {
     let isValid = true;
     
@@ -1165,7 +1009,7 @@ function validateLoginForm() {
     return isValid;
 }
 
-// Cleanup on page unload
+// Cleanup
 window.addEventListener('beforeunload', function() {
     if(faceStream) {
         faceStream.getTracks().forEach(track => track.stop());
