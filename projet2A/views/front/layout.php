@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title ?? 'NutriFlow AI - Healthy Eating Made Smart'; ?></title>
     <link rel="stylesheet" href="assets/css/front-style.css">
+    <link rel="stylesheet" href="assets/css/dark-mode.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -29,6 +30,7 @@
                     <li><a href="index.php?action=login" class="nav-btn">Login</a></li>
                 <?php endif; ?>
             </ul>
+            <!-- Dark Mode Toggle will be inserted here by JS -->
         </div>
     </nav>
 
@@ -44,5 +46,7 @@
     </footer>
 
     <script src="assets/js/validation.js"></script>
+    <script src="assets/js/dark-mode.js"></script>
+    <script src="assets/js/confetti.js"></script>
 </body>
 </html>
