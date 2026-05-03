@@ -180,4 +180,60 @@ footer {
     .navbar-brand {
         font-size: 1.1rem;
     }
+    /* ===== AJOUTS POUR CARTE INTERACTIVE ===== */
+.magasin-marker div, .user-marker div {
+    transition: transform 0.2s ease;
+}
+.magasin-marker div:hover, .user-marker div:hover {
+    transform: scale(1.1);
+}
+#map {
+    border: 2px solid #2d6a2d;
+    border-radius: 12px;
+}
+.leaflet-control-attribution {
+    font-size: 9px;
+}
+
+/* ===== FORMULAIRE CARTE BANCAIRE ===== */
+#cb-form input {
+    font-family: monospace;
+    letter-spacing: 0.5px;
+}
+#carte_numero {
+    font-size: 1rem;
+}
+.alert-info {
+    background-color: #e8f4fd;
+    border-color: #b8e1fc;
+    color: #0c5460;
+}
+
+/* ===== STATISTIQUES ===== */
+.card-header {
+    font-size: 0.9rem;
+}
+canvas {
+    max-height: 250px;
+}
+.kpi-card {
+    transition: transform 0.2s;
+}
+.kpi-card:hover {
+    transform: translateY(-5px);
+}
+
+/* ===== SUGGESTIONS ===== */
+.alert-warning, .alert-danger, .alert-info {
+    border-left: 4px solid;
+}
+.alert-warning {
+    border-left-color: #f0a500;
+}
+.alert-danger {
+    border-left-color: #c0392b;
+}
+.alert-info {
+    border-left-color: #17a2b8;
+}
 }

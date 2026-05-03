@@ -60,7 +60,10 @@ function getEmojiAliment(string $nom): string {
   <meta charset="UTF-8">
   <title>Frigo Intelligent</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="/frigo/public/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="/frigo/public/js/validation.js"></script>
 </head>
 <body>
@@ -94,6 +97,8 @@ function getEmojiAliment(string $nom): string {
            class="text-white text-decoration-none">Catégories</a>
         <a href="/frigo/index.php?mode=back&controller=commande&action=index"
            class="text-white text-decoration-none">Commandes</a>
+        <a href="/frigo/index.php?mode=back&controller=statistique&action=index"
+           class="text-white text-decoration-none">📊 Stats</a>
       <?php endif; ?>
     </div>
   </div>

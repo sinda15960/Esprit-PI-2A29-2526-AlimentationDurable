@@ -217,5 +217,35 @@ document.getElementById('form-promo').addEventListener('submit', function(e){
 });
 <?php endif; ?>
 </script>
+<!-- À la fin du fichier panier.php, avant le footer, ajouter : -->
+
+<!-- Suggestions de produits complémentaires -->
+<?php if (!empty($suggestionsComplementaires)): ?>
+<div class="card border-0 shadow-sm mt-4">
+  <div class="card-header bg-info text-white fw-bold">
+    💡 Vous pourriez aussi aimer
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <?php foreach ($suggestionsComplementaires as $sugg): ?>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div style="font-size:2rem"><?= getEmojiAliment($sugg['nom']) ?></div>
+            <h6 class="fw-bold mt-2"><?= htmlspecialchars($sugg['nom']) ?></h6>
+            <p class="text-success fw-bold"><?= number_format($sugg['prix'], 2) ?> TND</p>
+            <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier">
+              <input type="hidden" name="produit_id" value="<?= $sugg['id'] ?>">
+              <input type="hidden" name="quantite" value="1">
+              <button type="submit" class="btn btn-sm btn-outline-success">+ Ajouter</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</div>
+<?php endif; ?>
 
 <?php require 'app/view/layout/footer.php'; ?>

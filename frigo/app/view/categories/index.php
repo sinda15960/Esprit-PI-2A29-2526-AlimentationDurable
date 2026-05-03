@@ -20,6 +20,64 @@
     </button>
   </div>
 
+  <!-- ========== SECTION SUGGESTIONS IA (IDÉE 3a) ========== -->
+  <?php if (!empty($suggestions)): ?>
+  <div class="card border-warning shadow-sm mb-4">
+    <div class="card-header bg-warning text-dark fw-bold">
+      🤖 Suggestions intelligentes basées sur votre frigo
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <?php foreach ($suggestions as $suggestion): ?>
+          <?php if ($suggestion['type'] === 'stock_faible'): ?>
+            <div class="col-md-4">
+              <div class="alert alert-warning mb-0 d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>⚠️ Stock faible</strong><br>
+                  <?= htmlspecialchars($suggestion['message']) ?>
+                </div>
+                <?php if ($suggestion['produit_id']): ?>
+                  <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier">
+                    <input type="hidden" name="produit_id" value="<?= $suggestion['produit_id'] ?>">
+                    <input type="hidden" name="quantite" value="1">
+                    <button type="submit" class="btn btn-success btn-sm">+ Panier</button>
+                  </form>
+                <?php endif; ?>
+              </div>
+            </div>
+          <?php elseif ($suggestion['type'] === 'expiration_proche'): ?>
+            <div class="col-md-4">
+              <div class="alert alert-danger mb-0 d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>⚠️ Expire bientôt !</strong><br>
+                  <?= htmlspecialchars($suggestion['message']) ?>
+                </div>
+                <a href="/frigo/index.php?mode=front&controller=produit&action=frigo" class="btn btn-outline-danger btn-sm">Voir</a>
+              </div>
+            </div>
+          <?php elseif ($suggestion['type'] === 'recommandation'): ?>
+            <div class="col-md-4">
+              <div class="alert alert-info mb-0 d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>💡 Idée recette / achat</strong><br>
+                  <?= htmlspecialchars($suggestion['message']) ?>
+                </div>
+                <?php if ($suggestion['produit_id']): ?>
+                  <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier">
+                    <input type="hidden" name="produit_id" value="<?= $suggestion['produit_id'] ?>">
+                    <input type="hidden" name="quantite" value="1">
+                    <button type="submit" class="btn btn-info btn-sm text-white">+ Panier</button>
+                  </form>
+                <?php endif; ?>
+              </div>
+            </div>
+          <?php endif; ?>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </div>
+  <?php endif; ?>
+
   <!-- Zone des favoris (collapse) -->
   <div class="collapse mb-4" id="favorisCollapse">
     <div class="card border-warning shadow-sm">

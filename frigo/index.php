@@ -5,7 +5,7 @@ require_once 'config/database.php';
 spl_autoload_register(function($class) {
     $paths = [
         'app/model/',
-        'app/contoller/',
+        'app/controller/',  // Vérifiez que c'est bien "controller" et non "contoller"
     ];
     foreach ($paths as $path) {
         $file = $path . $class . '.php';
@@ -21,10 +21,11 @@ $controller = $_GET['controller'] ?? 'produit';
 $action = $_GET['action'] ?? 'frigo';
 
 $map = [
-    'produit'   => 'ProduitController',
-    'categorie' => 'CategorieController',
-    'commande'  => 'CommandeController',
-    'favori'    => 'FavoriController',
+    'produit'     => 'ProduitController',
+    'categorie'   => 'CategorieController',
+    'commande'    => 'CommandeController',
+    'favori'      => 'FavoriController',
+    'statistique' => 'StatistiqueController',
 ];
 
 $controllerClass = $map[$controller] ?? null;
@@ -33,30 +34,40 @@ if (!$controllerClass) {
     die("Contrôleur introuvable.");
 }
 
-require_once 'app/contoller/' . $controllerClass . '.php';
+// Correction du chemin : utilisez le bon dossier
+$controllerFile = 'app/controller/' . $controllerClass . '.php';
+
+if (!file_exists($controllerFile)) {
+    die("Fichier contrôleur introuvable: " . $controllerFile);
+}
+
+require_once $controllerFile;
 
 $ctrl = new $controllerClass();
 
-// Liste de toutes les actions autorisées
 $actionsAutorisees = [
     // Produit
     'frigo', 'index', 'create', 'store', 'edit', 'update',
     'delete', 'ajouterFrigo', 'ajouterManuel', 'supprimerDuFrigo',
     'envoyerAuPanier', 'modifierQuantiteFrigo', 'ajouterFrigoQR',
-    'rechercherFrigo',
+    'rechercherFrigo', 'ajouterParScan', 'genererSuggestionsFrigo',
     // Commande
     'panier', 'ajouterPanier', 'modifierPanier', 'retirerPanier',
     'checkout', 'confirmer', 'annuler', 'updateCommande',
     'deleteCommande', 'appliquerPromo', 'supprimerPromo',
     'ajouterPromo', 'togglePromo', 'supprimerCodePromo',
+    'genererCodeBienvenue', 'genererCodeRelance',
     // Categorie
     'admin', 'store', 'edit', 'update', 'delete',
     // Favori
-    'ajouter', 'supprimer', 'ajouterAuPanier'
+    'ajouter', 'supprimer', 'ajouterAuPanier',
+    // Statistique
+    'index', 'exportCSV'
 ];
 
 if (!in_array($action, $actionsAutorisees) || !method_exists($ctrl, $action)) {
-    die("Action introuvable.");
+    die("Action introuvable: $action");
 }
 
 $ctrl->$action();
+?>
