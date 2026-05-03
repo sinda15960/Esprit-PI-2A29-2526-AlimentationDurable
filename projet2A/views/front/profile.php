@@ -9,6 +9,15 @@
             <span class="role-badge"><?php echo ucfirst($_SESSION['role']); ?></span>
         </div>
 
+        <!-- Streak Widget - Chemin corrigé -->
+        <?php include dirname(__DIR__) . '/front/components/streak-widget.php'; ?>
+
+        <!-- Daily Quote Widget - Chemin corrigé -->
+        <?php include dirname(__DIR__) . '/front/components/daily-quote.php'; ?>
+
+        <!-- Avatar Generator - Chemin corrigé -->
+        <?php include dirname(__DIR__) . '/front/components/avatar-generator.php'; ?>
+
         <!-- Account Reactivated Message -->
         <?php if(isset($_SESSION['account_reactivated'])): ?>
             <div class="reactivated-message">
@@ -21,54 +30,6 @@
             </div>
             <?php unset($_SESSION['account_reactivated']); ?>
         <?php endif; ?>
-
-        <!-- Daily Affirmation Section -->
-        <div class="affirmation-section">
-            <div class="affirmation-card">
-                <div class="affirmation-icon">💭</div>
-                <div class="affirmation-content">
-                    <p id="affirmationText" class="affirmation-text">Loading your daily inspiration...</p>
-                    <button class="affirmation-refresh" onclick="refreshAffirmation()">🔄 New affirmation</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Login Streak Section -->
-        <div class="streak-section">
-            <div class="streak-card">
-                <div class="streak-icon">🔥</div>
-                <div class="streak-info">
-                    <span class="streak-number" id="streakDays">0</span>
-                    <span class="streak-label">day streak</span>
-                </div>
-                <div class="streak-reward" id="streakReward">
-                    <span>🏆</span>
-                    <span>Next reward in <span id="daysToReward">7</span> days</span>
-                </div>
-            </div>
-            <div class="streak-milestones">
-                <div class="milestone" data-days="7">
-                    <span>7️⃣</span>
-                    <span>7 days</span>
-                    <span class="milestone-badge" id="badge7">🔒</span>
-                </div>
-                <div class="milestone" data-days="14">
-                    <span>🏅</span>
-                    <span>14 days</span>
-                    <span class="milestone-badge" id="badge14">🔒</span>
-                </div>
-                <div class="milestone" data-days="30">
-                    <span>🎖️</span>
-                    <span>30 days</span>
-                    <span class="milestone-badge" id="badge30">🔒</span>
-                </div>
-                <div class="milestone" data-days="100">
-                    <span>🏆</span>
-                    <span>100 days</span>
-                    <span class="milestone-badge" id="badge100">🔒</span>
-                </div>
-            </div>
-        </div>
 
         <!-- Goal Tracker Section -->
         <div class="goals-section">
@@ -89,56 +50,6 @@
             <h3>👥 Friend Activity</h3>
             <div id="friendsList" class="friends-list">
                 <!-- Friends will be dynamically added here -->
-            </div>
-        </div>
-
-        <!-- Theme Customizer Section -->
-        <div class="theme-section">
-            <h3>🎨 Theme Customizer</h3>
-            <div class="theme-options">
-                <button class="theme-option" data-theme="green" onclick="setTheme('green')">
-                    <span class="theme-color green"></span> Green
-                </button>
-                <button class="theme-option" data-theme="blue" onclick="setTheme('blue')">
-                    <span class="theme-color blue"></span> Blue
-                </button>
-                <button class="theme-option" data-theme="purple" onclick="setTheme('purple')">
-                    <span class="theme-color purple"></span> Purple
-                </button>
-                <button class="theme-option" data-theme="orange" onclick="setTheme('orange')">
-                    <span class="theme-color orange"></span> Orange
-                </button>
-                <button class="theme-option" data-theme="pink" onclick="setTheme('pink')">
-                    <span class="theme-color pink"></span> Pink
-                </button>
-                <button class="theme-option" data-theme="dark" onclick="setTheme('dark')">
-                    <span class="theme-color dark"></span> Dark
-                </button>
-            </div>
-            <button class="reset-theme-btn" onclick="resetTheme()">Reset to Default</button>
-        </div>
-
-        <!-- Time Machine Section -->
-        <div class="timemachine-section">
-            <h3 class="timemachine-title">🕰️ Login Time Machine</h3>
-            <div class="timemachine-card" id="timemachineCard">
-                <div class="timemachine-stats">
-                    <div class="timestat">
-                        <span class="timestat-label">First login</span>
-                        <span class="timestat-value" id="firstLogin">--</span>
-                    </div>
-                    <div class="timestat">
-                        <span class="timestat-label">Last login</span>
-                        <span class="timestat-value" id="lastLogin">--</span>
-                    </div>
-                    <div class="timestat">
-                        <span class="timestat-label">Total logins</span>
-                        <span class="timestat-value" id="totalLogins">0</span>
-                    </div>
-                </div>
-                <div class="timemachine-history" id="loginHistory">
-                    <p class="history-placeholder">Loading your login history...</p>
-                </div>
             </div>
         </div>
 
@@ -262,7 +173,7 @@
             <p>Are you sure you want to delete your account?</p>
             <p class="delete-warning-text">This action <strong>cannot be undone</strong>. All your data will be permanently removed.</p>
             <div class="delete-confirm">
-                <label for="confirm_delete">Type <strong>DELETE</strong> to confirm:</label>
+                <label for="confirm_delete_input">Type <strong>DELETE</strong> to confirm:</label>
                 <input type="text" id="confirm_delete_input" placeholder="DELETE">
             </div>
         </div>
@@ -274,50 +185,6 @@
 </div>
 
 <style>
-/* Daily Affirmation Section */
-.affirmation-section {
-    margin-bottom: 1.5rem;
-}
-
-.affirmation-card {
-    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
-    border-radius: 20px;
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
-
-.affirmation-icon {
-    font-size: 2rem;
-}
-
-.affirmation-content {
-    flex: 1;
-}
-
-.affirmation-text {
-    font-size: 0.9rem;
-    color: #4c1d95;
-    font-style: italic;
-    margin-bottom: 0.5rem;
-    transition: opacity 0.2s ease;
-}
-
-.affirmation-refresh {
-    background: none;
-    border: none;
-    font-size: 0.7rem;
-    color: #7c3aed;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.affirmation-refresh:hover {
-    transform: rotate(180deg);
-}
-
 /* Reactivated Message */
 .reactivated-message {
     background: linear-gradient(135deg, #dcfce7, #bbf7d0);
@@ -333,29 +200,9 @@
     overflow: hidden;
 }
 
-.reactivated-message::before {
-    content: '✨';
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    font-size: 3rem;
-    opacity: 0.2;
-    animation: sparkle 2s infinite;
-}
-
-@keyframes sparkle {
-    0%, 100% { transform: rotate(0deg); opacity: 0.2; }
-    50% { transform: rotate(180deg); opacity: 0.4; }
-}
-
 .reactivated-icon {
     font-size: 2.5rem;
     animation: bounce 0.6s ease;
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
 }
 
 .reactivated-content strong {
@@ -392,86 +239,16 @@
     transform: scale(1.1);
 }
 
-/* Streak Section */
-.streak-section {
-    background: linear-gradient(135deg, #fff7ed, #fffbeb);
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-.streak-card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #fde68a;
-}
-
-.streak-icon {
-    font-size: 2.5rem;
-    animation: flameFlicker 1s infinite;
-}
-
-@keyframes flameFlicker {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.9; }
-}
-
-.streak-number {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #ea580c;
-    display: block;
-    line-height: 1;
-}
-
-.streak-label {
-    font-size: 0.8rem;
-    color: #9a3412;
-}
-
-.streak-reward {
-    background: #fef3c7;
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    font-size: 0.8rem;
-    color: #b45309;
-}
-
-.streak-milestones {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.milestone {
-    text-align: center;
-    font-size: 0.7rem;
-    color: #92400e;
-}
-
-.milestone-badge {
-    display: block;
-    font-size: 1rem;
-    margin-top: 0.25rem;
-}
-
-.milestone-badge.unlocked {
-    filter: drop-shadow(0 0 5px #fbbf24);
-}
-
 /* Goal Tracker Section */
 .goals-section {
     background: #f8fafc;
     border-radius: 20px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+}
+
+body.dark-mode .goals-section {
+    background: #1e293b;
 }
 
 .section-header {
@@ -484,6 +261,10 @@
 .section-header h3 {
     font-size: 1.1rem;
     color: #1e293b;
+}
+
+body.dark-mode .section-header h3 {
+    color: #f1f5f9;
 }
 
 .add-goal-btn {
@@ -522,6 +303,10 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
+body.dark-mode .goal-item {
+    background: #0f172a;
+}
+
 .goal-info {
     flex: 1;
 }
@@ -530,6 +315,10 @@
     font-weight: 600;
     color: #1e293b;
     font-size: 0.9rem;
+}
+
+body.dark-mode .goal-name {
+    color: #f1f5f9;
 }
 
 .goal-progress-text {
@@ -607,10 +396,18 @@
     margin-bottom: 1.5rem;
 }
 
+body.dark-mode .friends-section {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+}
+
 .friends-section h3 {
     font-size: 1.1rem;
     color: #0c4a6e;
     margin-bottom: 1rem;
+}
+
+body.dark-mode .friends-section h3 {
+    color: #7dd3fc;
 }
 
 .friends-list {
@@ -627,6 +424,10 @@
     background: white;
     border-radius: 16px;
     transition: all 0.3s;
+}
+
+body.dark-mode .friend-item {
+    background: #1e293b;
 }
 
 .friend-item:hover {
@@ -656,6 +457,10 @@
     font-size: 0.85rem;
 }
 
+body.dark-mode .friend-name {
+    color: #f1f5f9;
+}
+
 .friend-activity {
     font-size: 0.7rem;
     color: #64748b;
@@ -666,162 +471,27 @@
     color: #94a3b8;
 }
 
-/* Theme Customizer Section */
-.theme-section {
-    background: #f1f5f9;
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-.theme-section h3 {
-    font-size: 1.1rem;
-    color: #1e293b;
+/* Messages */
+.success-message {
+    background: #dcfce7;
+    color: #166534;
+    padding: 0.75rem;
+    border-radius: 10px;
     margin-bottom: 1rem;
 }
 
-.theme-options {
-    display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+.error-message {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 0.75rem;
+    border-radius: 10px;
     margin-bottom: 1rem;
 }
 
-.theme-option {
-    background: white;
-    border: 2px solid #e2e8f0;
-    border-radius: 50px;
-    padding: 0.4rem 0.8rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.theme-color {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-}
-
-.theme-color.green { background: #16a34a; }
-.theme-color.blue { background: #3b82f6; }
-.theme-color.purple { background: #8b5cf6; }
-.theme-color.orange { background: #f97316; }
-.theme-color.pink { background: #ec4899; }
-.theme-color.dark { background: #1e293b; }
-
-.theme-option:hover {
-    transform: translateY(-2px);
-    border-color: #16a34a;
-}
-
-.theme-option.active {
-    background: linear-gradient(135deg, #16a34a, #14532d);
-    color: white;
-    border-color: #16a34a;
-}
-
-.reset-theme-btn {
-    background: #e2e8f0;
-    border: none;
-    padding: 0.4rem 1rem;
-    border-radius: 50px;
-    font-size: 0.7rem;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.reset-theme-btn:hover {
-    background: #cbd5e0;
-}
-
-/* Time Machine Section */
-.timemachine-section {
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    color: white;
-}
-
-.timemachine-title {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.timemachine-card {
-    background: rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 1rem;
-}
-
-.timemachine-stats {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.timestat {
-    text-align: center;
-}
-
-.timestat-label {
-    display: block;
-    font-size: 0.7rem;
-    color: #94a3b8;
-}
-
-.timestat-value {
-    display: block;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #facc15;
-}
-
-.timemachine-history {
-    max-height: 150px;
-    overflow-y: auto;
-    font-size: 0.8rem;
-}
-
-.history-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.history-date {
-    color: #94a3b8;
-}
-
-.history-time {
-    color: #facc15;
-}
-
-/* Profile Avatar Animation */
-@keyframes avatarPop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-.avatar-updated {
-    animation: avatarPop 0.5s ease;
-}
-
-/* Error messages */
 .error-messages {
     margin-bottom: 1rem;
 }
+
 .error {
     background: #fee2e2;
     color: #dc2626;
@@ -830,14 +500,7 @@
     margin-bottom: 0.5rem;
     font-size: 0.85rem;
 }
-.success-message {
-    background: #dcfce7;
-    color: #166534;
-    padding: 0.5rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    font-size: 0.85rem;
-}
+
 .error-text {
     color: #ef4444;
     font-size: 0.75rem;
@@ -1097,20 +760,16 @@
     }
 }
 
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .form-row {
         grid-template-columns: 1fr;
         gap: 0;
-    }
-    
-    .streak-card {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .theme-options {
-        gap: 0.5rem;
     }
     
     .modal-content {
@@ -1131,49 +790,6 @@
 </style>
 
 <script>
-// ========== DAILY AFFIRMATION ==========
-const affirmations = [
-    "🌟 Small steps every day lead to big results. Keep going!",
-    "💪 You are stronger than you think. Every meal is a victory!",
-    "🥗 Healthy eating is a form of self-respect. You've got this!",
-    "🎯 Consistency over intensity. One day at a time!",
-    "🌱 Your body deserves the best fuel. You're doing amazing!",
-    "🏆 Every healthy choice brings you closer to your goals!",
-    "🧘 Progress, not perfection. Celebrate small wins!",
-    "🍎 You are what you eat. Make it count today!",
-    "💧 Hydration is key! Drink water and feel energized!",
-    "🌟 You're building habits that will last a lifetime!"
-];
-
-function getDailyAffirmation() {
-    const today = new Date().toDateString();
-    let savedAffirmation = localStorage.getItem('dailyAffirmation');
-    let savedDate = localStorage.getItem('affirmationDate');
-    
-    if(savedDate !== today) {
-        const randomIndex = Math.floor(Math.random() * affirmations.length);
-        savedAffirmation = affirmations[randomIndex];
-        localStorage.setItem('dailyAffirmation', savedAffirmation);
-        localStorage.setItem('affirmationDate', today);
-    }
-    
-    const affirmationText = document.getElementById('affirmationText');
-    if(affirmationText) affirmationText.textContent = savedAffirmation || affirmations[0];
-}
-
-function refreshAffirmation() {
-    const randomIndex = Math.floor(Math.random() * affirmations.length);
-    const newAffirmation = affirmations[randomIndex];
-    const affirmationText = document.getElementById('affirmationText');
-    if(affirmationText) {
-        affirmationText.style.opacity = '0';
-        setTimeout(() => {
-            affirmationText.textContent = newAffirmation;
-            affirmationText.style.opacity = '1';
-        }, 200);
-    }
-}
-
 // ========== GOAL TRACKER ==========
 let userGoals = [];
 
@@ -1316,193 +932,6 @@ function loadFriends() {
     `).join('');
 }
 
-// ========== THEME CUSTOMIZER ==========
-function setTheme(theme) {
-    const profileCard = document.querySelector('.profile-card');
-    const themes = {
-        green: { background: 'linear-gradient(135deg, #dcfce7, #ecfdf5)', text: '#14532d' },
-        blue: { background: 'linear-gradient(135deg, #dbeafe, #eff6ff)', text: '#1e3a8a' },
-        purple: { background: 'linear-gradient(135deg, #ede9fe, #f5f3ff)', text: '#4c1d95' },
-        orange: { background: 'linear-gradient(135deg, #ffedd5, #fff7ed)', text: '#9a3412' },
-        pink: { background: 'linear-gradient(135deg, #fce7f3, #fdf2f8)', text: '#9d174d' },
-        dark: { background: 'linear-gradient(135deg, #1e293b, #0f172a)', text: '#e2e8f0' }
-    };
-    
-    if(profileCard && themes[theme]) {
-        profileCard.style.background = themes[theme].background;
-        profileCard.style.color = themes[theme].text;
-    }
-    
-    document.querySelectorAll('.theme-option').forEach(btn => {
-        btn.classList.remove('active');
-        if(btn.dataset.theme === theme) btn.classList.add('active');
-    });
-    
-    localStorage.setItem('userTheme', theme);
-}
-
-function loadTheme() {
-    const savedTheme = localStorage.getItem('userTheme');
-    if(savedTheme && ['green', 'blue', 'purple', 'orange', 'pink', 'dark'].includes(savedTheme)) {
-        setTheme(savedTheme);
-    } else {
-        setTheme('green');
-    }
-}
-
-function resetTheme() {
-    localStorage.removeItem('userTheme');
-    setTheme('green');
-}
-
-// ========== LOGIN STREAK & TIME MACHINE ==========
-function updateLoginStreak() {
-    const today = new Date().toDateString();
-    const lastLogin = localStorage.getItem('lastLoginDate');
-    let streak = parseInt(localStorage.getItem('loginStreak')) || 0;
-    let totalLogins = parseInt(localStorage.getItem('totalLogins')) || 0;
-    
-    let loginHistory = JSON.parse(localStorage.getItem('loginHistory')) || [];
-    
-    if(lastLogin !== today) {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toDateString();
-        
-        if(lastLogin === yesterdayStr) {
-            streak++;
-        } else if(lastLogin !== today) {
-            streak = 1;
-        }
-        
-        const now = new Date();
-        const loginEntry = {
-            date: now.toLocaleDateString(),
-            time: now.toLocaleTimeString(),
-            timestamp: now.getTime()
-        };
-        loginHistory.unshift(loginEntry);
-        
-        if(loginHistory.length > 10) loginHistory.pop();
-        
-        totalLogins++;
-        
-        localStorage.setItem('lastLoginDate', today);
-        localStorage.setItem('loginStreak', streak);
-        localStorage.setItem('totalLogins', totalLogins);
-        localStorage.setItem('loginHistory', JSON.stringify(loginHistory));
-        
-        if(!localStorage.getItem('firstLoginDate')) {
-            localStorage.setItem('firstLoginDate', now.toLocaleDateString());
-        }
-    }
-    
-    const streakElement = document.getElementById('streakDays');
-    if(streakElement) streakElement.textContent = streak;
-    
-    updateStreakRewards(streak);
-    updateTimeMachine();
-}
-
-function updateStreakRewards(streak) {
-    const milestones = [7, 14, 30, 100];
-    const badges = {
-        7: document.getElementById('badge7'),
-        14: document.getElementById('badge14'),
-        30: document.getElementById('badge30'),
-        100: document.getElementById('badge100')
-    };
-    
-    milestones.forEach(day => {
-        const badge = badges[day];
-        if(badge) {
-            if(streak >= day) {
-                badge.textContent = '✅';
-                badge.classList.add('unlocked');
-            } else {
-                badge.textContent = '🔒';
-                badge.classList.remove('unlocked');
-            }
-        }
-    });
-    
-    const daysToReward = document.getElementById('daysToReward');
-    if(daysToReward) {
-        if(streak < 7) daysToReward.textContent = 7 - streak;
-        else if(streak < 14) daysToReward.textContent = 14 - streak;
-        else if(streak < 30) daysToReward.textContent = 30 - streak;
-        else if(streak < 100) daysToReward.textContent = 100 - streak;
-        else daysToReward.textContent = '0';
-    }
-}
-
-function updateTimeMachine() {
-    const firstLogin = localStorage.getItem('firstLoginDate');
-    const lastLogin = localStorage.getItem('lastLoginDate');
-    const totalLogins = localStorage.getItem('totalLogins') || 0;
-    const loginHistory = JSON.parse(localStorage.getItem('loginHistory')) || [];
-    
-    const firstLoginEl = document.getElementById('firstLogin');
-    const lastLoginEl = document.getElementById('lastLogin');
-    const totalLoginsEl = document.getElementById('totalLogins');
-    const historyContainer = document.getElementById('loginHistory');
-    
-    if(firstLoginEl) firstLoginEl.textContent = firstLogin || 'Today';
-    if(lastLoginEl) lastLoginEl.textContent = lastLogin || 'Today';
-    if(totalLoginsEl) totalLoginsEl.textContent = totalLogins;
-    
-    if(historyContainer) {
-        if(loginHistory.length === 0) {
-            historyContainer.innerHTML = '<p class="history-placeholder">✨ Your login history will appear here</p>';
-        } else {
-            historyContainer.innerHTML = loginHistory.map(entry => `
-                <div class="history-item">
-                    <span class="history-date">${entry.date}</span>
-                    <span class="history-time">${entry.time}</span>
-                </div>
-            `).join('');
-        }
-    }
-}
-
-// ========== DYNAMIC AVATAR GENERATOR ==========
-function generateAvatar(username, email) {
-    const name = username || email.split('@')[0];
-    const colors = ['#16a34a', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#6366f1'];
-    const colorIndex = name.length % colors.length;
-    const backgroundColor = colors[colorIndex];
-    const emojis = ['😊', '🌟', '💪', '🎯', '🍎', '🥗', '🏃', '🧘', '📚', '🎨'];
-    const emojiIndex = name.charCodeAt(0) % emojis.length;
-    const avatarEmoji = emojis[emojiIndex];
-    
-    const avatarElement = document.getElementById('dynamicAvatar');
-    const avatarSpan = document.getElementById('avatarEmoji');
-    
-    if(avatarSpan) {
-        avatarSpan.textContent = avatarEmoji;
-        avatarSpan.style.fontSize = '3rem';
-    }
-    
-    if(avatarElement) {
-        avatarElement.style.background = `linear-gradient(135deg, ${backgroundColor}, ${backgroundColor}dd)`;
-        avatarElement.classList.add('avatar-updated');
-        setTimeout(() => avatarElement.classList.remove('avatar-updated'), 500);
-    }
-}
-
-// ========== INITIALIZE ALL ==========
-document.addEventListener('DOMContentLoaded', function() {
-    const username = '<?php echo htmlspecialchars($_SESSION['username']); ?>';
-    const email = '<?php echo htmlspecialchars($_SESSION['email']); ?>';
-    
-    generateAvatar(username, email);
-    updateLoginStreak();
-    getDailyAffirmation();
-    loadGoals();
-    loadFriends();
-    loadTheme();
-});
-
 // ========== DELETE ACCOUNT MODAL ==========
 function openDeleteModal() {
     const modal = document.getElementById('deleteModal');
@@ -1567,9 +996,16 @@ function validateProfileForm() {
 
 // Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('deleteModal');
+    const deleteModal = document.getElementById('deleteModal');
     const addGoalModal = document.getElementById('addGoalModal');
-    if (event.target == modal) closeDeleteModal();
+    
+    if (event.target == deleteModal) closeDeleteModal();
     if (event.target == addGoalModal) closeAddGoalModal();
 }
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadGoals();
+    loadFriends();
+});
 </script>
