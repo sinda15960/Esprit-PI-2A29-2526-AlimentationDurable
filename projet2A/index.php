@@ -59,6 +59,16 @@ switch($action) {
             $userController->showResetPassword();
         }
         break;
+    
+    // ========== AJAX RESET PASSWORD ==========
+    case 'sendResetLink':
+        $userController->sendResetLink();
+        break;
+    case 'resetPasswordAjax':
+        $userController->resetPasswordAjax();
+        break;
+    
+    // ========== SOCIAL LOGIN ==========
     case 'social_login_ajax':
         $userController->socialLoginAjax();
         break;
