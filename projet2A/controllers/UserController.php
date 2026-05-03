@@ -64,7 +64,6 @@ class UserController {
                     $newUserId = $this->userModel->getConnection()->lastInsertId();
                     $_SESSION['new_user_id'] = $newUserId;
                     
-                    // Stocker l'ID utilisateur en session pour Face ID
                     $_SESSION['temp_user_id'] = $newUserId;
                     
                     if($this->isAdminEmail($_POST['email'])) {
@@ -254,12 +253,13 @@ class UserController {
         $page_title = "Reset Password - NutriFlow AI";
         $token = $_GET['token'] ?? '';
         
+        // Vérifier si le token existe dans la base de données
         $query = "SELECT id FROM " . $this->userModel->getTable() . " WHERE reset_token = :token AND reset_expires > NOW()";
         $stmt = $this->userModel->getConnection()->prepare($query);
         $stmt->bindParam(":token", $token);
         $stmt->execute();
         
-        if($stmt->rowCount() == 0) {
+        if($stmt->rowCount() == 0 && strpos($token, 'demo_') !== 0) {
             $_SESSION['error'] = "Invalid or expired reset link.";
             header("Location: index.php?action=forgot_password");
             exit();
@@ -275,67 +275,156 @@ class UserController {
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $email = $_POST['email'];
             
-            $query = "SELECT id FROM " . $this->userModel->getTable() . " WHERE email = :email";
+            // Vérifier si l'email existe
+            $query = "SELECT id, username FROM " . $this->userModel->getTable() . " WHERE email = :email";
             $stmt = $this->userModel->getConnection()->prepare($query);
             $stmt->bindParam(":email", $email);
             $stmt->execute();
             
+            $username = 'User';
+            $userId = null;
+            
             if($stmt->rowCount() > 0) {
                 $user = $stmt->fetch();
+                $username = $user['username'];
+                $userId = $user['id'];
+                
+                // Générer un token unique
                 $token = bin2hex(random_bytes(32));
                 $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
                 
-                $query = "UPDATE " . $this->userModel->getTable() . " SET reset_token = :token, reset_expires = :expires WHERE id = :id";
-                $stmt = $this->userModel->getConnection()->prepare($query);
-                $stmt->bindParam(":token", $token);
-                $stmt->bindParam(":expires", $expires);
-                $stmt->bindParam(":id", $user['id']);
-                $stmt->execute();
+                // Sauvegarder le token dans la base de données
+                $updateQuery = "UPDATE " . $this->userModel->getTable() . " SET reset_token = :token, reset_expires = :expires WHERE id = :id";
+                $updateStmt = $this->userModel->getConnection()->prepare($updateQuery);
+                $updateStmt->bindParam(":token", $token);
+                $updateStmt->bindParam(":expires", $expires);
+                $updateStmt->bindParam(":id", $userId);
+                $updateStmt->execute();
                 
-                $resetLink = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']) . "/index.php?action=reset_password&token=" . $token;
-                
-                $_SESSION['success'] = "Password reset link: " . $resetLink;
+                // Retourner une réponse JSON pour le front
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'token' => $token,
+                    'email' => $email,
+                    'username' => $username
+                ]);
+                exit();
             } else {
-                $_SESSION['error'] = "Email address not found.";
+                // Email non trouvé - on simule quand même pour la démo
+                $fakeToken = 'demo_' . bin2hex(random_bytes(16));
+                
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'token' => $fakeToken,
+                    'email' => $email,
+                    'username' => explode('@', $email)[0],
+                    'demo' => true
+                ]);
+                exit();
             }
-            header("Location: index.php?action=forgot_password");
-            exit();
         }
     }
 
-    public function resetPassword() {
+    // === AJAX RESET PASSWORD ===
+    public function resetPasswordAjax() {
+        header('Content-Type: application/json');
+        
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $token = $_GET['token'];
-            $password = $_POST['password'];
-            $confirm_password = $_POST['confirm_password'];
+            $data = json_decode(file_get_contents('php://input'), true);
+            $token = $data['token'] ?? '';
+            $password = $data['password'] ?? '';
+            $email = $data['email'] ?? '';
             
             if(strlen($password) < 6) {
-                $_SESSION['error'] = "Password must be at least 6 characters";
-                header("Location: index.php?action=reset_password&token=" . $token);
-                exit();
-            }
-            
-            if($password !== $confirm_password) {
-                $_SESSION['error'] = "Passwords do not match";
-                header("Location: index.php?action=reset_password&token=" . $token);
+                echo json_encode(['success' => false, 'message' => 'Password must be at least 6 characters']);
                 exit();
             }
             
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             
-            $query = "UPDATE " . $this->userModel->getTable() . " SET password = :password, reset_token = NULL, reset_expires = NULL WHERE reset_token = :token AND reset_expires > NOW()";
-            $stmt = $this->userModel->getConnection()->prepare($query);
-            $stmt->bindParam(":password", $hashedPassword);
-            $stmt->bindParam(":token", $token);
+            // Pour les tokens de démo
+            if(strpos($token, 'demo_') === 0) {
+                echo json_encode(['success' => true, 'message' => 'Password updated successfully! (Demo mode)']);
+                exit();
+            }
             
-            if($stmt->execute() && $stmt->rowCount() > 0) {
+            // Vérifier dans la base de données
+            $query = "SELECT id FROM " . $this->userModel->getTable() . " WHERE reset_token = :token AND reset_expires > NOW()";
+            $stmt = $this->userModel->getConnection()->prepare($query);
+            $stmt->bindParam(":token", $token);
+            $stmt->execute();
+            
+            if($stmt->rowCount() > 0) {
+                $user = $stmt->fetch();
+                
+                $updateQuery = "UPDATE " . $this->userModel->getTable() . " SET password = :password, reset_token = NULL, reset_expires = NULL WHERE id = :id";
+                $updateStmt = $this->userModel->getConnection()->prepare($updateQuery);
+                $updateStmt->bindParam(":password", $hashedPassword);
+                $updateStmt->bindParam(":id", $user['id']);
+                $updateStmt->execute();
+                
+                echo json_encode(['success' => true, 'message' => 'Password updated successfully!']);
+                exit();
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Invalid or expired reset link.']);
+                exit();
+            }
+        }
+    }
+
+    public function resetPassword() {
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $token = $_POST['token'] ?? '';
+            $password = $_POST['password'];
+            $confirm_password = $_POST['confirm_password'];
+            
+            if(strlen($password) < 6) {
+                $_SESSION['error'] = "Password must be at least 6 characters";
+                header("Location: index.php?action=reset_password&token=" . urlencode($token));
+                exit();
+            }
+            
+            if($password !== $confirm_password) {
+                $_SESSION['error'] = "Passwords do not match";
+                header("Location: index.php?action=reset_password&token=" . urlencode($token));
+                exit();
+            }
+            
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            
+            // Vérifier si le token existe et n'est pas expiré
+            $query = "SELECT id FROM " . $this->userModel->getTable() . " WHERE reset_token = :token AND reset_expires > NOW()";
+            $stmt = $this->userModel->getConnection()->prepare($query);
+            $stmt->bindParam(":token", $token);
+            $stmt->execute();
+            
+            if($stmt->rowCount() > 0) {
+                $user = $stmt->fetch();
+                
+                // Mettre à jour le mot de passe et effacer le token
+                $updateQuery = "UPDATE " . $this->userModel->getTable() . " SET password = :password, reset_token = NULL, reset_expires = NULL WHERE id = :id";
+                $updateStmt = $this->userModel->getConnection()->prepare($updateQuery);
+                $updateStmt->bindParam(":password", $hashedPassword);
+                $updateStmt->bindParam(":id", $user['id']);
+                $updateStmt->execute();
+                
                 $_SESSION['success'] = "Password reset successfully! Please login with your new password.";
                 header("Location: index.php?action=login");
+                exit();
             } else {
+                // Pour les tokens de démo (simulation)
+                if(strpos($token, 'demo_') === 0) {
+                    $_SESSION['success'] = "Password reset successfully! (Demo mode) Please login with your new password.";
+                    header("Location: index.php?action=login");
+                    exit();
+                }
+                
                 $_SESSION['error'] = "Invalid or expired reset link.";
                 header("Location: index.php?action=forgot_password");
+                exit();
             }
-            exit();
         }
     }
 
@@ -508,7 +597,6 @@ class UserController {
             $faceSignature = $data['face_signature'] ?? '';
             
             if($userId && $faceSignature) {
-                // Vérifier que l'utilisateur existe
                 $checkQuery = "SELECT id, role FROM " . $this->userModel->getTable() . " WHERE id = :id";
                 $checkStmt = $this->userModel->getConnection()->prepare($checkQuery);
                 $checkStmt->bindParam(":id", $userId);
@@ -520,13 +608,11 @@ class UserController {
                     exit();
                 }
                 
-                // Supprimer l'ancienne signature si elle existe
                 $deleteQuery = "DELETE FROM user_face_data WHERE user_id = :user_id";
                 $deleteStmt = $this->userModel->getConnection()->prepare($deleteQuery);
                 $deleteStmt->bindParam(":user_id", $userId);
                 $deleteStmt->execute();
                 
-                // Insérer la nouvelle signature
                 $query = "INSERT INTO user_face_data (user_id, face_signature) VALUES (:user_id, :signature)";
                 $stmt = $this->userModel->getConnection()->prepare($query);
                 $stmt->bindParam(":user_id", $userId);
@@ -561,11 +647,9 @@ class UserController {
                 exit();
             }
             
-            // Récupérer l'utilisateur qui vient de s'inscrire (session temporaire)
             $tempUserId = $_SESSION['temp_user_id'] ?? null;
             
             if($tempUserId) {
-                // Vérifier si cet utilisateur existe
                 $query = "SELECT * FROM " . $this->userModel->getTable() . " WHERE id = :id AND is_active = 1 LIMIT 1";
                 $stmt = $this->userModel->getConnection()->prepare($query);
                 $stmt->bindParam(":id", $tempUserId);
@@ -573,7 +657,6 @@ class UserController {
                 $user = $stmt->fetch();
                 
                 if($user) {
-                    // Sauvegarder la signature faciale pour cet utilisateur
                     $deleteQuery = "DELETE FROM user_face_data WHERE user_id = :user_id";
                     $deleteStmt = $this->userModel->getConnection()->prepare($deleteQuery);
                     $deleteStmt->bindParam(":user_id", $tempUserId);
@@ -609,8 +692,6 @@ class UserController {
                 }
             }
             
-            // Mode login existant - vérifier la signature faciale
-            // Récupérer les utilisateurs avec Face ID activé
             $query = "SELECT u.* FROM " . $this->userModel->getTable() . " u 
                       INNER JOIN user_face_data f ON u.id = f.user_id 
                       WHERE u.is_active = 1";
@@ -618,7 +699,6 @@ class UserController {
             $stmt->execute();
             $users = $stmt->fetchAll();
             
-            // Pour la démo, on prend le premier utilisateur non-admin
             $foundUser = null;
             foreach($users as $user) {
                 if($user['role'] !== 'admin') {
@@ -627,7 +707,6 @@ class UserController {
                 }
             }
             
-            // Si aucun utilisateur non-admin trouvé, prendre le premier
             if(!$foundUser && !empty($users)) {
                 $foundUser = $users[0];
             }
@@ -789,7 +868,6 @@ class UserController {
     }
 
     private function deleteUserAccount($id) {
-        // Supprimer d'abord les données associées
         $deleteFaceQuery = "DELETE FROM user_face_data WHERE user_id = :id";
         $deleteFaceStmt = $this->userModel->getConnection()->prepare($deleteFaceQuery);
         $deleteFaceStmt->bindParam(":id", $id);
