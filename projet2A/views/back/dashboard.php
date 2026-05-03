@@ -8,33 +8,71 @@
 
     <!-- Stats Grid (Widget 1) -->
     <div id="widget-stats" class="stats-grid">
+        <?php
+        // Calcul des statistiques directement en PHP
+        $adminCount = 0;
+        $disabledCount = 0;
+        $activeCount = 0;
+        $newThisMonth = 0;
+        $newThisWeek = 0;
+        $firstDayOfMonth = date('Y-m-d H:i:s', strtotime('first day of this month'));
+        $weekAgo = date('Y-m-d H:i:s', strtotime('-7 days'));
+        
+        foreach($users as $user) {
+            if($user['role'] == 'admin') $adminCount++;
+            if(isset($user['is_active']) && $user['is_active'] == 0) $disabledCount++;
+            if(isset($user['is_active']) && $user['is_active'] == 1) $activeCount++;
+            if(strtotime($user['created_at']) > strtotime($firstDayOfMonth)) $newThisMonth++;
+            if(strtotime($user['created_at']) > strtotime($weekAgo)) $newThisWeek++;
+        }
+        $regularUsers = count($users) - $adminCount;
+        ?>
         <div class="stat-card">
             <div class="stat-icon">👥</div>
             <div class="stat-info">
                 <h3>Total Users</h3>
                 <p class="stat-number"><?php echo count($users); ?></p>
+                <p class="stat-trend">📈 +<?php echo $newThisMonth; ?> this month</p>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon">👑</div>
             <div class="stat-info">
                 <h3>Admins</h3>
-                <p class="stat-number">
-                    <?php 
-                        $adminCount = 0;
-                        foreach($users as $user) {
-                            if($user['role'] == 'admin') $adminCount++;
-                        }
-                        echo $adminCount;
-                    ?>
-                </p>
+                <p class="stat-number"><?php echo $adminCount; ?></p>
+                <p class="stat-trend">👑 Platform managers</p>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon">👤</div>
             <div class="stat-info">
                 <h3>Regular Users</h3>
-                <p class="stat-number"><?php echo count($users) - $adminCount; ?></p>
+                <p class="stat-number"><?php echo $regularUsers; ?></p>
+                <p class="stat-trend">👥 Active community</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🚫</div>
+            <div class="stat-info">
+                <h3>Disabled Users</h3>
+                <p class="stat-number"><?php echo $disabledCount; ?></p>
+                <p class="stat-trend">⚠️ Accounts suspended</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🟢</div>
+            <div class="stat-info">
+                <h3>Active Users</h3>
+                <p class="stat-number"><?php echo $activeCount; ?></p>
+                <p class="stat-trend">✅ Currently active</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-info">
+                <h3>New This Week</h3>
+                <p class="stat-number"><?php echo $newThisWeek; ?></p>
+                <p class="stat-trend">🆕 New registrations</p>
             </div>
         </div>
         <div class="stat-card">
@@ -42,6 +80,7 @@
             <div class="stat-info">
                 <h3>Total Recipes</h3>
                 <p class="stat-number">128</p>
+                <p class="stat-trend">📖 +12 this month</p>
             </div>
         </div>
         <div class="stat-card">
@@ -49,6 +88,7 @@
             <div class="stat-info">
                 <h3>Donations</h3>
                 <p class="stat-number">$5,240</p>
+                <p class="stat-trend">💝 156 donors</p>
             </div>
         </div>
         <div class="stat-card">
@@ -56,6 +96,60 @@
             <div class="stat-info">
                 <h3>Market Orders</h3>
                 <p class="stat-number">342</p>
+                <p class="stat-trend">📦 28 vendors</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-info">
+                <h3>Avg Rating</h3>
+                <p class="stat-number">4.8</p>
+                <p class="stat-trend">★★★★★</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div id="widget-analytics" class="analytics-section">
+        <h3>📊 User Analytics</h3>
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h4>Monthly Registrations</h4>
+                <canvas id="registrationsChart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-card">
+                <h4>User Activity (Last 7 Days)</h4>
+                <canvas id="activityChart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-card">
+                <h4>Dietary Preferences</h4>
+                <canvas id="dietaryChart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-card">
+                <h4>Users by Role</h4>
+                <canvas id="roleChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- World Map Section (Widget 3) -->
+    <div id="widget-worldmap" class="worldmap-section">
+        <h3>🌍 User Locations</h3>
+        <div class="worldmap-container">
+            <canvas id="worldMapCanvas" width="800" height="400"></canvas>
+            <div class="map-stats">
+                <div class="map-stat">
+                    <span class="map-stat-label">🌎 Countries</span>
+                    <span class="map-stat-value" id="countryCount">12</span>
+                </div>
+                <div class="map-stat">
+                    <span class="map-stat-label">📍 Cities</span>
+                    <span class="map-stat-value" id="cityCount">34</span>
+                </div>
+                <div class="map-stat">
+                    <span class="map-stat-label">🌍 Continents</span>
+                    <span class="map-stat-value">6</span>
+                </div>
             </div>
         </div>
     </div>
@@ -231,6 +325,8 @@
             <p>Select which widgets to display:</p>
             <div class="widget-options">
                 <label><input type="checkbox" value="stats" checked> 📊 Statistics Cards</label>
+                <label><input type="checkbox" value="analytics" checked> 📈 Analytics Charts</label>
+                <label><input type="checkbox" value="worldmap" checked> 🌍 World Map</label>
                 <label><input type="checkbox" value="notifications" checked> 🔔 Notifications</label>
                 <label><input type="checkbox" value="messages" checked> 📬 Contact Messages</label>
             </div>
@@ -291,6 +387,121 @@
 .btn-settings:hover {
     background: #e2e8f0;
     transform: translateY(-2px);
+}
+
+/* Stat Cards */
+.stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-trend {
+    font-size: 0.7rem;
+    color: #16a34a;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.stat-trend.negative {
+    color: #ef4444;
+}
+
+/* Analytics Section */
+.analytics-section {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.analytics-section h3 {
+    margin-bottom: 1rem;
+    color: #2d3748;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.chart-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 0.3s;
+}
+
+.chart-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.chart-card h4 {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.chart-card canvas {
+    width: 100%;
+    max-height: 200px;
+}
+
+/* World Map Section */
+.worldmap-section {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.worldmap-section h3 {
+    margin-bottom: 1rem;
+    color: #2d3748;
+}
+
+.worldmap-container {
+    text-align: center;
+}
+
+#worldMapCanvas {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    background: linear-gradient(135deg, #1e3a5f, #0f172a);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.map-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.map-stat {
+    text-align: center;
+    padding: 0.5rem 1rem;
+    background: #f1f5f9;
+    border-radius: 12px;
+}
+
+.map-stat-label {
+    display: block;
+    font-size: 0.7rem;
+    color: #64748b;
+}
+
+.map-stat-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #16a34a;
 }
 
 /* Notifications Section */
@@ -712,10 +923,236 @@
         margin: 30% auto;
         width: 95%;
     }
+    
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .map-stats {
+        gap: 1rem;
+    }
 }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
+// ========== LOAD CHARTS ==========
+function loadCharts() {
+    // Données pour les graphiques
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const registrationsData = [15, 22, 18, 25, 30, 28, 35, 42, 48, 52, 58, 65];
+    
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const activityData = [45, 52, 48, 61, 58, 42, 38];
+    
+    const dietaryData = {
+        labels: ['Omnivore', 'Vegetarian', 'Vegan', 'Pescatarian', 'Keto'],
+        values: [45, 25, 15, 8, 7]
+    };
+    
+    // Get actual counts from users table
+    const totalUsers = <?php echo count($users); ?>;
+    const adminCount = <?php echo $adminCount; ?>;
+    const regularUsers = totalUsers - adminCount;
+    
+    // Role chart
+    const ctxRole = document.getElementById('roleChart').getContext('2d');
+    new Chart(ctxRole, {
+        type: 'doughnut',
+        data: {
+            labels: ['Admins', 'Regular Users'],
+            datasets: [{
+                data: [adminCount, regularUsers],
+                backgroundColor: ['#8b5cf6', '#16a34a'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Registration chart
+    const ctxReg = document.getElementById('registrationsChart').getContext('2d');
+    new Chart(ctxReg, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'New Users',
+                data: registrationsData,
+                borderColor: '#16a34a',
+                backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#16a34a',
+                pointBorderColor: '#fff',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Users'
+                    }
+                }
+            }
+        }
+    });
+    
+    // Activity chart
+    const ctxAct = document.getElementById('activityChart').getContext('2d');
+    new Chart(ctxAct, {
+        type: 'bar',
+        data: {
+            labels: days,
+            datasets: [{
+                label: 'Active Users',
+                data: activityData,
+                backgroundColor: '#3b82f6',
+                borderRadius: 8,
+                barPercentage: 0.7
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Users'
+                    }
+                }
+            }
+        }
+    });
+    
+    // Dietary chart
+    const ctxDiet = document.getElementById('dietaryChart').getContext('2d');
+    new Chart(ctxDiet, {
+        type: 'pie',
+        data: {
+            labels: dietaryData.labels,
+            datasets: [{
+                data: dietaryData.values,
+                backgroundColor: ['#16a34a', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// ========== WORLD MAP ==========
+function drawWorldMap() {
+    const canvas = document.getElementById('worldMapCanvas');
+    if(!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    
+    // Simulate world map with circles
+    const locations = [
+        { x: width * 0.2, y: height * 0.3, name: 'North America', users: 8234 },
+        { x: width * 0.35, y: height * 0.55, name: 'South America', users: 3421 },
+        { x: width * 0.55, y: height * 0.25, name: 'Europe', users: 12567 },
+        { x: width * 0.6, y: height * 0.5, name: 'Africa', users: 1234 },
+        { x: width * 0.75, y: height * 0.35, name: 'Asia', users: 5678 },
+        { x: width * 0.85, y: height * 0.7, name: 'Australia', users: 2345 }
+    ];
+    
+    // Clear and draw background
+    ctx.fillStyle = '#1e3a5f';
+    ctx.fillRect(0, 0, width, height);
+    
+    // Draw grid lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    for(let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, height * (i / 4));
+        ctx.lineTo(width, height * (i / 4));
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(width * (i / 4), 0);
+        ctx.lineTo(width * (i / 4), height);
+        ctx.stroke();
+    }
+    
+    // Draw locations
+    locations.forEach(loc => {
+        const radius = Math.min(30, 10 + (loc.users / 500));
+        
+        // Outer glow
+        ctx.beginPath();
+        ctx.arc(loc.x, loc.y, radius + 5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(34, 197, 94, 0.2)';
+        ctx.fill();
+        
+        // Inner circle
+        ctx.beginPath();
+        ctx.arc(loc.x, loc.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#16a34a';
+        ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Pulse animation
+        ctx.beginPath();
+        ctx.arc(loc.x, loc.y, radius + 8, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(34, 197, 94, 0.3)';
+        ctx.fill();
+        
+        // Label
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 10px Arial';
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = 'black';
+        ctx.fillText(loc.name, loc.x - 30, loc.y - radius - 5);
+        ctx.fillText(loc.users + ' users', loc.x - 30, loc.y - radius - 15);
+        ctx.shadowBlur = 0;
+    });
+}
+
 // ========== NOTIFICATIONS ==========
 let notificationInterval;
 
@@ -831,6 +1268,8 @@ function saveWidgetSettings() {
 function applyWidgetVisibility(widgets) {
     const elements = {
         'stats': document.getElementById('widget-stats'),
+        'analytics': document.getElementById('widget-analytics'),
+        'worldmap': document.getElementById('widget-worldmap'),
         'notifications': document.getElementById('widget-notifications'),
         'messages': document.getElementById('widget-messages')
     };
@@ -923,11 +1362,35 @@ function closeModal() {
     if(modal) modal.style.display = 'none';
 }
 
+// ========== ANIMATION COUNTERS ==========
+function animateNumbers() {
+    const counters = document.querySelectorAll('.stat-number');
+    counters.forEach(counter => {
+        const target = parseInt(counter.innerText);
+        let current = 0;
+        const increment = target / 50;
+        
+        const updateCounter = () => {
+            if(current < target) {
+                current += increment;
+                counter.innerText = Math.floor(current);
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        updateCounter();
+    });
+}
+
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', function() {
+    loadCharts();
+    drawWorldMap();
     loadNotifications();
     loadContactMessages();
     loadWidgetSettings();
+    animateNumbers();
     
     // Refresh notifications every 30 seconds
     notificationInterval = setInterval(loadNotifications, 30000);
@@ -941,4 +1404,9 @@ window.onclick = function(event) {
     if(event.target == modal) closeModal();
     if(event.target == widgetModal) closeWidgetModal();
 }
+
+// Resize handler for world map
+window.addEventListener('resize', function() {
+    drawWorldMap();
+});
 </script>
