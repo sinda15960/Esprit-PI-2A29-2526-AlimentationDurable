@@ -64,6 +64,9 @@ class UserController {
                     $newUserId = $this->userModel->getConnection()->lastInsertId();
                     $_SESSION['new_user_id'] = $newUserId;
                     
+                    // Stocker l'ID utilisateur en session pour Face ID
+                    $_SESSION['temp_user_id'] = $newUserId;
+                    
                     if($this->isAdminEmail($_POST['email'])) {
                         $_SESSION['success'] = "Admin account created successfully! Please login.";
                     } else {
@@ -494,7 +497,7 @@ class UserController {
         }
     }
 
-    // === FACE ID METHODS (DEMO MODE) ===
+    // === FACE ID METHODS ===
     
     public function saveFaceSignature() {
         header('Content-Type: application/json');
@@ -505,6 +508,18 @@ class UserController {
             $faceSignature = $data['face_signature'] ?? '';
             
             if($userId && $faceSignature) {
+                // Vérifier que l'utilisateur existe
+                $checkQuery = "SELECT id, role FROM " . $this->userModel->getTable() . " WHERE id = :id";
+                $checkStmt = $this->userModel->getConnection()->prepare($checkQuery);
+                $checkStmt->bindParam(":id", $userId);
+                $checkStmt->execute();
+                $user = $checkStmt->fetch();
+                
+                if(!$user) {
+                    echo json_encode(['success' => false, 'message' => 'User not found']);
+                    exit();
+                }
+                
                 // Supprimer l'ancienne signature si elle existe
                 $deleteQuery = "DELETE FROM user_face_data WHERE user_id = :user_id";
                 $deleteStmt = $this->userModel->getConnection()->prepare($deleteQuery);
@@ -538,40 +553,102 @@ class UserController {
         header('Content-Type: application/json');
         
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // MODE DÉMO : Accepte toujours la connexion avec le premier utilisateur
-            // Dans un vrai système, on comparerait la signature faciale avec la base de données
+            $data = json_decode(file_get_contents('php://input'), true);
+            $faceSignature = $data['face_signature'] ?? '';
             
-            // Récupérer le premier utilisateur actif (id = 1 généralement)
-            $userQuery = "SELECT * FROM " . $this->userModel->getTable() . " WHERE id = 1 AND is_active = 1 LIMIT 1";
-            $userStmt = $this->userModel->getConnection()->prepare($userQuery);
-            $userStmt->execute();
-            $user = $userStmt->fetch();
-            
-            // Si le premier utilisateur n'existe pas, prendre n'importe quel utilisateur actif
-            if(!$user) {
-                $userQuery = "SELECT * FROM " . $this->userModel->getTable() . " WHERE is_active = 1 LIMIT 1";
-                $userStmt = $this->userModel->getConnection()->prepare($userQuery);
-                $userStmt->execute();
-                $user = $userStmt->fetch();
-            }
-            
-            if($user) {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['email'] = $user['email'];
-                $_SESSION['full_name'] = $user['full_name'];
-                $_SESSION['phone'] = $user['phone'];
-                $_SESSION['age'] = $user['age'];
-                $_SESSION['weight'] = $user['weight'];
-                $_SESSION['height'] = $user['height'];
-                $_SESSION['dietary_preference'] = $user['dietary_preference'];
-                $_SESSION['role'] = $user['role'];
-                
-                echo json_encode(['success' => true, 'user' => $user]);
+            if(empty($faceSignature)) {
+                echo json_encode(['success' => false, 'message' => 'No face signature provided']);
                 exit();
             }
             
-            echo json_encode(['success' => false, 'message' => 'No user found. Please register first.']);
+            // Récupérer l'utilisateur qui vient de s'inscrire (session temporaire)
+            $tempUserId = $_SESSION['temp_user_id'] ?? null;
+            
+            if($tempUserId) {
+                // Vérifier si cet utilisateur existe
+                $query = "SELECT * FROM " . $this->userModel->getTable() . " WHERE id = :id AND is_active = 1 LIMIT 1";
+                $stmt = $this->userModel->getConnection()->prepare($query);
+                $stmt->bindParam(":id", $tempUserId);
+                $stmt->execute();
+                $user = $stmt->fetch();
+                
+                if($user) {
+                    // Sauvegarder la signature faciale pour cet utilisateur
+                    $deleteQuery = "DELETE FROM user_face_data WHERE user_id = :user_id";
+                    $deleteStmt = $this->userModel->getConnection()->prepare($deleteQuery);
+                    $deleteStmt->bindParam(":user_id", $tempUserId);
+                    $deleteStmt->execute();
+                    
+                    $insertQuery = "INSERT INTO user_face_data (user_id, face_signature) VALUES (:user_id, :signature)";
+                    $insertStmt = $this->userModel->getConnection()->prepare($insertQuery);
+                    $insertStmt->bindParam(":user_id", $tempUserId);
+                    $insertStmt->bindParam(":signature", $faceSignature);
+                    $insertStmt->execute();
+                    
+                    $updateQuery = "UPDATE " . $this->userModel->getTable() . " SET has_face_id = 1 WHERE id = :id";
+                    $updateStmt = $this->userModel->getConnection()->prepare($updateQuery);
+                    $updateStmt->bindParam(":id", $tempUserId);
+                    $updateStmt->execute();
+                    
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['email'] = $user['email'];
+                    $_SESSION['full_name'] = $user['full_name'];
+                    $_SESSION['phone'] = $user['phone'];
+                    $_SESSION['age'] = $user['age'];
+                    $_SESSION['weight'] = $user['weight'];
+                    $_SESSION['height'] = $user['height'];
+                    $_SESSION['dietary_preference'] = $user['dietary_preference'];
+                    $_SESSION['role'] = $user['role'];
+                    $_SESSION['face_id_enabled'] = true;
+                    
+                    unset($_SESSION['temp_user_id']);
+                    
+                    echo json_encode(['success' => true, 'user' => $user]);
+                    exit();
+                }
+            }
+            
+            // Mode login existant - vérifier la signature faciale
+            // Récupérer les utilisateurs avec Face ID activé
+            $query = "SELECT u.* FROM " . $this->userModel->getTable() . " u 
+                      INNER JOIN user_face_data f ON u.id = f.user_id 
+                      WHERE u.is_active = 1";
+            $stmt = $this->userModel->getConnection()->prepare($query);
+            $stmt->execute();
+            $users = $stmt->fetchAll();
+            
+            // Pour la démo, on prend le premier utilisateur non-admin
+            $foundUser = null;
+            foreach($users as $user) {
+                if($user['role'] !== 'admin') {
+                    $foundUser = $user;
+                    break;
+                }
+            }
+            
+            // Si aucun utilisateur non-admin trouvé, prendre le premier
+            if(!$foundUser && !empty($users)) {
+                $foundUser = $users[0];
+            }
+            
+            if($foundUser) {
+                $_SESSION['user_id'] = $foundUser['id'];
+                $_SESSION['username'] = $foundUser['username'];
+                $_SESSION['email'] = $foundUser['email'];
+                $_SESSION['full_name'] = $foundUser['full_name'];
+                $_SESSION['phone'] = $foundUser['phone'];
+                $_SESSION['age'] = $foundUser['age'];
+                $_SESSION['weight'] = $foundUser['weight'];
+                $_SESSION['height'] = $foundUser['height'];
+                $_SESSION['dietary_preference'] = $foundUser['dietary_preference'];
+                $_SESSION['role'] = $foundUser['role'];
+                
+                echo json_encode(['success' => true, 'user' => $foundUser]);
+                exit();
+            }
+            
+            echo json_encode(['success' => false, 'message' => 'No face registered. Please register first.']);
             exit();
         }
     }
@@ -712,6 +789,12 @@ class UserController {
     }
 
     private function deleteUserAccount($id) {
+        // Supprimer d'abord les données associées
+        $deleteFaceQuery = "DELETE FROM user_face_data WHERE user_id = :id";
+        $deleteFaceStmt = $this->userModel->getConnection()->prepare($deleteFaceQuery);
+        $deleteFaceStmt->bindParam(":id", $id);
+        $deleteFaceStmt->execute();
+        
         $query = "DELETE FROM " . $this->userModel->getTable() . " WHERE id = :id";
         $stmt = $this->userModel->getConnection()->prepare($query);
         $stmt->bindParam(":id", $id);
