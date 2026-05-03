@@ -13,6 +13,8 @@ class AdminController {
         }
     }
 
+    // ========== DASHBOARD & USERS MANAGEMENT ==========
+    
     public function dashboard() {
         $users = $this->getAllUsers();
         $unreadCount = $this->getUnreadCount();
@@ -100,7 +102,7 @@ class AdminController {
         exit();
     }
 
-    // === ADD USER METHODS ===
+    // ========== ADD USER METHODS ==========
     
     public function addUser() {
         $page_title = "Add User - NutriFlow AI Admin";
@@ -163,7 +165,7 @@ class AdminController {
         }
     }
 
-    // === DISABLE/ENABLE USER METHODS ===
+    // ========== DISABLE/ENABLE USER METHODS ==========
     
     public function disableUser() {
         if(isset($_GET['id'])) {
@@ -211,7 +213,7 @@ class AdminController {
         exit();
     }
 
-    // === CONTACT MESSAGES METHODS ===
+    // ========== CONTACT MESSAGES METHODS ==========
     
     public function getContactMessages() {
         $query = "SELECT * FROM contact_messages ORDER BY created_at DESC";
@@ -242,7 +244,7 @@ class AdminController {
         return $stmt->execute();
     }
 
-    // === ANALYTICS & GRAPHS ===
+    // ========== ANALYTICS & GRAPHS ==========
     
     public function getAnalyticsData() {
         header('Content-Type: application/json');
@@ -282,7 +284,7 @@ class AdminController {
         exit();
     }
 
-    // === NOTIFICATIONS ===
+    // ========== NOTIFICATIONS ==========
     
     public function getNotifications() {
         header('Content-Type: application/json');
@@ -319,7 +321,7 @@ class AdminController {
         return $stmt->execute();
     }
 
-    // === WORLD MAP ===
+    // ========== WORLD MAP ==========
     
     public function getUserLocations() {
         header('Content-Type: application/json');
@@ -336,7 +338,7 @@ class AdminController {
         exit();
     }
 
-    // === EXPORT REPORTS ===
+    // ========== EXPORT REPORTS ==========
     
     public function exportUsers() {
         $format = $_GET['format'] ?? 'csv';
@@ -378,7 +380,7 @@ class AdminController {
                 echo '<td>' . htmlspecialchars($user['full_name'] ?? '') . '</td>';
                 echo '<td>' . htmlspecialchars($user['phone'] ?? '') . '</td>';
                 echo '<td>' . ($user['age'] ?? '') . '</td>';
-                echo '<td>' . $user['role'] . '</td>';
+                echo '<td>' . $user['role'] . '<td>';
                 echo '<td>' . ($user['is_active'] == 1 ? 'Active' : 'Disabled') . '</td>';
                 echo '<td>' . $user['created_at'] . '</td>';
                 echo '</tr>';
@@ -432,7 +434,7 @@ class AdminController {
         }
     }
 
-    // === WIDGET SETTINGS ===
+    // ========== WIDGET SETTINGS ==========
     
     public function saveWidgetSettings() {
         header('Content-Type: application/json');
@@ -458,7 +460,7 @@ class AdminController {
         exit();
     }
 
-    // === EMAIL NOTIFICATION METHODS ===
+    // ========== EMAIL NOTIFICATION METHODS ==========
     
     private function sendAccountDisabledEmail($email, $username) {
         $subject = "Your NutriFlow AI Account Has Been Disabled";
@@ -550,7 +552,155 @@ class AdminController {
         mail($email, $subject, $message, $headers);
     }
 
-    // === PRIVATE METHODS ===
+    // ========== PREMIUM FEATURES ==========
+    
+    /**
+     * Globe 3D - Visualisation des connexions en temps réel
+     */
+    public function showGlobe() {
+        $users = $this->getAllUsers();
+        $page_title = "Live Connections Globe - NutriFlow AI Admin";
+        $page_heading = "🌍 Live Connections Globe";
+        $active_page = "globe";
+        $breadcrumb = [
+            ['label' => 'Dashboard', 'url' => 'index.php?action=admin_dashboard'],
+            ['label' => 'Live Globe 3D']
+        ];
+        ob_start();
+        include dirname(__DIR__) . '/views/back/globe-3d.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/back/layout.php';
+    }
+    
+    /**
+     * Secret Zone - Easter eggs et surprises
+     */
+    public function showSecretZone() {
+        $users = $this->getAllUsers();
+        $page_title = "Secret Zone - NutriFlow AI Admin";
+        $page_heading = "🤫 Secret Zone";
+        $active_page = "secret";
+        $breadcrumb = [
+            ['label' => 'Dashboard', 'url' => 'index.php?action=admin_dashboard'],
+            ['label' => 'Secret Zone']
+        ];
+        ob_start();
+        include dirname(__DIR__) . '/views/back/secret-zone.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/back/layout.php';
+    }
+    
+    /**
+     * Retro Terminal - Interface style terminal
+     */
+    public function showTerminal() {
+        $users = $this->getAllUsers();
+        $page_title = "Retro Terminal - NutriFlow AI Admin";
+        $page_heading = "💻 Retro Terminal";
+        $active_page = "terminal";
+        $breadcrumb = [
+            ['label' => 'Dashboard', 'url' => 'index.php?action=admin_dashboard'],
+            ['label' => 'Retro Terminal']
+        ];
+        ob_start();
+        include dirname(__DIR__) . '/views/back/retro-terminal.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/back/layout.php';
+    }
+
+    // ========== TOP 5 NEW FEATURES ==========
+    
+    /**
+     * Incognito Mode - Preview front office as user
+     */
+    public function showIncognito() {
+        $users = $this->getAllUsers();
+        $page_title = "Incognito Mode - NutriFlow AI Admin";
+        $page_heading = "🕵️ Incognito Mode";
+        $active_page = "incognito";
+        $breadcrumb = [
+            ['label' => 'Dashboard', 'url' => 'index.php?action=admin_dashboard'],
+            ['label' => 'Incognito Mode']
+        ];
+        ob_start();
+        include dirname(__DIR__) . '/views/back/incognito-mode.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/back/layout.php';
+    }
+    
+    /**
+     * Keyboard Shortcuts - Customizable shortcuts manager
+     */
+    public function showShortcuts() {
+        $users = $this->getAllUsers();
+        $page_title = "Keyboard Shortcuts - NutriFlow AI Admin";
+        $page_heading = "⌨️ Keyboard Shortcuts";
+        $active_page = "shortcuts";
+        $breadcrumb = [
+            ['label' => 'Dashboard', 'url' => 'index.php?action=admin_dashboard'],
+            ['label' => 'Shortcuts']
+        ];
+        ob_start();
+        include dirname(__DIR__) . '/views/back/keyboard-shortcuts.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/back/layout.php';
+    }
+    
+    /**
+     * Period Comparison - Compare KPIs between periods
+     */
+    public function showComparison() {
+        $users = $this->getAllUsers();
+        $page_title = "Period Comparison - NutriFlow AI Admin";
+        $page_heading = "📊 Period Comparison";
+        $active_page = "comparison";
+        $breadcrumb = [
+            ['label' => 'Dashboard', 'url' => 'index.php?action=admin_dashboard'],
+            ['label' => 'Comparison']
+        ];
+        ob_start();
+        include dirname(__DIR__) . '/views/back/comparison-mode.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/back/layout.php';
+    }
+    
+    /**
+     * Admin Leaderboard - Gamification for admins
+     */
+    public function showLeaderboard() {
+        $users = $this->getAllUsers();
+        $page_title = "Admin Leaderboard - NutriFlow AI Admin";
+        $page_heading = "🏆 Admin Leaderboard";
+        $active_page = "leaderboard";
+        $breadcrumb = [
+            ['label' => 'Dashboard', 'url' => 'index.php?action=admin_dashboard'],
+            ['label' => 'Leaderboard']
+        ];
+        ob_start();
+        include dirname(__DIR__) . '/views/back/admin-leaderboard.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/back/layout.php';
+    }
+    
+    /**
+     * Database Cleaner - Clean and optimize database
+     */
+    public function showCleaner() {
+        $users = $this->getAllUsers();
+        $page_title = "Database Cleaner - NutriFlow AI Admin";
+        $page_heading = "🧹 Database Cleaner";
+        $active_page = "cleaner";
+        $breadcrumb = [
+            ['label' => 'Dashboard', 'url' => 'index.php?action=admin_dashboard'],
+            ['label' => 'DB Cleaner']
+        ];
+        ob_start();
+        include dirname(__DIR__) . '/views/back/database-cleaner.php';
+        $content = ob_get_clean();
+        include dirname(__DIR__) . '/views/back/layout.php';
+    }
+
+    // ========== PRIVATE METHODS ==========
     
     private function getAllUsers() {
         $query = "SELECT * FROM " . $this->userModel->getTable() . " ORDER BY created_at DESC";
