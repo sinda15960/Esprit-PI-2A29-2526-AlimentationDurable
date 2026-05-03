@@ -8,6 +8,9 @@
         
         <?php if(isset($_SESSION['success'])): ?>
             <div class="success-message"><?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></div>
+            <script>
+                sessionStorage.setItem('justRegistered', 'true');
+            </script>
         <?php endif; ?>
 
         <?php if(isset($_SESSION['errors'])): ?>
@@ -18,6 +21,26 @@
             </div>
             <?php unset($_SESSION['errors']); ?>
         <?php endif; ?>
+
+        <!-- Password Strength Game -->
+        <div class="password-strength-container">
+            <div class="strength-bars">
+                <div class="strength-bar" id="bar1"></div>
+                <div class="strength-bar" id="bar2"></div>
+                <div class="strength-bar" id="bar3"></div>
+                <div class="strength-bar" id="bar4"></div>
+            </div>
+            <div class="strength-feedback" id="strengthFeedback">
+                <span class="strength-icon" id="strengthIcon">🔒</span>
+                <span class="strength-text" id="strengthText">Enter a password</span>
+            </div>
+            <div class="strength-tips" id="strengthTips">
+                <div class="tip-item" id="tipLength">📏 At least 8 characters</div>
+                <div class="tip-item" id="tipUpper">🔠 Uppercase letter</div>
+                <div class="tip-item" id="tipNumber">🔢 Number</div>
+                <div class="tip-item" id="tipSpecial">✨ Special character (!@#$%)</div>
+            </div>
+        </div>
 
         <form method="POST" action="index.php?action=register" onsubmit="return validateRegisterForm()" id="registerForm">
             <div class="form-row">
@@ -131,7 +154,81 @@
 </div>
 
 <style>
-/* Face ID Enrollment Styles */
+.password-strength-container {
+    margin-bottom: 1.5rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.strength-bars {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.strength-bar {
+    height: 6px;
+    flex: 1;
+    background: #e2e8f0;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.strength-bar.weak {
+    background: #ef4444;
+}
+.strength-bar.fair {
+    background: #f59e0b;
+}
+.strength-bar.good {
+    background: #8b5cf6;
+}
+.strength-bar.strong {
+    background: #10b981;
+}
+
+.strength-feedback {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.strength-icon {
+    font-size: 1.2rem;
+}
+
+.strength-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.strength-tips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.tip-item {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    background: white;
+    border-radius: 20px;
+    color: #718096;
+    transition: all 0.3s ease;
+}
+
+.tip-item.completed {
+    background: #dcfce7;
+    color: #166534;
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
 .face-video-small {
     width: 250px;
     height: 188px;
@@ -219,7 +316,6 @@
     box-shadow: 0 5px 15px rgba(139,92,246,0.3);
 }
 
-/* Modal Header Close Button */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -238,6 +334,44 @@
 .modal-close:hover {
     opacity: 0.7;
 }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 20px;
+    animation: slideDownModal 0.3s ease;
+    overflow: hidden;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDownModal {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 
 <script>
@@ -248,7 +382,6 @@ let faceSignatureData = null;
 let enrollmentFrames = [];
 let currentUserId = null;
 
-// Validation functions
 function validateRegisterForm() {
     let isValid = true;
     
@@ -314,13 +447,122 @@ function clearErrors() {
     });
 }
 
-// Intercept form submission to capture user ID after registration
-document.getElementById('registerForm')?.addEventListener('submit', function(e) {
-    // Let the form submit normally
-    // The user ID will be available after PHP processes the registration
-});
+// Password Strength
+const passwordInput = document.getElementById('password');
+const bars = {
+    bar1: document.getElementById('bar1'),
+    bar2: document.getElementById('bar2'),
+    bar3: document.getElementById('bar3'),
+    bar4: document.getElementById('bar4')
+};
+const strengthText = document.getElementById('strengthText');
+const strengthIcon = document.getElementById('strengthIcon');
+const tips = {
+    length: document.getElementById('tipLength'),
+    upper: document.getElementById('tipUpper'),
+    number: document.getElementById('tipNumber'),
+    special: document.getElementById('tipSpecial')
+};
 
-// Check if we should show Face ID modal (after successful registration)
+function checkPasswordStrength(password) {
+    let score = 0;
+    let checks = {
+        length: false,
+        upper: false,
+        number: false,
+        special: false
+    };
+    
+    if(password.length >= 8) {
+        score++;
+        checks.length = true;
+    }
+    
+    if(/[A-Z]/.test(password)) {
+        score++;
+        checks.upper = true;
+    }
+    
+    if(/[0-9]/.test(password)) {
+        score++;
+        checks.number = true;
+    }
+    
+    if(/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        score++;
+        checks.special = true;
+    }
+    
+    const barKeys = ['bar1', 'bar2', 'bar3', 'bar4'];
+    for(let i = 0; i < barKeys.length; i++) {
+        if(i < score) {
+            if(score === 1) bars[barKeys[i]].className = 'strength-bar weak';
+            else if(score === 2) bars[barKeys[i]].className = 'strength-bar fair';
+            else if(score === 3) bars[barKeys[i]].className = 'strength-bar good';
+            else if(score === 4) bars[barKeys[i]].className = 'strength-bar strong';
+        } else {
+            bars[barKeys[i]].className = 'strength-bar';
+        }
+    }
+    
+    if(password.length === 0) {
+        strengthText.textContent = 'Enter a password';
+        strengthIcon.textContent = '🔒';
+    } else if(score === 1) {
+        strengthText.textContent = 'Weak - Needs improvement';
+        strengthIcon.textContent = '😟';
+    } else if(score === 2) {
+        strengthText.textContent = 'Fair - Getting there!';
+        strengthIcon.textContent = '😐';
+    } else if(score === 3) {
+        strengthText.textContent = 'Good - Almost perfect!';
+        strengthIcon.textContent = '😎';
+    } else if(score === 4) {
+        strengthText.textContent = 'Strong - Excellent password! 💪';
+        strengthIcon.textContent = '🦸';
+    }
+    
+    updateTip(tips.length, checks.length, 'At least 8 characters');
+    updateTip(tips.upper, checks.upper, 'Uppercase letter');
+    updateTip(tips.number, checks.number, 'Number');
+    updateTip(tips.special, checks.special, 'Special character');
+    
+    return score;
+}
+
+function updateTip(element, isCompleted, text) {
+    if(isCompleted) {
+        element.classList.add('completed');
+        element.innerHTML = `✅ ${text}`;
+    } else {
+        element.classList.remove('completed');
+        element.innerHTML = `❌ ${text}`;
+    }
+}
+
+if(passwordInput) {
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        if(password.length === 0) {
+            const barsElements = document.querySelectorAll('.strength-bar');
+            barsElements.forEach(bar => bar.className = 'strength-bar');
+            strengthText.textContent = 'Enter a password';
+            strengthIcon.textContent = '🔒';
+            
+            document.querySelectorAll('.tip-item').forEach(tip => {
+                tip.classList.remove('completed');
+                if(tip.id === 'tipLength') tip.innerHTML = '📏 At least 8 characters';
+                else if(tip.id === 'tipUpper') tip.innerHTML = '🔠 Uppercase letter';
+                else if(tip.id === 'tipNumber') tip.innerHTML = '🔢 Number';
+                else if(tip.id === 'tipSpecial') tip.innerHTML = '✨ Special character (!@#$%)';
+            });
+        } else {
+            checkPasswordStrength(password);
+        }
+    });
+}
+
+// Face ID after registration
 <?php if(isset($_SESSION['new_user_id']) && $_SESSION['new_user_id']): ?>
     currentUserId = <?php echo $_SESSION['new_user_id']; ?>;
     <?php unset($_SESSION['new_user_id']); ?>
@@ -331,23 +573,18 @@ document.getElementById('registerForm')?.addEventListener('submit', function(e) 
     });
 <?php endif; ?>
 
-// ========== FACE ID ENROLLMENT FUNCTIONS ==========
-
 function showFaceEnrollmentModal() {
     document.getElementById('faceEnrollModal').style.display = 'block';
 }
 
 function startFaceEnrollment() {
-    // Hide buttons, show camera
     document.querySelector('#faceEnrollModal .modal-buttons').style.display = 'none';
     document.getElementById('facePreview').style.display = 'inline-block';
     document.querySelector('.enroll-actions').style.display = 'block';
-    
     startEnrollmentCamera();
 }
 
 async function startEnrollmentCamera() {
-    const facePreview = document.getElementById('facePreview');
     const enrollStatus = document.getElementById('enrollStatus');
     const enrollProgressBar = document.getElementById('enrollProgressBar');
     
@@ -372,7 +609,6 @@ async function startEnrollmentCamera() {
         enrollStatus.innerHTML = '🎥 Look at the camera and move slightly...';
         enrollProgressBar.style.width = '30%';
         
-        // Start capturing face signatures
         captureFaceSignatures();
         
     } catch(error) {
@@ -392,14 +628,12 @@ function captureFaceSignatures() {
     const captureInterval = setInterval(() => {
         if(!enrollVideo || enrollVideo.paused || enrollVideo.ended || enrollVideo.readyState !== 4) return;
         
-        // Capture current frame
         const canvas = document.createElement('canvas');
         canvas.width = enrollVideo.videoWidth;
         canvas.height = enrollVideo.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(enrollVideo, 0, 0, canvas.width, canvas.height);
         
-        // Draw detection overlay
         const displayCtx = enrollCanvas.getContext('2d');
         enrollCanvas.width = enrollVideo.videoWidth;
         enrollCanvas.height = enrollVideo.videoHeight;
@@ -408,7 +642,6 @@ function captureFaceSignatures() {
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         
         if(lastFrame) {
-            // Calculate motion
             let diff = 0;
             for(let i = 0; i < imageData.data.length; i += 100) {
                 const rDiff = Math.abs(imageData.data[i] - lastFrame.data[i]);
@@ -422,7 +655,6 @@ function captureFaceSignatures() {
             if(avgDiff > 20 && avgDiff < 200) {
                 motionDetected = true;
                 
-                // Draw face rectangle
                 const centerX = enrollCanvas.width / 2;
                 const centerY = enrollCanvas.height / 2;
                 const boxWidth = enrollCanvas.width * 0.5;
@@ -432,7 +664,6 @@ function captureFaceSignatures() {
                 displayCtx.lineWidth = 3;
                 displayCtx.strokeRect(centerX - boxWidth/2, centerY - boxHeight/2, boxWidth, boxHeight);
                 
-                // Create a simple signature from pixel data
                 const signature = compressImageData(imageData);
                 enrollmentFrames.push(signature);
                 captureCount++;
@@ -443,7 +674,6 @@ function captureFaceSignatures() {
                 
                 if(captureCount >= requiredCaptures) {
                     clearInterval(captureInterval);
-                    // Create master signature from all frames
                     faceSignatureData = createMasterSignature(enrollmentFrames);
                     document.getElementById('enrollProgressBar').style.width = '100%';
                     document.getElementById('enrollStatus').innerHTML = '🎉 Face captured successfully! Click "Save Face Signature" to complete.';
@@ -458,7 +688,6 @@ function captureFaceSignatures() {
 }
 
 function compressImageData(imageData) {
-    // Compress image data to create a signature
     let signature = '';
     for(let i = 0; i < Math.min(imageData.data.length, 5000); i += 100) {
         signature += imageData.data[i] + ',' + imageData.data[i+1] + ',' + imageData.data[i+2] + ';';
@@ -467,7 +696,6 @@ function compressImageData(imageData) {
 }
 
 function createMasterSignature(frames) {
-    // Create a combined signature from all frames
     return frames.join('|');
 }
 
@@ -519,7 +747,6 @@ function closeFaceEnrollModal() {
     document.getElementById('faceEnrollModal').style.display = 'none';
 }
 
-// Close modal when clicking outside
 window.onclick = function(event) {
     const modal = document.getElementById('faceEnrollModal');
     if (event.target == modal) {
