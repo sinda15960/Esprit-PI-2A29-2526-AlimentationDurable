@@ -69,23 +69,92 @@
                     <a href="index.php?action=admin_edit_user&id=<?php echo $user['id']; ?>" class="btn-edit">Edit</a>
                     <?php if($user['id'] != $_SESSION['user_id']): ?>
                         <?php if(isset($user['is_active']) && $user['is_active'] == 1): ?>
-                            <a href="index.php?action=admin_disable_user&id=<?php echo $user['id']; ?>" 
+                            <a href="javascript:void(0)" 
                                class="btn-disable" 
-                               onclick="return confirm('Are you sure you want to DISABLE this user?')">Disable</a>
+                               onclick="openDisableUserModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['username']); ?>')">Disable</a>
                         <?php else: ?>
-                            <a href="index.php?action=admin_enable_user&id=<?php echo $user['id']; ?>" 
+                            <a href="javascript:void(0)" 
                                class="btn-enable" 
-                               onclick="return confirm('Are you sure you want to ENABLE this user?')">Enable</a>
+                               onclick="openEnableUserModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['username']); ?>')">Enable</a>
                         <?php endif; ?>
                     <?php endif; ?>
-                    <a href="index.php?action=admin_delete_user&id=<?php echo $user['id']; ?>" 
+                    <a href="javascript:void(0)" 
                        class="btn-delete" 
-                       onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
+                       onclick="openDeleteUserModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['username']); ?>')">Delete</a>
                 </td>
             </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
+</div>
+
+<!-- Disable User Modal -->
+<div id="disableUserModal" class="modal">
+    <div class="modal-content disable-modal">
+        <div class="modal-header disable-header">
+            <span class="modal-close" onclick="closeDisableUserModal()">&times;</span>
+            <h2>🔒 Disable Account</h2>
+        </div>
+        <div class="modal-body">
+            <div class="disable-icon">⚠️</div>
+            <p id="disableModalMessage">Are you sure you want to disable this user?</p>
+            <p class="disable-warning-text">This user will <strong>not be able to log in</strong> until re-enabled by an administrator.</p>
+            <div class="disable-confirm">
+                <label for="confirm_disable_input">Type <strong>DISABLE</strong> to confirm:</label>
+                <input type="text" id="confirm_disable_input" placeholder="DISABLE">
+            </div>
+        </div>
+        <div class="modal-footer disable-footer">
+            <button class="btn-cancel" onclick="closeDisableUserModal()">Cancel</button>
+            <button class="btn-disable-confirm" onclick="confirmDisableUser()">Yes, Disable Account</button>
+        </div>
+    </div>
+</div>
+
+<!-- Enable User Modal -->
+<div id="enableUserModal" class="modal">
+    <div class="modal-content enable-modal">
+        <div class="modal-header enable-header">
+            <span class="modal-close" onclick="closeEnableUserModal()">&times;</span>
+            <h2>🔓 Enable Account</h2>
+        </div>
+        <div class="modal-body">
+            <div class="enable-icon">✅</div>
+            <p id="enableModalMessage">Are you sure you want to enable this user?</p>
+            <p class="enable-warning-text">This user will be able to <strong>log in again</strong> and access their account.</p>
+            <div class="enable-confirm">
+                <label for="confirm_enable_input">Type <strong>ENABLE</strong> to confirm:</label>
+                <input type="text" id="confirm_enable_input" placeholder="ENABLE">
+            </div>
+        </div>
+        <div class="modal-footer enable-footer">
+            <button class="btn-cancel" onclick="closeEnableUserModal()">Cancel</button>
+            <button class="btn-enable-confirm" onclick="confirmEnableUser()">Yes, Enable Account</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Modal -->
+<div id="deleteUserModal" class="modal">
+    <div class="modal-content delete-modal">
+        <div class="modal-header delete-header">
+            <span class="modal-close" onclick="closeDeleteUserModal()">&times;</span>
+            <h2>🗑️ Delete Account</h2>
+        </div>
+        <div class="modal-body">
+            <div class="delete-icon">⚠️</div>
+            <p id="deleteModalMessage">Are you sure you want to delete this user?</p>
+            <p class="delete-warning-text">This action <strong>cannot be undone</strong>. All data will be permanently removed.</p>
+            <div class="delete-confirm">
+                <label for="confirm_delete_input">Type <strong>DELETE</strong> to confirm:</label>
+                <input type="text" id="confirm_delete_input" placeholder="DELETE">
+            </div>
+        </div>
+        <div class="modal-footer delete-footer">
+            <button class="btn-cancel" onclick="closeDeleteUserModal()">Cancel</button>
+            <button class="btn-delete-confirm" onclick="confirmDeleteUser()">Yes, Delete Account</button>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -250,6 +319,7 @@
     border-radius: 5px;
     font-size: 0.75rem;
     transition: all 0.3s;
+    cursor: pointer;
 }
 
 .btn-disable:hover {
@@ -266,6 +336,7 @@
     border-radius: 5px;
     font-size: 0.75rem;
     transition: all 0.3s;
+    cursor: pointer;
 }
 
 .btn-enable:hover {
@@ -298,6 +369,7 @@
     border-radius: 5px;
     font-size: 0.75rem;
     transition: all 0.3s;
+    cursor: pointer;
 }
 
 .btn-delete:hover {
@@ -337,11 +409,368 @@
     background: #ecfdf5;
 }
 
-/* Date column style */
 .col-date {
     white-space: nowrap;
     font-size: 0.85rem;
     color: #475569;
+}
+
+/* Disable Modal Styles */
+.disable-header {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+}
+
+.disable-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.disable-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    animation: shake 0.5s ease;
+}
+
+.disable-warning-text {
+    color: #ea580c;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.disable-confirm {
+    margin-top: 1.5rem;
+    text-align: left;
+    background: #fff7ed;
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+.disable-confirm label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.disable-confirm label strong {
+    color: #ea580c;
+}
+
+.disable-confirm input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: monospace;
+    text-align: center;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+
+.disable-confirm input:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.btn-disable-confirm {
+    background: #f97316;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-disable-confirm:hover {
+    background: #ea580c;
+    transform: translateY(-2px);
+}
+
+.disable-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    padding: 1rem 1.5rem 1.5rem;
+}
+
+/* Enable Modal Styles */
+.enable-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.enable-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.enable-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    animation: bounce 0.5s ease;
+}
+
+.enable-warning-text {
+    color: #059669;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.enable-confirm {
+    margin-top: 1.5rem;
+    text-align: left;
+    background: #ecfdf5;
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+.enable-confirm label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.enable-confirm label strong {
+    color: #059669;
+}
+
+.enable-confirm input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: monospace;
+    text-align: center;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+
+.enable-confirm input:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.btn-enable-confirm {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-enable-confirm:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.enable-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    padding: 1rem 1.5rem 1.5rem;
+}
+
+/* Delete Modal Styles */
+.delete-header {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.delete-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.delete-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    animation: shake 0.5s ease;
+}
+
+.delete-warning-text {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.delete-confirm {
+    margin-top: 1.5rem;
+    text-align: left;
+    background: #fef2f2;
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+.delete-confirm label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.delete-confirm label strong {
+    color: #dc2626;
+}
+
+.delete-confirm input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: monospace;
+    text-align: center;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+
+.delete-confirm input:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.btn-delete-confirm {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-delete-confirm:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+
+.delete-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    padding: 1rem 1.5rem 1.5rem;
+}
+
+/* Common Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 20px;
+    animation: slideDownModal 0.3s ease;
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.modal-close {
+    font-size: 1.75rem;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.modal-close:hover {
+    opacity: 0.7;
+}
+
+.modal-body {
+    padding: 2rem;
+    text-align: center;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem 1.5rem;
+}
+
+.btn-cancel {
+    background: #e2e8f0;
+    color: #4a5568;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+    background: #cbd5e0;
+    transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDownModal {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
 }
 
 @media (max-width: 768px) {
@@ -357,6 +786,23 @@
     .data-table {
         display: block;
         overflow-x: auto;
+    }
+    
+    .modal-content {
+        margin: 30% auto;
+        width: 95%;
+    }
+    
+    .disable-footer, .enable-footer, .delete-footer {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .btn-cancel,
+    .btn-disable-confirm,
+    .btn-enable-confirm,
+    .btn-delete-confirm {
+        width: 100%;
     }
 }
 </style>
@@ -380,7 +826,6 @@ function filterAndSortUsers() {
         const role = row.dataset.role || '';
         const status = row.dataset.status || '';
         
-        // Search condition
         let matchesSearch = true;
         if(searchTerm) {
             matchesSearch = username.includes(searchTerm) || 
@@ -388,7 +833,6 @@ function filterAndSortUsers() {
                            fullname.includes(searchTerm);
         }
         
-        // Filter condition
         let matchesFilter = true;
         if(currentFilter === 'admin') {
             matchesFilter = role === 'admin';
@@ -408,11 +852,9 @@ function filterAndSortUsers() {
         }
     });
     
-    // Update showing count
     document.getElementById('showingCount').textContent = visibleCount;
     document.getElementById('totalCount').textContent = rows.length;
     
-    // Apply sorting if active
     if(currentSort) {
         sortTable(currentSort, currentSortDirection);
     }
@@ -456,13 +898,10 @@ function sortTable(column, direction) {
         }
     });
     
-    // Clear tbody and re-append sorted rows
     rows.forEach(row => tbody.appendChild(row));
     
-    // Update sort buttons styling
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.classList.remove('active');
-        // Reset text (remove arrows)
         const originalText = btn.textContent.replace(/[🔼🔽]/g, '').trim();
         btn.textContent = originalText + ' 🔽';
     });
@@ -474,7 +913,6 @@ function sortTable(column, direction) {
         activeSortBtn.textContent = originalText + (direction === 'asc' ? ' 🔼' : ' 🔽');
     }
     
-    // Update column header sort icons
     document.querySelectorAll('.sortable').forEach(th => {
         const thSort = th.dataset.sort;
         const sortIcon = th.querySelector('.sort-icon');
@@ -488,9 +926,104 @@ function sortTable(column, direction) {
     });
 }
 
-// Event listeners
+// ========== DISABLE USER MODAL FUNCTIONS ==========
+let disableUserId = null;
+
+function openDisableUserModal(userId, username) {
+    disableUserId = userId;
+    const modal = document.getElementById('disableUserModal');
+    const messageParagraph = document.querySelector('#disableModalMessage');
+    
+    if(messageParagraph) {
+        messageParagraph.innerHTML = `Are you sure you want to disable user <strong>${escapeHtml(username)}</strong>?`;
+    }
+    
+    modal.style.display = 'block';
+    document.getElementById('confirm_disable_input').value = '';
+}
+
+function closeDisableUserModal() {
+    document.getElementById('disableUserModal').style.display = 'none';
+    disableUserId = null;
+}
+
+function confirmDisableUser() {
+    const confirmInput = document.getElementById('confirm_disable_input').value;
+    if(confirmInput === 'DISABLE') {
+        window.location.href = `index.php?action=admin_disable_user&id=${disableUserId}`;
+    } else {
+        alert('Please type DISABLE to confirm account disable.');
+    }
+}
+
+// ========== ENABLE USER MODAL FUNCTIONS ==========
+let enableUserId = null;
+
+function openEnableUserModal(userId, username) {
+    enableUserId = userId;
+    const modal = document.getElementById('enableUserModal');
+    const messageParagraph = document.querySelector('#enableModalMessage');
+    
+    if(messageParagraph) {
+        messageParagraph.innerHTML = `Are you sure you want to enable user <strong>${escapeHtml(username)}</strong>?`;
+    }
+    
+    modal.style.display = 'block';
+    document.getElementById('confirm_enable_input').value = '';
+}
+
+function closeEnableUserModal() {
+    document.getElementById('enableUserModal').style.display = 'none';
+    enableUserId = null;
+}
+
+function confirmEnableUser() {
+    const confirmInput = document.getElementById('confirm_enable_input').value;
+    if(confirmInput === 'ENABLE') {
+        window.location.href = `index.php?action=admin_enable_user&id=${enableUserId}`;
+    } else {
+        alert('Please type ENABLE to confirm account enable.');
+    }
+}
+
+// ========== DELETE USER MODAL FUNCTIONS ==========
+let deleteUserId = null;
+
+function openDeleteUserModal(userId, username) {
+    deleteUserId = userId;
+    const modal = document.getElementById('deleteUserModal');
+    const messageParagraph = document.querySelector('#deleteModalMessage');
+    
+    if(messageParagraph) {
+        messageParagraph.innerHTML = `Are you sure you want to delete user <strong>${escapeHtml(username)}</strong>?`;
+    }
+    
+    modal.style.display = 'block';
+    document.getElementById('confirm_delete_input').value = '';
+}
+
+function closeDeleteUserModal() {
+    document.getElementById('deleteUserModal').style.display = 'none';
+    deleteUserId = null;
+}
+
+function confirmDeleteUser() {
+    const confirmInput = document.getElementById('confirm_delete_input').value;
+    if(confirmInput === 'DELETE') {
+        window.location.href = `index.php?action=admin_delete_user&id=${deleteUserId}`;
+    } else {
+        alert('Please type DELETE to confirm account deletion.');
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ========== EVENT LISTENERS ==========
 document.addEventListener('DOMContentLoaded', function() {
-    // Search input
     const searchInput = document.getElementById('searchInput');
     if(searchInput) {
         searchInput.addEventListener('keyup', function() {
@@ -498,7 +1031,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Filter buttons
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -508,7 +1040,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Sort buttons
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const sortColumn = this.dataset.sort;
@@ -523,7 +1054,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Column header sorting
     document.querySelectorAll('.sortable').forEach(th => {
         th.addEventListener('click', function() {
             const sortColumn = this.dataset.sort;
@@ -538,7 +1068,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Initialize
     filterAndSortUsers();
 });
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const disableModal = document.getElementById('disableUserModal');
+    const enableModal = document.getElementById('enableUserModal');
+    const deleteModal = document.getElementById('deleteUserModal');
+    
+    if (event.target == disableModal) closeDisableUserModal();
+    if (event.target == enableModal) closeEnableUserModal();
+    if (event.target == deleteModal) closeDeleteUserModal();
+}
 </script>
