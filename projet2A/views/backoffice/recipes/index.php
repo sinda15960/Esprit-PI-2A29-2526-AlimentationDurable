@@ -444,17 +444,23 @@ if(file_exists($headerPath)) {
                 <h4>📊 Étape 2 : Tes informations</h4>
                 <div class="form-row-planner">
                     <div class="form-group-planner">
-                        <label>👤 Âge (ans)</label>
-                        <input type="number" id="age" min="15" max="100" value="30">
-                    </div>
-                    <div class="form-group-planner">
-                        <label>⚖️ Poids (kg)</label>
-                        <input type="number" id="weight" min="30" max="200" value="70">
-                    </div>
-                    <div class="form-group-planner">
-                        <label>📏 Taille (cm)</label>
-                        <input type="number" id="height" min="100" max="250" value="170">
-                    </div>
+                <label>👤 Âge (ans)</label>
+                <input type="number" id="age" min="15" max="120" value="30" oninput="validatePlannerInputs(); updateCalorieEstimate();">
+                <div class="error-small" id="ageError" style="color:#e74c3c; font-size:0.7rem; display:none;">Âge invalide (15-120 ans)</div>
+                <div id="validationWarning" style="display:none; margin-top:1rem; background:#fff3cd; color:#856404; padding:0.8rem; border-radius:8px;">
+    ⚠️ Veuillez corriger les erreurs ci-dessus avant de générer votre menu
+</div>
+            </div>
+<div class="form-group-planner">
+    <label>⚖️ Poids (kg)</label>
+    <input type="number" id="weight" min="30" max="250" value="70" oninput="validatePlannerInputs(); updateCalorieEstimate();">
+    <div class="error-small" id="weightError" style="color:#e74c3c; font-size:0.7rem; display:none;">Poids invalide (30-250 kg)</div>
+</div>
+<div class="form-group-planner">
+    <label>📏 Taille (cm)</label>
+    <input type="number" id="height" min="100" max="250" value="170" oninput="validatePlannerInputs(); updateCalorieEstimate();">
+    <div class="error-small" id="heightError" style="color:#e74c3c; font-size:0.7rem; display:none;">Taille invalide (100-250 cm)</div>
+</div>
                     <div class="form-group-planner">
                         <label>🏃 Niveau d'activité</label>
                         <select id="activity">
@@ -493,6 +499,10 @@ if(file_exists($headerPath)) {
 </div>
 
 <style>
+    .error-small {
+    font-size: 0.7rem;
+    margin-top: 0.3rem;
+}
 /* Style pour la comparaison */
 .compare-selectors {
     display: grid;
@@ -927,7 +937,7 @@ if(file_exists($headerPath)) {
     transform: translateY(-2px);
 }
 
-/* Modal */
+/* Modal - CORRECTION POUR CENTRER ET REMONTER */
 .modal {
     display: none;
     position: fixed;
@@ -938,15 +948,37 @@ if(file_exists($headerPath)) {
     height: 100%;
     background: rgba(0,0,0,0.5);
     animation: fadeIn 0.3s;
+    overflow-y: auto;
 }
 .modal-content {
     background: white;
-    margin: 10% auto;
+    margin: 2% auto;
     width: 90%;
-    max-width: 500px;
+    max-width: 750px;
     border-radius: 15px;
     animation: slideDown 0.3s;
+    max-height: 90vh;
+    overflow-y: auto;
 }
+
+/* Correction spécifique pour le planificateur */
+#mealPlannerModal .modal-content {
+    margin: 1% auto;
+    max-height: 95vh;
+}
+
+#mealPlannerModal .modal-body {
+    padding: 1rem;
+    max-height: calc(95vh - 120px);
+    overflow-y: auto;
+}
+
+#surpriseModal .modal-content,
+#compareModal .modal-content,
+#statsModal .modal-content {
+    max-height: 85vh;
+}
+
 .modal-header {
     padding: 1rem 1.5rem;
     background: linear-gradient(135deg, #e74c3c, #c0392b);
@@ -955,6 +987,9 @@ if(file_exists($headerPath)) {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 .modal-header .close {
     font-size: 1.5rem;
@@ -962,6 +997,16 @@ if(file_exists($headerPath)) {
 }
 .modal-body {
     padding: 1.5rem;
+}
+.modal-footer {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    border-top: 1px solid #e0e0e0;
+    position: sticky;
+    bottom: 0;
+    background: white;
 }
 .warning-box, .info-box {
     padding: 1rem;
@@ -978,13 +1023,6 @@ if(file_exists($headerPath)) {
 .info-box {
     background: #d1ecf1;
     color: #0c5460;
-}
-.modal-footer {
-    padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    border-top: 1px solid #e0e0e0;
 }
 .btn-confirm {
     padding: 0.5rem 1.5rem;
@@ -1012,14 +1050,17 @@ if(file_exists($headerPath)) {
 .goal-options-multi {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin: 1rem 0;
+    gap: 0.8rem;
+    margin: 0.8rem 0;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0.3rem;
 }
 .goal-card-multi {
     background: #f8f9fa;
     border: 2px solid #e0e0e0;
     border-radius: 12px;
-    padding: 1rem;
+    padding: 0.7rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s;
@@ -1051,20 +1092,20 @@ if(file_exists($headerPath)) {
     display: flex;
 }
 .goal-card-multi i {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     margin-bottom: 0.5rem;
 }
 .goal-card-multi h3 {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-bottom: 0.5rem;
 }
 .goal-card-multi p {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: #666;
 }
 .comment-section {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
+    margin-top: 1rem;
+    padding-top: 0.8rem;
     border-top: 1px solid #e0e0e0;
 }
 .comment-section label {
@@ -1079,6 +1120,7 @@ if(file_exists($headerPath)) {
     border-radius: 8px;
     resize: vertical;
     font-family: inherit;
+    max-height: 80px;
 }
 .form-row-planner {
     display: grid;
@@ -1106,18 +1148,18 @@ if(file_exists($headerPath)) {
     margin-top: 1rem;
 }
 .planner-step {
-    min-height: 400px;
+    min-height: auto;
 }
 .planner-nav {
     display: flex;
     justify-content: center;
     gap: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid #e0e0e0;
 }
 .btn-prev, .btn-next, .btn-generate, .btn-cancel-plan {
-    padding: 0.6rem 1.5rem;
+    padding: 0.5rem 1.2rem;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -1144,7 +1186,7 @@ if(file_exists($headerPath)) {
     flex-direction: column;
     gap: 0.8rem;
     margin-top: 1rem;
-    max-height: 400px;
+    max-height: 350px;
     overflow-y: auto;
 }
 .meal-day {
@@ -1293,9 +1335,23 @@ if(file_exists($headerPath)) {
     }
     .goal-options-multi {
         grid-template-columns: 1fr;
+        max-height: 400px;
     }
     .form-row-planner {
         grid-template-columns: 1fr;
+    }
+    .modal-content {
+        margin: 1% auto !important;
+        width: 95% !important;
+        max-height: 98vh !important;
+    }
+    .modal-body {
+        max-height: calc(98vh - 100px);
+        overflow-y: auto;
+        padding: 0.8rem !important;
+    }
+    .planner-step {
+        min-height: auto !important;
     }
 }
 </style>
@@ -1351,8 +1407,72 @@ function toggleGoal(goal) {
         card.classList.remove('selected');
     }
 }
+function validatePlannerInputs() {
+    let isValid = true;
+    
+    const age = parseInt(document.getElementById('age').value);
+    const weight = parseInt(document.getElementById('weight').value);
+    const height = parseInt(document.getElementById('height').value);
+    
+    const ageError = document.getElementById('ageError');
+    const weightError = document.getElementById('weightError');
+    const heightError = document.getElementById('heightError');
+    const ageInput = document.getElementById('age');
+    const weightInput = document.getElementById('weight');
+    const heightInput = document.getElementById('height');
+    const generateBtn = document.getElementById('generateBtn');
+    const validationWarning = document.getElementById('validationWarning');
+    
+    // Validation âge
+    if (isNaN(age) || age < 15 || age > 120) {
+        if(ageError) ageError.style.display = 'block';
+        if(ageInput) ageInput.style.borderColor = '#e74c3c';
+        isValid = false;
+    } else {
+        if(ageError) ageError.style.display = 'none';
+        if(ageInput) ageInput.style.borderColor = '#ddd';
+    }
+    
+    // Validation poids
+    if (isNaN(weight) || weight < 30 || weight > 250) {
+        if(weightError) weightError.style.display = 'block';
+        if(weightInput) weightInput.style.borderColor = '#e74c3c';
+        isValid = false;
+    } else {
+        if(weightError) weightError.style.display = 'none';
+        if(weightInput) weightInput.style.borderColor = '#ddd';
+    }
+    
+    // Validation taille
+    if (isNaN(height) || height < 100 || height > 250) {
+        if(heightError) heightError.style.display = 'block';
+        if(heightInput) heightInput.style.borderColor = '#e74c3c';
+        isValid = false;
+    } else {
+        if(heightError) heightError.style.display = 'none';
+        if(heightInput) heightInput.style.borderColor = '#ddd';
+    }
+    
+    if (generateBtn) {
+        generateBtn.disabled = !isValid;
+        generateBtn.style.opacity = isValid ? '1' : '0.5';
+        generateBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
+    }
+    
+    if (validationWarning) {
+        validationWarning.style.display = isValid ? 'none' : 'block';
+    }
+    
+    return isValid;
+}
 
 function updateCalorieEstimate() {
+    // Valider d'abord
+    if (!validatePlannerInputs()) {
+        document.getElementById('maintenanceCalories').innerHTML = '---';
+        document.getElementById('goalAdjustment').innerHTML = '⚠️ Veuillez corriger les erreurs ci-dessus';
+        return;
+    }
     const age = parseInt(document.getElementById('age').value) || 30;
     const weight = parseInt(document.getElementById('weight').value) || 70;
     const height = parseInt(document.getElementById('height').value) || 170;
