@@ -121,6 +121,23 @@ function showToast(title, message) {
         setTimeout(() => toast.remove(), 300);
     }, 5000);
 }
+function sendWeeklyReport() {
+    if (confirm('Envoyer le rapport hebdomadaire par email ?')) {
+        fetch('ajax/send_report.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Rapport envoyé avec succès !');
+                } else {
+                    alert('❌ Erreur : ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'envoi du rapport');
+            });
+    }
+}
 
 // Fermer le dropdown en cliquant ailleurs
 document.addEventListener('click', function(e) {

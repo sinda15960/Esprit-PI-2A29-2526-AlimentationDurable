@@ -580,30 +580,32 @@ if (session_status() === PHP_SESSION_NONE) {
                 </div>
                 
                 <div class="top-bar-right">
-                    <div class="notification-badge" onclick="toggleNotificationDropdown()">
-                                <i class="fas fa-bell"></i>
-                                <span class="badge" id="notificationCount">0</span>
-                                
-                                <!-- Dropdown des notifications -->
-                                <div class="notification-dropdown" id="notificationDropdown">
-                                    <div class="notification-header">
-                                        <span>🔔 Notifications</span>
-                                        <button onclick="clearAllNotifications()" class="clear-all">Tout effacer</button>
-                                    </div>
-                                    <div class="notification-list" id="notificationList">
-                                        <div class="notification-empty">Aucune notification</div>
-                                    </div>
-                                </div>
-                            </div>
-                    
-                    <div class="user-menu">
-                        <div class="user-avatar-small">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <span>Admin</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                </div>
+    <button onclick="sendWeeklyReport()" class="btn-report" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+        📧 Envoyer rapport
+    </button>
+    
+    <div class="notification-badge" onclick="toggleNotificationDropdown()">
+        <i class="fas fa-bell"></i>
+        <span class="badge" id="notificationCount">0</span>
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">
+                <span>🔔 Notifications</span>
+                <button onclick="clearAllNotifications()" class="clear-all">Tout effacer</button>
+            </div>
+            <div class="notification-list" id="notificationList">
+                <div class="notification-empty">Aucune notification</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="user-menu">
+        <div class="user-avatar-small">
+            <i class="fas fa-user"></i>
+        </div>
+        <span>Admin</span>
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</div>
             </div>
 
             <!-- Alert Container -->
@@ -667,6 +669,34 @@ if (sessionNotifications.length > 0) {
         location.reload();
     }
 }
+<script>
+function sendWeeklyReport() {
+    if (confirm('📧 Envoyer le rapport hebdomadaire par email ?')) {
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳ Envoi...';
+        btn.disabled = true;
+        
+        fetch('public/ajax/send_report.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('❌ Erreur de connexion au serveur');
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+    }
+}
+</script>
 </script>
 <!-- Scripts -->
 <script src="js/backoffice.js"></script>
