@@ -92,20 +92,20 @@
           <tr class="table-warning">
             <td colspan="3" class="text-end fw-bold">
               Réduction (<?= htmlspecialchars($promo['code']) ?>) :
-            </td>
+             </td>
             <td colspan="2" class="text-danger fw-bold">
               - <?= $promo['type_reduction'] === 'pourcentage'
                     ? $promo['reduction'] . '%'
                     : number_format($promo['reduction'], 2) . ' TND' ?>
-            </td>
-          </tr>
+             </td>
+           </tr>
           <?php endif; ?>
           <tr class="table-success fw-bold">
             <td colspan="3" class="text-end">Total final :</td>
             <td colspan="2"><?= number_format($totalFinal, 2) ?> TND</td>
-          </tr>
+           </tr>
         </tfoot>
-      </table>
+       </table>
 
       <div class="d-flex gap-2 mt-3 flex-wrap">
         <button type="submit" class="btn btn-warning">Mettre à jour</button>
@@ -162,6 +162,64 @@
   <?php endif; ?>
 </div>
 
+<!-- Suggestions de produits complémentaires -->
+<?php if (!empty($suggestionsComplementaires)): ?>
+<div class="card border-0 shadow-sm mt-4">
+  <div class="card-header bg-info text-white fw-bold">
+    💡 Vous pourriez aussi aimer
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <?php foreach ($suggestionsComplementaires as $sugg): ?>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div style="font-size:2rem"><?= getEmojiAliment($sugg['nom']) ?></div>
+            <h6 class="fw-bold mt-2"><?= htmlspecialchars($sugg['nom']) ?></h6>
+            <p class="text-success fw-bold"><?= number_format($sugg['prix'], 2) ?> TND</p>
+            <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier">
+              <input type="hidden" name="produit_id" value="<?= $sugg['id'] ?>">
+              <input type="hidden" name="quantite" value="1">
+              <button type="submit" class="btn btn-sm btn-outline-success">+ Ajouter</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</div>
+<?php endif; ?>
+
+<!-- Recommandations personnalisées -->
+<?php if (!empty($recommandations)): ?>
+<div class="card border-0 shadow-sm mt-4">
+  <div class="card-header bg-warning text-dark fw-bold">
+    🎯 Recommandé pour vous (selon vos achats)
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <?php foreach ($recommandations as $rec): ?>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <div style="font-size:2rem"><?= getEmojiAliment($rec['nom']) ?></div>
+            <h6 class="fw-bold mt-2"><?= htmlspecialchars($rec['nom']) ?></h6>
+            <p class="text-success fw-bold"><?= number_format($rec['prix'], 2) ?> TND</p>
+            <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier">
+              <input type="hidden" name="produit_id" value="<?= $rec['id'] ?>">
+              <input type="hidden" name="quantite" value="1">
+              <button type="submit" class="btn btn-sm btn-outline-success">+ Ajouter</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</div>
+<?php endif; ?>
+
 <script>
 // Mise à jour quantités
 document.querySelectorAll('.qte-input').forEach(function(input){
@@ -217,35 +275,5 @@ document.getElementById('form-promo').addEventListener('submit', function(e){
 });
 <?php endif; ?>
 </script>
-<!-- À la fin du fichier panier.php, avant le footer, ajouter : -->
-
-<!-- Suggestions de produits complémentaires -->
-<?php if (!empty($suggestionsComplementaires)): ?>
-<div class="card border-0 shadow-sm mt-4">
-  <div class="card-header bg-info text-white fw-bold">
-    💡 Vous pourriez aussi aimer
-  </div>
-  <div class="card-body">
-    <div class="row g-3">
-      <?php foreach ($suggestionsComplementaires as $sugg): ?>
-      <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body text-center">
-            <div style="font-size:2rem"><?= getEmojiAliment($sugg['nom']) ?></div>
-            <h6 class="fw-bold mt-2"><?= htmlspecialchars($sugg['nom']) ?></h6>
-            <p class="text-success fw-bold"><?= number_format($sugg['prix'], 2) ?> TND</p>
-            <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier">
-              <input type="hidden" name="produit_id" value="<?= $sugg['id'] ?>">
-              <input type="hidden" name="quantite" value="1">
-              <button type="submit" class="btn btn-sm btn-outline-success">+ Ajouter</button>
-            </form>
-          </div>
-        </div>
-      </div>
-      <?php endforeach; ?>
-    </div>
-  </div>
-</div>
-<?php endif; ?>
 
 <?php require 'app/view/layout/footer.php'; ?>
