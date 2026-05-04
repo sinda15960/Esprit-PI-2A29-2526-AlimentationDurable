@@ -222,6 +222,115 @@ class CategorieController {
             require_once dirname(__DIR__) . '/views/backoffice/categories/index.php';
         }
     }
+    // Vérifier les objectifs des catégories
+private function checkCategoryGoals($idCategorie, $nbRecettes) {
+    // Récupérer l'objectif depuis la session
+    $goal = $_SESSION['category_goals'][$idCategorie] ?? 10;
+    
+    // Vérifier si l'objectif est atteint
+    if ($nbRecettes >= $goal) {
+        // Récupérer le nom de la catégorie
+        $categorie = $this->readOneCategorie($idCategorie);
+        $nomCategorie = $categorie['nom'] ?? 'Catégorie';
+        
+        $this->addNotification(
+            "🏆 Objectif atteint !",
+            "La catégorie \"$nomCategorie\" a atteint son objectif de $goal recettes !",
+            "success",
+            "fas fa-trophy"
+        );
+    }
+    
+    // Vérifier si plus que 2 recettes pour atteindre l'objectif
+    $reste = $goal - $nbRecettes;
+    if ($reste == 2) {
+        $categorie = $this->readOneCategorie($idCategorie);
+        $nomCategorie = $categorie['nom'] ?? 'Catégorie';
+        
+        $this->addNotification(
+            "🔥 Encore $reste recettes !",
+            "Plus que $reste recettes pour que la catégorie \"$nomCategorie\" atteigne son objectif !",
+            "warning",
+            "fas fa-fire"
+        );
+    }
+}
+private function addNotification($title, $message, $type = 'info', $icon = 'fas fa-info-circle') {
+    if (!isset($_SESSION['notifications'])) {
+        $_SESSION['notifications'] = [];
+    }
+    array_unshift($_SESSION['notifications'], [
+        'id' => time() . rand(1, 1000),
+        'title' => $title,
+        'message' => $message,
+        'type' => $type,
+        'icon' => $icon,
+        'time' => date('d/m/Y H:i'),
+        'read' => false
+    ]);
+    $_SESSION['notifications'] = array_slice($_SESSION['notifications'], 0, 50);
+}
+// Vérifier les niveaux (badges)
+private function checkRecipeMilestones() {
+    // Récupérer le nombre total de recettes
+    $stmt = $this->getAllRecipes();
+    $totalRecipes = $stmt->rowCount();
+    
+    // Définir les paliers
+    $milestones = [
+        5 => ["Niveau Débutant 🥉", "Félicitations ! Vous avez créé 5 recettes. Niveau Débutant atteint !"],
+        10 => ["Niveau Apprenti 🍳", "Bravo ! 10 recettes créées. Vous êtes maintenant Niveau Apprenti !"],
+        20 => ["Niveau Cuisinier 👨‍🍳", "Excellent ! 20 recettes créées. Niveau Cuisinier atteint !"],
+        30 => ["Niveau Chef 🧑‍🍳", "Magnifique ! 30 recettes créées. Vous êtes devenu Chef !"],
+        50 => ["Niveau Master Chef 🏆", "Exceptionnel ! 50 recettes créées. Master Chef légendaire !"]
+    ];
+    
+    // Vérifier les paliers atteints
+    foreach ($milestones as $seuil => $milestone) {
+        if ($totalRecipes >= $seuil) {
+            // Vérifier si la notification a déjà été envoyée
+            $key = "milestone_$seuil";
+            if (!isset($_SESSION['milestones_notified'][$key])) {
+                $_SESSION['milestones_notified'][$key] = true;
+                $this->addNotification(
+                    $milestone[0],
+                    $milestone[1],
+                    "success",
+                    "fas fa-medal"
+                );
+            }
+        }
+    }
+    
+    // Vérifier si plus que 2 recettes pour le prochain niveau
+    $nextLevels = [5, 10, 20, 30, 50];
+    foreach ($nextLevels as $nextLevel) {
+        $remaining = $nextLevel - $totalRecipes;
+        if ($remaining == 2 && $totalRecipes < $nextLevel) {
+            $key = "reminder_$nextLevel";
+            if (!isset($_SESSION['milestones_notified'][$key])) {
+                $_SESSION['milestones_notified'][$key] = true;
+                $this->addNotification(
+                    "🔥 Encore $remaining recettes !",
+                    "Plus que $remaining recettes pour atteindre le niveau " . $this->getLevelName($nextLevel) . " !",
+                    "warning",
+                    "fas fa-fire"
+                );
+            }
+        }
+    }
+}
+
+private function getLevelName($level) {
+    $levels = [
+        5 => "Débutant",
+        10 => "Apprenti",
+        20 => "Cuisinier",
+        30 => "Chef",
+        50 => "Master Chef"
+    ];
+    return $levels[$level] ?? "Supérieur";
+}
     
     public function backCreate() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -249,17 +358,6 @@ class CategorieController {
             } else {
                 $_SESSION['errors'] = $errors;
             }
-            // Après avoir créé la recette avec succès
-if($recipeId) {
-    // Notification : Nouvelle recette ajoutée
-    $this->addNotification(
-        "📝 Nouvelle recette",
-        "La recette \"" . htmlspecialchars($data['title']) . "\" a été ajoutée par " . ($_SESSION['username'] ?? 'Administrateur'),
-        "success",
-        "fas fa-plus-circle"
-    );
-    // ... le reste du code
-}
         }
         
         header("Location: index.php?action=backCategories");

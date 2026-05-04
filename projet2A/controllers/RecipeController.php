@@ -16,7 +16,9 @@ class RecipeController {
         $this->recipeModel = new Recipe($this->db);
         $this->instructionModel = new Instruction($this->db);
         $this->categorieModel = new Categorie($this->db);
-        
+        if (!isset($_SESSION['milestones_notified'])) {
+        $_SESSION['milestones_notified'] = [];
+    }
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -687,7 +689,7 @@ class RecipeController {
                 $recipeId = $this->createRecipe($data);
                 
                 if($recipeId) {
-                    // Notification
+                    // Notification : Nouvelle recette
                     $this->addNotification(
                         "📝 Nouvelle recette",
                         "La recette \"" . htmlspecialchars($data['title']) . "\" a été ajoutée",
@@ -695,6 +697,15 @@ class RecipeController {
                         "fas fa-plus-circle"
                     );
                     
+                    // Vérifier les objectifs de la catégorie concernée
+                    if(!empty($data['idCategorie'])) {
+                        $this->checkCategoryGoals($data['idCategorie']);
+                    }
+                    
+                    // Vérifier les niveaux (Chef)
+                    $this->checkRecipeMilestones();
+                    
+                    // Ajout des instructions
                     if(isset($_POST['instructions']) && is_array($_POST['instructions'])) {
                         foreach($_POST['instructions'] as $step => $instruction) {
                             if(!empty($instruction['description'])) {

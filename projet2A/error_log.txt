@@ -189,3 +189,12 @@ Stack trace:
 #1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(102): InstructionController->backCreate(6)
 #2 {main}
   thrown in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[05-May-2026 00:18:19 Europe/Berlin] PHP Fatal error:  Cannot redeclare RecipeController::addNotification() in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 651
+[05-May-2026 00:21:02 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method RecipeController::backCreate() in C:\xampp1\htdocs\nutriflow-ai\public\index.php:56
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 56
+[05-May-2026 00:21:20 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method RecipeController::backCreate() in C:\xampp1\htdocs\nutriflow-ai\public\index.php:56
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 56
