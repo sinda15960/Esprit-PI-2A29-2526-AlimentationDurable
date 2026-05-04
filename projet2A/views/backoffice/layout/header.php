@@ -22,6 +22,178 @@ if (session_status() === PHP_SESSION_NONE) {
     <link rel="stylesheet" href="css/backoffice.css">
     
     <style>
+        /* Notifications */
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 350px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: none;
+    margin-top: 10px;
+}
+
+.notification-dropdown.show {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+}
+
+.clear-all {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 0.7rem;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notification-item:hover {
+    background: #f8f9fa;
+}
+
+.notification-item.unread {
+    background: #e8f5e9;
+}
+
+.notification-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.notification-icon.info { background: #e3f2fd; color: #2196f3; }
+.notification-icon.success { background: #e8f5e9; color: #4caf50; }
+.notification-icon.warning { background: #fff3e0; color: #ff9800; }
+.notification-icon.danger { background: #ffebee; color: #f44336; }
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.notification-message {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.notification-time {
+    font-size: 0.65rem;
+    color: #999;
+    margin-top: 3px;
+}
+
+.notification-delete {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.notification-item:hover .notification-delete {
+    opacity: 1;
+}
+
+.notification-delete button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+}
+
+.notification-empty {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+}
+
+/* Toast notifications */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    min-width: 280px;
+    max-width: 350px;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    z-index: 1100;
+    border-left: 4px solid #2ecc71;
+}
+
+.toast-notification.show {
+    transform: translateX(0);
+}
+
+.toast-icon {
+    font-size: 1.5rem;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 3px;
+}
+
+.toast-message {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #999;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
         * {
             margin: 0;
             padding: 0;
@@ -408,10 +580,21 @@ if (session_status() === PHP_SESSION_NONE) {
                 </div>
                 
                 <div class="top-bar-right">
-                    <div class="notification-badge">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge">3</span>
-                    </div>
+                    <div class="notification-badge" onclick="toggleNotificationDropdown()">
+                                <i class="fas fa-bell"></i>
+                                <span class="badge" id="notificationCount">0</span>
+                                
+                                <!-- Dropdown des notifications -->
+                                <div class="notification-dropdown" id="notificationDropdown">
+                                    <div class="notification-header">
+                                        <span>🔔 Notifications</span>
+                                        <button onclick="clearAllNotifications()" class="clear-all">Tout effacer</button>
+                                    </div>
+                                    <div class="notification-list" id="notificationList">
+                                        <div class="notification-empty">Aucune notification</div>
+                                    </div>
+                                </div>
+                            </div>
                     
                     <div class="user-menu">
                         <div class="user-avatar-small">
@@ -471,3 +654,33 @@ if (session_status() === PHP_SESSION_NONE) {
                     }
                 });
             </script>
+            <script>
+// Charger les notifications depuis la session PHP
+const sessionNotifications = <?php echo json_encode($_SESSION['notifications'] ?? []); ?>;
+if (sessionNotifications.length > 0) {
+    let localNotifs = JSON.parse(localStorage.getItem('nutriflow_notifications') || '[]');
+    const newNotifs = sessionNotifications.filter(sn => !localNotifs.some(ln => ln.id === sn.id));
+    if (newNotifs.length > 0) {
+        localStorage.setItem('nutriflow_notifications', JSON.stringify([...newNotifs, ...localNotifs]));
+        // Vider les notifications de session
+        <?php unset($_SESSION['notifications']); ?>
+        location.reload();
+    }
+}
+</script>
+<!-- Scripts -->
+<script src="js/backoffice.js"></script>
+
+<script>
+// Charger les notifications depuis la session PHP
+const sessionNotifications = <?php echo json_encode($_SESSION['notifications'] ?? []); ?>;
+if (sessionNotifications.length > 0) {
+    let localNotifs = JSON.parse(localStorage.getItem('nutriflow_notifications') || '[]');
+    const newNotifs = sessionNotifications.filter(sn => !localNotifs.some(ln => ln.id === sn.id));
+    if (newNotifs.length > 0) {
+        localStorage.setItem('nutriflow_notifications', JSON.stringify([...newNotifs, ...localNotifs]));
+        <?php unset($_SESSION['notifications']); ?>
+        location.reload();
+    }
+}
+</script>

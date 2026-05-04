@@ -249,6 +249,17 @@ class CategorieController {
             } else {
                 $_SESSION['errors'] = $errors;
             }
+            // Après avoir créé la recette avec succès
+if($recipeId) {
+    // Notification : Nouvelle recette ajoutée
+    $this->addNotification(
+        "📝 Nouvelle recette",
+        "La recette \"" . htmlspecialchars($data['title']) . "\" a été ajoutée par " . ($_SESSION['username'] ?? 'Administrateur'),
+        "success",
+        "fas fa-plus-circle"
+    );
+    // ... le reste du code
+}
         }
         
         header("Location: index.php?action=backCategories");
