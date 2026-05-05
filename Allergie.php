@@ -1,6 +1,5 @@
 <?php
-require_once __DIR__ . '/../Config/Database.php';
-
+// Model/Allergie.php - UNIQUEMENT la structure de la classe
 class Allergie {
     private $id;
     private $nom;
@@ -9,16 +8,21 @@ class Allergie {
     private $symptomes;
     private $declencheurs;
     private $gravite;
+    private $image_url;
+    private $vue_count;
     private $date_creation;
     
-    // Constructeur
-    public function __construct($nom = null, $categorie = null, $description = null, $symptomes = null, $declencheurs = null, $gravite = null) {
+    public function __construct($nom = null, $categorie = null, $description = null, 
+                                $symptomes = null, $declencheurs = null, $gravite = null,
+                                $image_url = null) {
         $this->nom = $nom;
         $this->categorie = $categorie;
         $this->description = $description;
         $this->symptomes = $symptomes;
         $this->declencheurs = $declencheurs;
         $this->gravite = $gravite;
+        $this->image_url = $image_url;
+        $this->vue_count = 0;
     }
     
     // Getters
@@ -29,6 +33,8 @@ class Allergie {
     public function getSymptomes() { return $this->symptomes; }
     public function getDeclencheurs() { return $this->declencheurs; }
     public function getGravite() { return $this->gravite; }
+    public function getImageUrl() { return $this->image_url; }
+    public function getVueCount() { return $this->vue_count; }
     public function getDateCreation() { return $this->date_creation; }
     
     // Setters
@@ -39,66 +45,25 @@ class Allergie {
     public function setSymptomes($symptomes) { $this->symptomes = $symptomes; }
     public function setDeclencheurs($declencheurs) { $this->declencheurs = $declencheurs; }
     public function setGravite($gravite) { $this->gravite = $gravite; }
+    public function setImageUrl($image_url) { $this->image_url = $image_url; }
+    public function setVueCount($vue_count) { $this->vue_count = $vue_count; }
+    public function setDateCreation($date_creation) { $this->date_creation = $date_creation; }
     
-    // Récupérer toutes les allergies
-    public static function findAll() {
-        $db = Database::getInstance()->getConnection();
-        $stmt = $db->query("SELECT * FROM allergies ORDER BY id");
-        $results = $stmt->fetchAll();
-        
-        $allergies = [];
-        foreach ($results as $row) {
-            $allergie = new Allergie();
-            $allergie->hydrate($row);
-            $allergies[] = $allergie;
-        }
-        return $allergies;
+    // Méthode d'affichage (demandée par la prof)
+    public function show() {
+        echo "<table border='1' cellpadding='10'>";
+        echo "<tr><th>Propriété</th><th>Valeur</th></tr>";
+        echo "<tr><td>ID</td><td>" . $this->id . "</td></tr>";
+        echo "<tr><td>Nom</td><td>" . htmlspecialchars($this->nom) . "</td></tr>";
+        echo "<tr><td>Catégorie</td><td>" . htmlspecialchars($this->categorie) . "</td></tr>";
+        echo "<tr><td>Description</td><td>" . htmlspecialchars($this->description) . "</td></tr>";
+        echo "<tr><td>Symptômes</td><td>" . htmlspecialchars($this->symptomes) . "</td></tr>";
+        echo "<tr><td>Déclencheurs</td><td>" . htmlspecialchars($this->declencheurs) . "</td></tr>";
+        echo "<tr><td>Gravité</td><td>" . $this->gravite . "</td></tr>";
+        echo "<tr><td>Image URL</td><td>" . htmlspecialchars($this->image_url) . "</td></tr>";
+        echo "</table>";
     }
     
-    // Récupérer une allergie par ID
-    public static function findById($id) {
-        $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT * FROM allergies WHERE id = :id");
-        $stmt->execute([':id' => $id]);
-        $row = $stmt->fetch();
-        
-        if ($row) {
-            $allergie = new Allergie();
-            $allergie->hydrate($row);
-            return $allergie;
-        }
-        return null;
-    }
-    
-    // Rechercher des allergies
-    public static function search($term) {
-        $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT * FROM allergies WHERE nom LIKE :term OR description LIKE :term OR symptomes LIKE :term");
-        $stmt->execute([':term' => '%' . $term . '%']);
-        $results = $stmt->fetchAll();
-        
-        $allergies = [];
-        foreach ($results as $row) {
-            $allergie = new Allergie();
-            $allergie->hydrate($row);
-            $allergies[] = $allergie;
-        }
-        return $allergies;
-    }
-    
-    // Hydratation
-    public function hydrate($data) {
-        $this->id = $data['id'];
-        $this->nom = $data['nom'];
-        $this->categorie = $data['categorie'];
-        $this->description = $data['description'];
-        $this->symptomes = $data['symptomes'];
-        $this->declencheurs = $data['declencheurs'];
-        $this->gravite = $data['gravite'];
-        $this->date_creation = $data['date_creation'] ?? null;
-    }
-    
-    // Convertir en tableau pour JSON
     public function toArray() {
         return [
             'id' => $this->id,
@@ -107,7 +72,9 @@ class Allergie {
             'description' => $this->description,
             'symptomes' => $this->symptomes,
             'declencheurs' => $this->declencheurs,
-            'gravite' => $this->gravite
+            'gravite' => $this->gravite,
+            'image_url' => $this->image_url,
+            'vue_count' => $this->vue_count
         ];
     }
 }

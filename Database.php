@@ -1,5 +1,4 @@
 <?php
-// Model/Database.php - Version corrigée pour XAMPP
 class Database {
     private static $instance_front = null;
     private static $instance_back = null;

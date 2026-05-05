@@ -1,14 +1,34 @@
 <?php
 require_once __DIR__ . '/../Model/Traitement.php';
-require_once __DIR__ . '/../Model/Allergie.php';
+require_once __DIR__ . '/../Config/Database.php';
 
 class TraitementController {
+    private $db;
     
-    /**
-     * Récupérer tous les traitements
-     */
+    public function __construct() {
+        $this->db = Database::getInstance()->getConnection();
+    }
+    
+    // Récupérer tous les traitements
     public function getAllTraitements() {
-        $traitements = Traitement::findAll();
+        $stmt = $this->db->query("SELECT * FROM traitements ORDER BY id");
+        $results = $stmt->fetchAll();
+        
+        $traitements = [];
+        foreach ($results as $row) {
+            $traitement = new Traitement();
+            $traitement->setId($row['id']);
+            $traitement->setAllergieId($row['allergie_id']);
+            $traitement->setConseil($row['conseil']);
+            $traitement->setInterdits($row['interdits']);
+            $traitement->setMedicaments($row['medicaments']);
+            $traitement->setDuree($row['duree']);
+            $traitement->setNiveauUrgence($row['niveau_urgence']);
+            $traitement->setNoteMoyenne($row['note_moyenne'] ?? 0);
+            $traitement->setNbNotes($row['nb_notes'] ?? 0);
+            $traitements[] = $traitement;
+        }
+        
         $result = [];
         foreach ($traitements as $traitement) {
             $result[] = $traitement->toArray();
@@ -16,158 +36,116 @@ class TraitementController {
         return $result;
     }
     
-    /**
-     * Récupérer un traitement par ID d'allergie
-     */
+    // Récupérer tous les traitements avec jointure
+    public function getAllTraitementsWithAllergies() {
+        $stmt = $this->db->query("
+            SELECT t.*, a.nom as allergie_nom 
+            FROM traitements t 
+            JOIN allergies a ON t.allergie_id = a.id 
+            ORDER BY a.nom
+        ");
+        return $stmt->fetchAll();
+    }
+    
+    // Récupérer un traitement par ID d'allergie
     public function getTraitementByAllergieId($allergie_id) {
-        $traitement = Traitement::findByAllergieId($allergie_id);
-        if ($traitement) {
+        $stmt = $this->db->prepare("SELECT * FROM traitements WHERE allergie_id = ?");
+        $stmt->execute([$allergie_id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($row) {
+            $traitement = new Traitement();
+            $traitement->setId($row['id']);
+            $traitement->setAllergieId($row['allergie_id']);
+            $traitement->setConseil($row['conseil']);
+            $traitement->setInterdits($row['interdits']);
+            $traitement->setMedicaments($row['medicaments']);
+            $traitement->setDuree($row['duree']);
+            $traitement->setNiveauUrgence($row['niveau_urgence']);
+            $traitement->setNoteMoyenne($row['note_moyenne'] ?? 0);
+            $traitement->setNbNotes($row['nb_notes'] ?? 0);
             return $traitement->toArray();
         }
         return null;
     }
     
-    /**
-     * NOUVELLE MÉTHODE : Afficher les traitements par allergie (jointure)
-     * Pour le formulaire de recherche
-     */
-    public function afficherTraitementsParAllergie($idAllergie) {
-        $db = Database::getInstance()->getConnection();
+    // Récupérer un traitement par ID
+    public function getTraitementById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM traitements WHERE id = ?");
+        $stmt->execute([$id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        // Requête avec jointure pour récupérer les traitements avec le nom de l'allergie
-        $sql = "SELECT t.*, a.nom as allergie_nom, a.categorie, a.gravite as allergie_gravite
-                FROM traitements t 
-                JOIN allergies a ON t.allergie_id = a.id 
-                WHERE a.id = :id";
-        
-        $stmt = $db->prepare($sql);
-        $stmt->execute([':id' => $idAllergie]);
-        return $stmt->fetchAll();
+        if ($row) {
+            $traitement = new Traitement();
+            $traitement->setId($row['id']);
+            $traitement->setAllergieId($row['allergie_id']);
+            $traitement->setConseil($row['conseil']);
+            $traitement->setInterdits($row['interdits']);
+            $traitement->setMedicaments($row['medicaments']);
+            $traitement->setDuree($row['duree']);
+            $traitement->setNiveauUrgence($row['niveau_urgence']);
+            return $traitement->toArray();
+        }
+        return null;
     }
     
-    /**
-     * NOUVELLE MÉTHODE : Récupérer tous les traitements avec détails de l'allergie
-     * Pour affichage avec jointure complète
-     */
-    public function getAllTraitementsWithAllergies() {
-        $db = Database::getInstance()->getConnection();
-        
-        $sql = "SELECT t.*, a.nom as allergie_nom, a.categorie, a.description as allergie_description, a.gravite as allergie_gravite
-                FROM traitements t 
-                JOIN allergies a ON t.allergie_id = a.id 
-                ORDER BY a.nom";
-        
-        $stmt = $db->query($sql);
-        return $stmt->fetchAll();
+    // Ajouter un traitement
+    public function addTraitement($allergie_id, $conseil, $interdits, $medicaments, $duree, $niveau_urgence) {
+        $stmt = $this->db->prepare("
+            INSERT INTO traitements (allergie_id, conseil, interdits, medicaments, duree, niveau_urgence)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        return $stmt->execute([$allergie_id, $conseil, $interdits, $medicaments, $duree, $niveau_urgence]);
     }
     
-    /**
-     * NOUVELLE MÉTHODE : Rechercher des traitements par catégorie d'allergie
-     */
-    public function getTraitementsByCategorie($categorie) {
-        return Traitement::findByCategorie($categorie);
+    // Mettre à jour un traitement
+    public function updateTraitement($allergie_id, $conseil, $interdits, $medicaments, $duree, $niveau_urgence) {
+        $stmt = $this->db->prepare("
+            UPDATE traitements 
+            SET conseil = ?, interdits = ?, medicaments = ?, duree = ?, niveau_urgence = ?
+            WHERE allergie_id = ?
+        ");
+        return $stmt->execute([$conseil, $interdits, $medicaments, $duree, $niveau_urgence, $allergie_id]);
     }
     
-    /**
-     * Ajouter un traitement
-     */
-    public function addTraitement($data) {
-        // Vérifier si l'allergie existe
-        $allergie = Allergie::findById($data['allergie_id']);
-        if (!$allergie) {
-            return ['success' => false, 'message' => 'Allergie non trouvée'];
-        }
-        
-        $traitement = new Traitement(
-            $data['allergie_id'],
-            $data['conseil'],
-            $data['interdits'],
-            $data['medicaments'] ?? null,
-            $data['duree'] ?? null,
-            $data['niveau_urgence']
-        );
-        
-        if ($traitement->save()) {
-            return ['success' => true, 'id' => $traitement->getId(), 'message' => 'Traitement ajouté avec succès'];
-        }
-        return ['success' => false, 'message' => 'Erreur lors de l\'ajout'];
-    }
-    
-    /**
-     * Ajouter un traitement par nom d'allergie (pour BackOffice)
-     */
-    public function addTraitementByAllergieNom($data) {
-        // Chercher l'allergie par son nom
-        $allergie = Allergie::findByNom($data['allergie_nom']);
-        if (!$allergie) {
-            return ['success' => false, 'message' => 'Allergie non trouvée: ' . $data['allergie_nom']];
-        }
-        
-        $traitement = new Traitement(
-            $allergie->getId(),
-            $data['conseil'],
-            $data['interdits'],
-            $data['medicaments'] ?? null,
-            $data['duree'] ?? null,
-            $data['niveau_urgence']
-        );
-        
-        if ($traitement->save()) {
-            return ['success' => true, 'id' => $traitement->getId(), 'message' => 'Traitement ajouté avec succès'];
-        }
-        return ['success' => false, 'message' => 'Erreur lors de l\'ajout'];
-    }
-    
-    /**
-     * Modifier un traitement
-     */
-    public function updateTraitement($id, $data) {
-        $traitement = Traitement::findById($id);
-        if (!$traitement) {
-            return ['success' => false, 'message' => 'Traitement non trouvé'];
-        }
-        
-        $traitement->setConseil($data['conseil']);
-        $traitement->setInterdits($data['interdits']);
-        $traitement->setMedicaments($data['medicaments'] ?? null);
-        $traitement->setDuree($data['duree'] ?? null);
-        $traitement->setNiveauUrgence($data['niveau_urgence']);
-        
-        if ($traitement->save()) {
-            return ['success' => true, 'message' => 'Traitement modifié avec succès'];
-        }
-        return ['success' => false, 'message' => 'Erreur lors de la modification'];
-    }
-    
-    /**
-     * Supprimer un traitement
-     */
+    // Supprimer un traitement
     public function deleteTraitement($id) {
-        $traitement = Traitement::findById($id);
-        if (!$traitement) {
-            return ['success' => false, 'message' => 'Traitement non trouvé'];
-        }
-        
-        if ($traitement->delete()) {
-            return ['success' => true, 'message' => 'Traitement supprimé avec succès'];
-        }
-        return ['success' => false, 'message' => 'Erreur lors de la suppression'];
+        $stmt = $this->db->prepare("DELETE FROM traitements WHERE id = ?");
+        return $stmt->execute([$id]);
     }
     
-    /**
-     * Vérifier si un traitement existe pour une allergie
-     */
-    public function traitementExiste($allergie_id) {
-        $traitement = Traitement::findByAllergieId($allergie_id);
-        return $traitement !== null;
-    }
-    
-    /**
-     * Compter le nombre total de traitements
-     */
+    // Compter les traitements
     public function countTraitements() {
-        $traitements = $this->getAllTraitements();
-        return count($traitements);
+        return $this->db->query("SELECT COUNT(*) FROM traitements")->fetchColumn();
+    }
+    
+    // Ajouter une note
+    public function addNote($traitement_id, $note) {
+        $note = min(5, max(1, $note));
+        
+        $stmt = $this->db->prepare("SELECT note_moyenne, nb_notes FROM traitements WHERE id = ?");
+        $stmt->execute([$traitement_id]);
+        $current = $stmt->fetch();
+        
+        if ($current) {
+            $newCount = $current['nb_notes'] + 1;
+            $newAvg = round(($current['note_moyenne'] * $current['nb_notes'] + $note) / $newCount, 1);
+            
+            $stmt = $this->db->prepare("UPDATE traitements SET note_moyenne = ?, nb_notes = ? WHERE id = ?");
+            return $stmt->execute([$newAvg, $newCount, $traitement_id]);
+        }
+        return false;
+    }
+    
+    // Sauvegarder ou mettre à jour un traitement
+    public function saveTraitement($allergie_id, $conseil, $interdits, $medicaments, $duree, $niveau_urgence) {
+        $existant = $this->getTraitementByAllergieId($allergie_id);
+        
+        if ($existant) {
+            return $this->updateTraitement($allergie_id, $conseil, $interdits, $medicaments, $duree, $niveau_urgence);
+        } else {
+            return $this->addTraitement($allergie_id, $conseil, $interdits, $medicaments, $duree, $niveau_urgence);
+        }
     }
 }
 ?>

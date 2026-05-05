@@ -12,29 +12,71 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $allergie = new Allergie(
-        $_POST['nom'],
-        $_POST['categorie'],
-        $_POST['description'],
-        $_POST['symptomes'],
-        $_POST['declencheurs'],
-        $_POST['gravite']
-    );
-    
-    if ($allergie->save()) {
-        $traitement = new Traitement(
-            $allergie->getId(),
-            $_POST['conseil'],
-            $_POST['interdits'],
-            $_POST['medicaments'] ?? null,
-            $_POST['duree'] ?? null,
-            $_POST['niveau_urgence']
+    // Validation du nom (pas de chiffres)
+    if (preg_match('/[0-9]/', $_POST['nom'])) {
+        $error = "Le nom ne doit pas contenir de chiffres";
+    }
+    // Validation description
+    elseif (strlen(trim($_POST['description'])) < 10) {
+        $error = "La description doit contenir au moins 10 caractères";
+    }
+    // Validation symptômes
+    elseif (strlen(trim($_POST['symptomes'])) < 10) {
+        $error = "Les symptômes doivent contenir au moins 10 caractères";
+    }
+    else {
+        $allergie = new Allergie(
+            $_POST['nom'],
+            $_POST['categorie'],
+            $_POST['description'],
+            $_POST['symptomes'],
+            $_POST['declencheurs'],
+            $_POST['gravite']
         );
-        $traitement->save();
-        $success = "Allergie ajoutée avec succès !";
-        header('refresh:2;url=dashboard.php');
-    } else {
-        $error = "Erreur lors de l'ajout";
+        
+        if ($allergie->save()) {
+            $allergie_id = $allergie->getId();
+            
+            // Ajouter le traitement associé
+            $traitement = new Traitement(
+                $allergie_id,
+                $_POST['conseil'],
+                $_POST['interdits'],
+                $_POST['medicaments'] ?? null,
+                $_POST['duree'] ?? null,
+                $_POST['niveau_urgence']
+            );
+            $traitement->save();
+            
+            // Gérer l'upload d'image
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $target_dir = __DIR__ . '/../../uploads/allergies/';
+                if (!is_dir($target_dir)) {
+                    mkdir($target_dir, 0777, true);
+                }
+                
+                $file_extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                
+                if (in_array($file_extension, $allowed)) {
+                    $new_filename = "allergie_" . $allergie_id . "_" . time() . "." . $file_extension;
+                    $target_file = $target_dir . $new_filename;
+                    $relative_path = "uploads/allergies/" . $new_filename;
+                    
+                    if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+                        $db = Database::getInstance()->getConnection();
+                        $stmt = $db->prepare("UPDATE allergies SET image_url = ? WHERE id = ?");
+                        $stmt->execute([$relative_path, $allergie_id]);
+                    }
+                }
+            }
+            
+            $success = "Allergie ajoutée avec succès !";
+            header('Location: dashboard.php?success=1');
+            exit();
+        } else {
+            $error = "Erreur lors de l'ajout de l'allergie";
+        }
     }
 }
 ?>
@@ -43,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajouter une allergie</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .success { color: #4caf50; margin-bottom: 1rem; }
         .back { display: inline-block; margin-top: 1rem; color: #2d5016; text-decoration: none; }
         hr { margin: 1.5rem 0; }
+        .image-preview { max-width: 200px; margin-top: 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -69,13 +111,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h2>➕ Ajouter une allergie</h2>
         <?php if ($error): ?><div class="error"><?= $error ?></div><?php endif; ?>
         <?php if ($success): ?><div class="success"><?= $success ?></div><?php endif; ?>
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             <div class="form-group"><label>Nom *</label><input type="text" name="nom" required></div>
             <div class="form-group"><label>Catégorie *</label><select name="categorie" required><option value="">Sélectionner</option><option>Alimentaire</option><option>Respiratoire</option><option>Cutane</option><option>Médicamenteuse</option></select></div>
             <div class="form-group"><label>Description *</label><textarea name="description" required></textarea></div>
             <div class="form-group"><label>Symptômes *</label><textarea name="symptomes" required></textarea></div>
             <div class="form-group"><label>Déclencheurs *</label><input type="text" name="declencheurs" required></div>
             <div class="form-group"><label>Gravité *</label><select name="gravite" required><option value="">Sélectionner</option><option value="legere">Légère</option><option value="moderate">Modérée</option><option value="severe">Sévère</option></select></div>
+            
+            <!-- Upload d'image -->
+            <div class="form-group">
+                <label>🖼️ Image (optionnel)</label>
+                <input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp">
+                <small style="color: #666;">Formats acceptés : JPG, PNG, GIF, WEBP</small>
+            </div>
+            
             <hr>
             <h3>💊 Traitement associé</h3>
             <div class="form-group"><label>Conseils *</label><textarea name="conseil" required></textarea></div>

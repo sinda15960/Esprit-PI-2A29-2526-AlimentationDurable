@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .empty-state{text-align:center;padding:3rem;background:white;border-radius:20px;color:#999;}
         .footer{background:linear-gradient(135deg,#1a3c0e 0%,#2d5016 100%);color:white;text-align:center;padding:1.2rem;margin-top:2rem;}
         
-        .position-saved {
+        .position-display {
             background: #e8f5e9;
             border-radius: 12px;
             padding: 0.8rem;
@@ -108,16 +108,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="front_allergie_traitement.php" class="back-btn">← Retour</a>
  
         <div class="gps-instruction">
-            <strong>📍 Pour obtenir votre position GPS réelle :</strong><br>
+            <strong>📍 Position GPS réelle :</strong><br>
             • Cliquez sur "OBTENIR MA POSITION GPS"<br>
             • <strong>AUTORISEZ</strong> la localisation<br>
-            • La position sera <strong>SAUVEGARDÉE</strong> même après rafraîchissement
+            • La position est sauvegardée automatiquement
         </div>
  
-        <div id="positionDisplay" class="position-saved" style="display:none;"></div>
+        <div id="positionDisplay" class="position-display" style="display:none;"></div>
  
         <div class="sos-test-card" style="margin-bottom:1rem;">
-            <h3><i class="fas fa-map-marker-alt"></i> 📍 ÉTAPE 1 : Obtenez votre position GPS RÉELLE</h3>
+            <h3><i class="fas fa-map-marker-alt"></i> 📍 ÉTAPE 1 : Obtenez votre position GPS</h3>
             <button id="getLocationBtn" class="btn-sos" style="background:#4caf50;">📍 OBTENIR MA POSITION GPS</button>
             <div id="locationResult" style="margin-top:1rem;display:none;"></div>
         </div>
@@ -209,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         var currentAccuracy = null;
         var positionDisplay = document.getElementById('positionDisplay');
  
-        // === SAUVEGARDER POSITION DANS localStorage ===
+        // === SAUVEGARDER POSITION ===
         function savePositionToStorage(lat, lng, accuracy) {
             localStorage.setItem('emergency_lat', lat);
             localStorage.setItem('emergency_lng', lng);
@@ -217,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             localStorage.setItem('emergency_time', Date.now());
         }
  
-        // === CHARGER POSITION DEPUIS localStorage ===
+        // === CHARGER POSITION ===
         function loadPositionFromStorage() {
             var savedLat = localStorage.getItem('emergency_lat');
             var savedLng = localStorage.getItem('emergency_lng');
@@ -226,43 +226,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if (savedLat && savedLng && savedTime) {
                 var age = Date.now() - parseInt(savedTime);
-                var hours = Math.floor(age / 3600000);
-                
-                if (age < 86400000) { // 24h
+                if (age < 86400000) {
                     currentLat = parseFloat(savedLat);
                     currentLng = parseFloat(savedLng);
                     currentAccuracy = savedAcc;
                     
+                    var hours = Math.floor(age / 3600000);
                     positionDisplay.style.display = 'block';
-                    var precisionMsg = currentAccuracy < 50 ? "🏆 EXCELLENTE" : (currentAccuracy < 200 ? "✅ BONNE" : "🟡 MOYENNE");
-                    positionDisplay.innerHTML = '✅ <strong>Position sauvegardée</strong> (il y a ' + hours + 'h)<br>'
-                        + '📍 ' + currentLat.toFixed(6) + ', ' + currentLng.toFixed(6) + '<br>'
-                        + '📏 Précision: ±' + currentAccuracy + 'm (' + precisionMsg + ')<br>'
-                        + '<button onclick="refreshPosition()" class="refresh-btn">🔄 Actualiser la position</button>';
+                    positionDisplay.innerHTML = '📍 <strong>Position GPS</strong><br>'
+                        + currentLat.toFixed(6) + ', ' + currentLng.toFixed(6) + '<br>'
+                        + '📏 ±' + currentAccuracy + 'm<br>'
+                     
                     return true;
                 }
             }
             return false;
         }
  
-        // === AFFICHER LA POSITION COURANTE ===
+        // === AFFICHER POSITION ===
         function displayCurrentPosition(lat, lng, accuracy) {
             currentLat = lat;
             currentLng = lng;
             currentAccuracy = accuracy;
             
             positionDisplay.style.display = 'block';
-            var precisionMsg = accuracy < 50 ? "🏆 EXCELLENTE" : (accuracy < 200 ? "✅ BONNE" : "🟡 MOYENNE");
-            positionDisplay.innerHTML = '✅ <strong>Position GPS actuelle</strong><br>'
-                + '📍 ' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '<br>'
-                + '📏 Précision: ±' + accuracy + 'm (' + precisionMsg + ')<br>'
-                + '<button onclick="refreshPosition()" class="refresh-btn">🔄 Actualiser la position</button>';
+            positionDisplay.innerHTML = '📍 <strong>Position GPS</strong><br>'
+                + lat.toFixed(6) + ', ' + lng.toFixed(6) + '<br>'
+                + '📏 ±' + accuracy + 'm<br>'
+                
         }
  
-        // === CHARGER AU DÉMARRAGE ===
+        // === CHARGEMENT ===
         var positionLoaded = loadPositionFromStorage();
         
-        // === BOUTON POUR FORCER UNE NOUVELLE POSITION ===
         window.refreshPosition = function() {
             document.getElementById('getLocationBtn').click();
         };
@@ -273,10 +269,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
         getLocationBtn.addEventListener('click', function() {
             locationResult.style.display = 'block';
-            locationResult.innerHTML = '<div class="loading-spinner"></div><p>📍 Recherche de votre position GPS réelle...<br><small>Veuillez autoriser la localisation</small></p>';
+            locationResult.innerHTML = '<div class="loading-spinner"></div><p>📍 Recherche GPS...<br><small>Autorisez la localisation</small></p>';
             
             if (!navigator.geolocation) {
-                locationResult.innerHTML = '<div class="result-box result-error">❌ Votre navigateur ne supporte pas la géolocalisation</div>';
+                locationResult.innerHTML = '<div class="result-box result-error">❌ Géolocalisation non supportée</div>';
                 return;
             }
             
@@ -292,32 +288,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     var lng = position.coords.longitude;
                     var accuracy = Math.round(position.coords.accuracy);
                     
-                    // SAUVEGARDER AUTOMATIQUEMENT
                     savePositionToStorage(lat, lng, accuracy);
                     displayCurrentPosition(lat, lng, accuracy);
                     
-                    var precisionClass = accuracy < 50 ? "🏆 EXCELLENTE" : (accuracy < 200 ? "✅ BONNE" : "🟡 MOYENNE");
+                    var precisionMsg = accuracy < 50 ? "🏆 EXCELLENTE" : (accuracy < 200 ? "✅ BONNE" : "🟡 MOYENNE");
                     
                     locationResult.innerHTML = '<div class="result-box result-success">'
-                        + '<strong>✅ POSITION GPS SAUVEGARDÉE !</strong><br><br>'
-                        + '📍 <strong>Latitude:</strong> ' + lat.toFixed(6) + '<br>'
-                        + '📍 <strong>Longitude:</strong> ' + lng.toFixed(6) + '<br>'
-                        + '📏 <strong>Précision:</strong> ±' + accuracy + ' mètres<br>'
-                        + '<span style="color:#4caf50; font-weight:bold;">' + precisionClass + '</span><br><br>'
-                        + '<a href="https://www.google.com/maps?q=' + lat + ',' + lng + '" target="_blank" style="color:#155724; font-weight:bold;">🗺️ Voir sur Google Maps</a>'
+                        + '<strong>✅ POSITION GPS OBTENUE !</strong><br><br>'
+                        + '📍 Latitude: ' + lat.toFixed(6) + '<br>'
+                        + '📍 Longitude: ' + lng.toFixed(6) + '<br>'
+                        + '📏 Précision: ±' + accuracy + 'm (' + precisionMsg + ')<br><br>'
+                        + '<a href="https://www.google.com/maps?q=' + lat + ',' + lng + '" target="_blank" style="color:#155724;">🗺️ Voir sur Google Maps</a>'
                         + '</div>';
                 },
                 function(error) {
                     var msg = '';
                     switch(error.code) {
                         case 1:
-                            msg = '❌ <strong>Autorisation refusée</strong><br><br>🔧 Solution:<br>• Cliquez sur l\'icône 🔒 dans la barre d\'adresse<br>• Autorisez la localisation<br>• Rechargez la page';
+                            msg = '❌ Autorisation refusée<br><br>🔗 Cliquez sur 🔒 et autorisez la localisation';
                             break;
                         case 2:
-                            msg = '❌ Signal GPS non trouvé<br><br>🔧 Solution:<br>• Déplacez-vous dans un endroit dégagé<br>• Activez le GPS sur votre téléphone';
+                            msg = '❌ Signal GPS non trouvé<br><br>📱 Déplacez-vous dans un endroit dégagé';
                             break;
                         case 3:
-                            msg = '❌ Délai dépassé<br><br>🔧 Solution:<br>• Vérifiez votre connexion<br>• Réessayez';
+                            msg = '❌ Délai dépassé<br><br>🔄 Réessayez';
                             break;
                         default:
                             msg = '❌ Erreur inconnue';
@@ -336,11 +330,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 resultDiv.style.display = 'block';
                 
                 if (!currentLat || !currentLng) {
-                    resultDiv.innerHTML = '<div class="result-box result-error">❌ Aucune position sauvegardée. Cliquez d\'abord sur "OBTENIR MA POSITION GPS"</div>';
+                    resultDiv.innerHTML = '<div class="result-box result-error">❌ Aucune position. Cliquez sur "OBTENIR MA POSITION GPS" d\'abord</div>';
                     return;
                 }
                 
-                resultDiv.innerHTML = '<div class="loading-spinner"></div><p>📤 Envoi de l\'alerte avec position sauvegardée...</p>';
+                resultDiv.innerHTML = '<div class="loading-spinner"></div><p>📤 Envoi de l\'alerte...</p>';
                 
                 fetch('/EspritNutriFlowMVC/Controller/send_sos.php', {
                     method: 'POST',
@@ -352,7 +346,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (data.success) {
                         resultDiv.innerHTML = '<div class="result-box result-success">'
                             + '<strong>✅ ALERTE ENVOYÉE !</strong><br><br>'
-                            + '📍 Position sauvegardée: ' + currentLat.toFixed(6) + ', ' + currentLng.toFixed(6) + '<br>'
+                            + '📍 Position: ' + currentLat.toFixed(6) + ', ' + currentLng.toFixed(6) + '<br>'
                             + '🗺️ <a href="' + data.maps_link + '" target="_blank">Voir sur Google Maps</a><br><br>'
                             + '📱 SMS envoyé<br>'
                             + '⚠️ Appelez le 15 si besoin !'
@@ -365,11 +359,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     resultDiv.innerHTML = '<div class="result-box result-error">❌ Erreur: ' + err.message + '</div>';
                 });
             });
-        }
-        
-        // Afficher un message si position chargée
-        if (positionLoaded) {
-            console.log('Position chargée depuis localStorage');
         }
     </script>
 </body>

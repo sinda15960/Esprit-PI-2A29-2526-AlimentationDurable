@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test GPS</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        button { padding: 10px 20px; font-size: 16px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #result { margin-top: 20px; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Test GPS et Envoi Alerte</h1>
+    <button id="testBtn">📍 Tester ma position et envoyer alerte</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testBtn').onclick = function() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Récupération de la position...';
+            resultDiv.className = '';
+            
+            if (!navigator.geolocation) {
+                resultDiv.innerHTML = '❌ Géolocalisation non supportée';
+                resultDiv.className = 'error';
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    resultDiv.innerHTML = `Position: ${lat}, ${lng}<br>Envoi de l'alerte...`;
+                    
+                    fetch('../../Controller/send_sos.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ latitude: lat, longitude: lng })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            resultDiv.innerHTML = `✅ Succès! <br>📍 <a href="${data.maps_link}" target="_blank">Voir sur Google Maps</a>`;
+                            resultDiv.className = 'success';
+                        } else {
+                            resultDiv.innerHTML = `❌ Erreur: ${data.message}`;
+                            resultDiv.className = 'error';
+                        }
+                    })
+                    .catch(error => {
+                        resultDiv.innerHTML = `❌ Erreur fetch: ${error.message}`;
+                        resultDiv.className = 'error';
+                    });
+                },
+                function(error) {
+                    let msg = 'Erreur GPS: ';
+                    if(error.code == 1) msg += 'Autorisation refusée';
+                    else if(error.code == 2) msg += 'Position non disponible';
+                    else if(error.code == 3) msg += 'Délai dépassé';
+                    else msg += error.message;
+                    resultDiv.innerHTML = msg;
+                    resultDiv.className = 'error';
+                }
+            );
+        };
+    </script>
+</body>
+</html>

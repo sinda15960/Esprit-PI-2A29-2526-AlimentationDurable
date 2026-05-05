@@ -45,7 +45,8 @@ class UrgenceContact {
             'nom' => $this->nom,
             'relation' => $this->relation,
             'telephone' => $this->telephone,
-            'email' => $this->email
+            'email' => $this->email,
+            'is_primary' => $this->is_primary
         ];
     }
 }

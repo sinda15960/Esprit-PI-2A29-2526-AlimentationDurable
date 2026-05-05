@@ -4,9 +4,9 @@ class Database {
     private $conn;
     
     private $host = 'localhost';
-    private $dbname = 'nutriflow_db';
-    private $username = 'root';
-    private $password = '';
+    private $dbname = 'nutriflow_db';   // Vérifiez que c'est le bon nom
+    private $username = 'root';          // XAMPP: root par défaut
+    private $password = '';              // XAMPP: vide par défaut
     
     private function __construct() {
         try {
