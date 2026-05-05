@@ -24,16 +24,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: urgence_config.php'); exit();
     }
 }
-
-// Récupérer la position depuis le formulaire POST
-$latitude = $_POST['latitude'] ?? $_GET['latitude'] ?? null;
-$longitude = $_POST['longitude'] ?? $_GET['longitude'] ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Contacts Urgence - NutriFlow AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -73,23 +70,31 @@ $longitude = $_POST['longitude'] ?? $_GET['longitude'] ?? null;
         .empty-state{text-align:center;padding:3rem;background:white;border-radius:20px;color:#999;}
         .footer{background:linear-gradient(135deg,#1a3c0e 0%,#2d5016 100%);color:white;text-align:center;padding:1.2rem;margin-top:2rem;}
         
-        /* Bouton Maps */
-        .maps-button {
-            background: #4caf50;
-            color: white;
-            padding: 1rem;
-            border-radius: 50px;
-            text-decoration: none;
-            display: inline-block;
-            margin: 0.5rem 0;
-            font-weight: 600;
-        }
-        .current-position {
-            background: #e3f2fd;
+        .position-saved {
+            background: #e8f5e9;
             border-radius: 12px;
-            padding: 1rem;
+            padding: 0.8rem;
             margin-bottom: 1rem;
             text-align: center;
+            border-left: 4px solid #4caf50;
+        }
+        .gps-instruction {
+            background: #fff3cd;
+            border-radius: 12px;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            font-size: 0.75rem;
+            text-align: left;
+        }
+        .refresh-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -102,19 +107,18 @@ $longitude = $_POST['longitude'] ?? $_GET['longitude'] ?? null;
     <div class="container">
         <a href="front_allergie_traitement.php" class="back-btn">← Retour</a>
  
-        <?php if($latitude && $longitude): ?>
-        <div class="current-position">
-            <strong>📍 Votre position actuelle :</strong><br>
-            Latitude: <?= $latitude ?><br>
-            Longitude: <?= $longitude ?><br>
-            <a href="https://www.google.com/maps?q=<?= $latitude ?>,<?= $longitude ?>" target="_blank" class="maps-button">🗺️ Voir sur Google Maps</a>
+        <div class="gps-instruction">
+            <strong>📍 Pour obtenir votre position GPS réelle :</strong><br>
+            • Cliquez sur "OBTENIR MA POSITION GPS"<br>
+            • <strong>AUTORISEZ</strong> la localisation<br>
+            • La position sera <strong>SAUVEGARDÉE</strong> même après rafraîchissement
         </div>
-        <?php endif; ?>
+ 
+        <div id="positionDisplay" class="position-saved" style="display:none;"></div>
  
         <div class="sos-test-card" style="margin-bottom:1rem;">
-            <h3><i class="fas fa-map-marker-alt"></i> Étape 1 : Obtenez votre position</h3>
-            <p>Cliquez sur le bouton ci-dessous pour obtenir votre position GPS réelle</p>
-            <button id="getLocationBtn" class="btn-sos" style="background:#4caf50;">📍 OB TENIR MA POSITION GPS</button>
+            <h3><i class="fas fa-map-marker-alt"></i> 📍 ÉTAPE 1 : Obtenez votre position GPS RÉELLE</h3>
+            <button id="getLocationBtn" class="btn-sos" style="background:#4caf50;">📍 OBTENIR MA POSITION GPS</button>
             <div id="locationResult" style="margin-top:1rem;display:none;"></div>
         </div>
  
@@ -171,8 +175,8 @@ $longitude = $_POST['longitude'] ?? $_GET['longitude'] ?? null;
         </div>
  
         <div class="sos-test-card">
-            <h3><i class="fas fa-exclamation-triangle"></i> Étape 2 : Envoyer l'alerte</h3>
-            <button id="testSosButton" class="btn-sos">🚨 ENVOYER MON ALERTE SMS 🚨</button>
+            <h3><i class="fas fa-exclamation-triangle"></i> 🚨 ÉTAPE 2 : Envoyer l'alerte</h3>
+            <button id="testSosButton" class="btn-sos">🚨 ENVOYER MON ALERTE SMS</button>
             <div id="sosResult" style="margin-top:1rem;display:none;"></div>
         </div>
     </div>
@@ -202,48 +206,125 @@ $longitude = $_POST['longitude'] ?? $_GET['longitude'] ?? null;
         // === VARIABLES ===
         var currentLat = null;
         var currentLng = null;
+        var currentAccuracy = null;
+        var positionDisplay = document.getElementById('positionDisplay');
  
-        // === BOUTON POUR OBTENIR LA POSITION ===
+        // === SAUVEGARDER POSITION DANS localStorage ===
+        function savePositionToStorage(lat, lng, accuracy) {
+            localStorage.setItem('emergency_lat', lat);
+            localStorage.setItem('emergency_lng', lng);
+            localStorage.setItem('emergency_accuracy', accuracy);
+            localStorage.setItem('emergency_time', Date.now());
+        }
+ 
+        // === CHARGER POSITION DEPUIS localStorage ===
+        function loadPositionFromStorage() {
+            var savedLat = localStorage.getItem('emergency_lat');
+            var savedLng = localStorage.getItem('emergency_lng');
+            var savedAcc = localStorage.getItem('emergency_accuracy');
+            var savedTime = localStorage.getItem('emergency_time');
+            
+            if (savedLat && savedLng && savedTime) {
+                var age = Date.now() - parseInt(savedTime);
+                var hours = Math.floor(age / 3600000);
+                
+                if (age < 86400000) { // 24h
+                    currentLat = parseFloat(savedLat);
+                    currentLng = parseFloat(savedLng);
+                    currentAccuracy = savedAcc;
+                    
+                    positionDisplay.style.display = 'block';
+                    var precisionMsg = currentAccuracy < 50 ? "🏆 EXCELLENTE" : (currentAccuracy < 200 ? "✅ BONNE" : "🟡 MOYENNE");
+                    positionDisplay.innerHTML = '✅ <strong>Position sauvegardée</strong> (il y a ' + hours + 'h)<br>'
+                        + '📍 ' + currentLat.toFixed(6) + ', ' + currentLng.toFixed(6) + '<br>'
+                        + '📏 Précision: ±' + currentAccuracy + 'm (' + precisionMsg + ')<br>'
+                        + '<button onclick="refreshPosition()" class="refresh-btn">🔄 Actualiser la position</button>';
+                    return true;
+                }
+            }
+            return false;
+        }
+ 
+        // === AFFICHER LA POSITION COURANTE ===
+        function displayCurrentPosition(lat, lng, accuracy) {
+            currentLat = lat;
+            currentLng = lng;
+            currentAccuracy = accuracy;
+            
+            positionDisplay.style.display = 'block';
+            var precisionMsg = accuracy < 50 ? "🏆 EXCELLENTE" : (accuracy < 200 ? "✅ BONNE" : "🟡 MOYENNE");
+            positionDisplay.innerHTML = '✅ <strong>Position GPS actuelle</strong><br>'
+                + '📍 ' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '<br>'
+                + '📏 Précision: ±' + accuracy + 'm (' + precisionMsg + ')<br>'
+                + '<button onclick="refreshPosition()" class="refresh-btn">🔄 Actualiser la position</button>';
+        }
+ 
+        // === CHARGER AU DÉMARRAGE ===
+        var positionLoaded = loadPositionFromStorage();
+        
+        // === BOUTON POUR FORCER UNE NOUVELLE POSITION ===
+        window.refreshPosition = function() {
+            document.getElementById('getLocationBtn').click();
+        };
+ 
+        // === BOUTON GPS ===
         var getLocationBtn = document.getElementById('getLocationBtn');
         var locationResult = document.getElementById('locationResult');
  
         getLocationBtn.addEventListener('click', function() {
             locationResult.style.display = 'block';
-            locationResult.innerHTML = '<div class="loading-spinner"></div><p>📍 Recherche de votre position GPS réelle...</p>';
+            locationResult.innerHTML = '<div class="loading-spinner"></div><p>📍 Recherche de votre position GPS réelle...<br><small>Veuillez autoriser la localisation</small></p>';
             
             if (!navigator.geolocation) {
-                locationResult.innerHTML = '<div class="result-box result-error">❌ Géolocalisation non supportée</div>';
+                locationResult.innerHTML = '<div class="result-box result-error">❌ Votre navigateur ne supporte pas la géolocalisation</div>';
                 return;
             }
             
+            var options = {
+                enableHighAccuracy: true,
+                timeout: 20000,
+                maximumAge: 0
+            };
+            
             navigator.geolocation.getCurrentPosition(
                 function(position) {
-                    currentLat = position.coords.latitude;
-                    currentLng = position.coords.longitude;
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
                     var accuracy = Math.round(position.coords.accuracy);
                     
+                    // SAUVEGARDER AUTOMATIQUEMENT
+                    savePositionToStorage(lat, lng, accuracy);
+                    displayCurrentPosition(lat, lng, accuracy);
+                    
+                    var precisionClass = accuracy < 50 ? "🏆 EXCELLENTE" : (accuracy < 200 ? "✅ BONNE" : "🟡 MOYENNE");
+                    
                     locationResult.innerHTML = '<div class="result-box result-success">'
-                        + '<strong>✅ Position obtenue !</strong><br>'
-                        + 'Latitude: ' + currentLat.toFixed(6) + '<br>'
-                        + 'Longitude: ' + currentLng.toFixed(6) + '<br>'
-                        + 'Précision: ±' + accuracy + ' mètres<br><br>'
-                        + '<a href="https://www.google.com/maps?q=' + currentLat + ',' + currentLng + '" target="_blank" class="maps-button">🗺️ Voir sur Google Maps</a>'
+                        + '<strong>✅ POSITION GPS SAUVEGARDÉE !</strong><br><br>'
+                        + '📍 <strong>Latitude:</strong> ' + lat.toFixed(6) + '<br>'
+                        + '📍 <strong>Longitude:</strong> ' + lng.toFixed(6) + '<br>'
+                        + '📏 <strong>Précision:</strong> ±' + accuracy + ' mètres<br>'
+                        + '<span style="color:#4caf50; font-weight:bold;">' + precisionClass + '</span><br><br>'
+                        + '<a href="https://www.google.com/maps?q=' + lat + ',' + lng + '" target="_blank" style="color:#155724; font-weight:bold;">🗺️ Voir sur Google Maps</a>'
                         + '</div>';
                 },
                 function(error) {
                     var msg = '';
                     switch(error.code) {
-                        case 1: msg = '❌ Autorisation refusée. Cliquez sur 🔒 et autorisez la localisation.';
+                        case 1:
+                            msg = '❌ <strong>Autorisation refusée</strong><br><br>🔧 Solution:<br>• Cliquez sur l\'icône 🔒 dans la barre d\'adresse<br>• Autorisez la localisation<br>• Rechargez la page';
                             break;
-                        case 2: msg = '❌ Position non disponible. Activez le GPS.';
+                        case 2:
+                            msg = '❌ Signal GPS non trouvé<br><br>🔧 Solution:<br>• Déplacez-vous dans un endroit dégagé<br>• Activez le GPS sur votre téléphone';
                             break;
-                        case 3: msg = '❌ Délai dépassé. Réessayez.';
+                        case 3:
+                            msg = '❌ Délai dépassé<br><br>🔧 Solution:<br>• Vérifiez votre connexion<br>• Réessayez';
                             break;
-                        default: msg = '❌ Erreur inconnue';
+                        default:
+                            msg = '❌ Erreur inconnue';
                     }
                     locationResult.innerHTML = '<div class="result-box result-error">' + msg + '</div>';
                 },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                options
             );
         });
  
@@ -255,11 +336,11 @@ $longitude = $_POST['longitude'] ?? $_GET['longitude'] ?? null;
                 resultDiv.style.display = 'block';
                 
                 if (!currentLat || !currentLng) {
-                    resultDiv.innerHTML = '<div class="result-box result-error">❌ Veuillez d\'abord obtenir votre position GPS (Étape 1)</div>';
+                    resultDiv.innerHTML = '<div class="result-box result-error">❌ Aucune position sauvegardée. Cliquez d\'abord sur "OBTENIR MA POSITION GPS"</div>';
                     return;
                 }
                 
-                resultDiv.innerHTML = '<div class="loading-spinner"></div><p>📤 Envoi de l\'alerte avec votre position...</p>';
+                resultDiv.innerHTML = '<div class="loading-spinner"></div><p>📤 Envoi de l\'alerte avec position sauvegardée...</p>';
                 
                 fetch('/EspritNutriFlowMVC/Controller/send_sos.php', {
                     method: 'POST',
@@ -271,7 +352,7 @@ $longitude = $_POST['longitude'] ?? $_GET['longitude'] ?? null;
                     if (data.success) {
                         resultDiv.innerHTML = '<div class="result-box result-success">'
                             + '<strong>✅ ALERTE ENVOYÉE !</strong><br><br>'
-                            + '📍 Position: ' + currentLat.toFixed(6) + ', ' + currentLng.toFixed(6) + '<br>'
+                            + '📍 Position sauvegardée: ' + currentLat.toFixed(6) + ', ' + currentLng.toFixed(6) + '<br>'
                             + '🗺️ <a href="' + data.maps_link + '" target="_blank">Voir sur Google Maps</a><br><br>'
                             + '📱 SMS envoyé<br>'
                             + '⚠️ Appelez le 15 si besoin !'
@@ -284,6 +365,11 @@ $longitude = $_POST['longitude'] ?? $_GET['longitude'] ?? null;
                     resultDiv.innerHTML = '<div class="result-box result-error">❌ Erreur: ' + err.message + '</div>';
                 });
             });
+        }
+        
+        // Afficher un message si position chargée
+        if (positionLoaded) {
+            console.log('Position chargée depuis localStorage');
         }
     </script>
 </body>
