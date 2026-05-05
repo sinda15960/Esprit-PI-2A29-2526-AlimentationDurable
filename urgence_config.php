@@ -24,6 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: urgence_config.php'); exit();
     }
 }
+
+// Récupérer la position depuis le formulaire POST
+$latitude = $_POST['latitude'] ?? $_GET['latitude'] ?? null;
+$longitude = $_POST['longitude'] ?? $_GET['longitude'] ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -66,14 +70,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .result-box{margin-top:1rem;padding:1rem;border-radius:12px;}
         .result-success{background:#d4edda;color:#155724;}
         .result-error{background:#f8d7da;color:#721c24;}
-        .result-warning{background:#fff3cd;color:#856404;}
-        .info-banner{background:#e3f2fd;border:1px solid #90caf9;border-radius:12px;padding:0.8rem 1rem;margin-bottom:1.5rem;font-size:0.82rem;color:#1565c0;line-height:1.5;}
         .empty-state{text-align:center;padding:3rem;background:white;border-radius:20px;color:#999;}
         .footer{background:linear-gradient(135deg,#1a3c0e 0%,#2d5016 100%);color:white;text-align:center;padding:1.2rem;margin-top:2rem;}
-        #map{height:300px;border-radius:20px;margin-top:1rem;margin-bottom:1rem;}
+        
+        /* Bouton Maps */
+        .maps-button {
+            background: #4caf50;
+            color: white;
+            padding: 1rem;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.5rem 0;
+            font-weight: 600;
+        }
+        .current-position {
+            background: #e3f2fd;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
     </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     <button class="dark-mode-btn" id="darkModeToggle">🌙 Mode sombre</button>
@@ -84,12 +102,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container">
         <a href="front_allergie_traitement.php" class="back-btn">← Retour</a>
  
-        <div class="info-banner">
-            📍 <strong>Votre position GPS réelle :</strong><br>
-            La position est sauvegardée automatiquement. Un rafraîchissement ne change pas votre position.
+        <?php if($latitude && $longitude): ?>
+        <div class="current-position">
+            <strong>📍 Votre position actuelle :</strong><br>
+            Latitude: <?= $latitude ?><br>
+            Longitude: <?= $longitude ?><br>
+            <a href="https://www.google.com/maps?q=<?= $latitude ?>,<?= $longitude ?>" target="_blank" class="maps-button">🗺️ Voir sur Google Maps</a>
         </div>
+        <?php endif; ?>
  
-        <div id="map"></div>
+        <div class="sos-test-card" style="margin-bottom:1rem;">
+            <h3><i class="fas fa-map-marker-alt"></i> Étape 1 : Obtenez votre position</h3>
+            <p>Cliquez sur le bouton ci-dessous pour obtenir votre position GPS réelle</p>
+            <button id="getLocationBtn" class="btn-sos" style="background:#4caf50;">📍 OB TENIR MA POSITION GPS</button>
+            <div id="locationResult" style="margin-top:1rem;display:none;"></div>
+        </div>
  
         <?php if (empty($contacts)): ?>
         <div class="empty-state">
@@ -144,8 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
  
         <div class="sos-test-card">
-            <h3><i class="fas fa-exclamation-triangle"></i> ALERTE D'URGENCE</h3>
-            <p id="positionStatus">📍 Récupération de votre position GPS...</p>
+            <h3><i class="fas fa-exclamation-triangle"></i> Étape 2 : Envoyer l'alerte</h3>
             <button id="testSosButton" class="btn-sos">🚨 ENVOYER MON ALERTE SMS 🚨</button>
             <div id="sosResult" style="margin-top:1rem;display:none;"></div>
         </div>
@@ -173,74 +199,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
  
-        // === VARIABLES GLOBALES ===
+        // === VARIABLES ===
         var currentLat = null;
         var currentLng = null;
-        var map = null;
-        var marker = null;
  
-        // === SAUVEGARDER LA POSITION ===
-        function sauvegarderPosition(lat, lng, accuracy) {
-            sessionStorage.setItem('lastLat', lat);
-            sessionStorage.setItem('lastLng', lng);
-            sessionStorage.setItem('lastAccuracy', accuracy);
-            sessionStorage.setItem('lastPositionTime', Date.now());
-        }
+        // === BOUTON POUR OBTENIR LA POSITION ===
+        var getLocationBtn = document.getElementById('getLocationBtn');
+        var locationResult = document.getElementById('locationResult');
  
-        // === CHARGER LA POSITION SAUVEGARDÉE ===
-        function chargerPositionSauvegardee() {
-            var lat = sessionStorage.getItem('lastLat');
-            var lng = sessionStorage.getItem('lastLng');
-            var accuracy = sessionStorage.getItem('lastAccuracy');
-            var timestamp = sessionStorage.getItem('lastPositionTime');
-            
-            if (lat && lng && timestamp) {
-                var age = Date.now() - parseInt(timestamp);
-                // Position valide pendant 30 minutes
-                if (age < 1800000) {
-                    currentLat = parseFloat(lat);
-                    currentLng = parseFloat(lng);
-                    initMap(currentLat, currentLng);
-                    document.getElementById('positionStatus').innerHTML = '✅ Position GPS - Précision: ±' + accuracy + ' mètres';
-                    return true;
-                }
-            }
-            return false;
-        }
- 
-        // === INITIALISATION CARTE ===
-        function initMap(lat, lng) {
-            if (map === null) {
-                map = L.map('map').setView([lat, lng], 15);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                }).addTo(map);
-            } else {
-                map.setView([lat, lng], 15);
-            }
-            
-            if (marker !== null) {
-                map.removeLayer(marker);
-            }
-            marker = L.marker([lat, lng]).addTo(map);
-            marker.bindPopup("<b>📍 Votre position actuelle</b><br>Précise au mètre près").openPopup();
-        }
- 
-        // === GPS AVEC HAUTE PRÉCISION ===
-        function getRealPosition() {
-            var statusDiv = document.getElementById('positionStatus');
-            
-            // D'abord, essayer de charger la position sauvegardée
-            if (chargerPositionSauvegardee()) {
-                return;
-            }
+        getLocationBtn.addEventListener('click', function() {
+            locationResult.style.display = 'block';
+            locationResult.innerHTML = '<div class="loading-spinner"></div><p>📍 Recherche de votre position GPS réelle...</p>';
             
             if (!navigator.geolocation) {
-                statusDiv.innerHTML = '❌ Votre navigateur ne supporte pas la géolocalisation';
+                locationResult.innerHTML = '<div class="result-box result-error">❌ Géolocalisation non supportée</div>';
                 return;
             }
-            
-            statusDiv.innerHTML = '📍 Recherche de votre position GPS réelle... (haute précision)';
             
             navigator.geolocation.getCurrentPosition(
                 function(position) {
@@ -248,38 +222,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     currentLng = position.coords.longitude;
                     var accuracy = Math.round(position.coords.accuracy);
                     
-                    // Sauvegarder la position
-                    sauvegarderPosition(currentLat, currentLng, accuracy);
-                    
-                    statusDiv.innerHTML = '✅ Position GPS trouvée ! Précision : ±' + accuracy + ' mètres (sauvegardée)';
-                    initMap(currentLat, currentLng);
-                    console.log('Position réelle:', currentLat, currentLng);
+                    locationResult.innerHTML = '<div class="result-box result-success">'
+                        + '<strong>✅ Position obtenue !</strong><br>'
+                        + 'Latitude: ' + currentLat.toFixed(6) + '<br>'
+                        + 'Longitude: ' + currentLng.toFixed(6) + '<br>'
+                        + 'Précision: ±' + accuracy + ' mètres<br><br>'
+                        + '<a href="https://www.google.com/maps?q=' + currentLat + ',' + currentLng + '" target="_blank" class="maps-button">🗺️ Voir sur Google Maps</a>'
+                        + '</div>';
                 },
                 function(error) {
                     var msg = '';
                     switch(error.code) {
-                        case 1: msg = '❌ Vous avez refusé la localisation. Cliquez sur 🔒 et autorisez.';
+                        case 1: msg = '❌ Autorisation refusée. Cliquez sur 🔒 et autorisez la localisation.';
                             break;
-                        case 2: msg = '❌ Position non disponible. Vérifiez votre connexion.';
+                        case 2: msg = '❌ Position non disponible. Activez le GPS.';
                             break;
                         case 3: msg = '❌ Délai dépassé. Réessayez.';
                             break;
                         default: msg = '❌ Erreur inconnue';
                     }
-                    statusDiv.innerHTML = msg;
-                    // Position par défaut (Tunis) si pas de sauvegarde
-                    if (!currentLat) {
-                        currentLat = 36.8065;
-                        currentLng = 10.1815;
-                        initMap(36.8065, 10.1815);
-                    }
+                    locationResult.innerHTML = '<div class="result-box result-error">' + msg + '</div>';
                 },
                 { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
-        }
- 
-        // === LANCER GPS AU CHARGEMENT ===
-        getRealPosition();
+        });
  
         // === BOUTON SOS ===
         var sosButton = document.getElementById('testSosButton');
@@ -289,46 +255,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 resultDiv.style.display = 'block';
                 
                 if (!currentLat || !currentLng) {
-                    resultDiv.innerHTML = '<div class="result-box result-error">❌ Position GPS non disponible. Attendez quelques secondes.</div>';
-                    getRealPosition();
-                    setTimeout(function() {
-                        if (currentLat && currentLng) {
-                            envoyerAlerte();
-                        }
-                    }, 3000);
+                    resultDiv.innerHTML = '<div class="result-box result-error">❌ Veuillez d\'abord obtenir votre position GPS (Étape 1)</div>';
                     return;
                 }
                 
-                envoyerAlerte();
+                resultDiv.innerHTML = '<div class="loading-spinner"></div><p>📤 Envoi de l\'alerte avec votre position...</p>';
                 
-                function envoyerAlerte() {
-                    resultDiv.innerHTML = '<div class="loading-spinner"></div><p>📤 Envoi de l\'alerte avec votre position réelle...</p>';
-                    
-                    fetch('/EspritNutriFlowMVC/Controller/send_sos.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ latitude: currentLat, longitude: currentLng })
-                    })
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        if (data.success) {
-                            resultDiv.innerHTML = '<div class="result-box result-success">'
-                                + '<strong>✅ ALERTE ENVOYÉE AVEC SUCCÈS !</strong><br><br>'
-                                + '📍 <strong>VOTRE POSITION RÉELLE :</strong><br>'
-                                + 'Latitude: ' + data.latitude + '<br>'
-                                + 'Longitude: ' + data.longitude + '<br>'
-                                + '🗺️ <a href="' + data.maps_link + '" target="_blank">Ouvrir dans Google Maps</a><br><br>'
-                                + '📱 SMS envoyé à vos contacts<br><br>'
-                                + '⚠️ <strong>N\'oubliez pas d\'appeler le 15 si besoin !</strong>'
-                                + '</div>';
-                        } else {
-                            resultDiv.innerHTML = '<div class="result-box result-error">❌ ' + data.message + '</div>';
-                        }
-                    })
-                    .catch(function(err) {
-                        resultDiv.innerHTML = '<div class="result-box result-error">❌ Erreur: ' + err.message + '</div>';
-                    });
-                }
+                fetch('/EspritNutriFlowMVC/Controller/send_sos.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ latitude: currentLat, longitude: currentLng })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        resultDiv.innerHTML = '<div class="result-box result-success">'
+                            + '<strong>✅ ALERTE ENVOYÉE !</strong><br><br>'
+                            + '📍 Position: ' + currentLat.toFixed(6) + ', ' + currentLng.toFixed(6) + '<br>'
+                            + '🗺️ <a href="' + data.maps_link + '" target="_blank">Voir sur Google Maps</a><br><br>'
+                            + '📱 SMS envoyé<br>'
+                            + '⚠️ Appelez le 15 si besoin !'
+                            + '</div>';
+                    } else {
+                        resultDiv.innerHTML = '<div class="result-box result-error">❌ ' + data.message + '</div>';
+                    }
+                })
+                .catch(function(err) {
+                    resultDiv.innerHTML = '<div class="result-box result-error">❌ Erreur: ' + err.message + '</div>';
+                });
             });
         }
     </script>
