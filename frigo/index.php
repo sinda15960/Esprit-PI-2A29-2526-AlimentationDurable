@@ -5,7 +5,8 @@ require_once 'config/database.php';
 spl_autoload_register(function($class) {
     $paths = [
         'app/model/',
-        'app/controller/',  // Vérifiez que c'est bien "controller" et non "contoller"
+        'app/controller/',
+        'app/contoller/',
     ];
     foreach ($paths as $path) {
         $file = $path . $class . '.php';
@@ -16,58 +17,56 @@ spl_autoload_register(function($class) {
     }
 });
 
-$mode = $_GET['mode'] ?? 'front';
 $controller = $_GET['controller'] ?? 'produit';
-$action = $_GET['action'] ?? 'frigo';
+$action     = $_GET['action']     ?? 'frigo';
 
 $map = [
-    'produit'     => 'ProduitController',
-    'categorie'   => 'CategorieController',
-    'commande'    => 'CommandeController',
-    'favori'      => 'FavoriController',
-    'statistique' => 'StatistiqueController',
+    'produit'      => 'ProduitController',
+    'categorie'    => 'CategorieController',
+    'commande'     => 'CommandeController',
+    'favori'       => 'FavoriController',
+    'statistique'  => 'StatistiqueController',
 ];
 
 $controllerClass = $map[$controller] ?? null;
 
 if (!$controllerClass) {
-    die("Contrôleur introuvable.");
+    die("Contrôleur introuvable : $controller");
 }
 
-// Correction du chemin : utilisez le bon dossier
-$controllerFile = 'app/controller/' . $controllerClass . '.php';
-
-if (!file_exists($controllerFile)) {
-    die("Fichier contrôleur introuvable: " . $controllerFile);
+$found = false;
+foreach (['app/controller/', 'app/contoller/'] as $path) {
+    $file = $path . $controllerClass . '.php';
+    if (file_exists($file)) {
+        require_once $file;
+        $found = true;
+        break;
+    }
 }
 
-require_once $controllerFile;
-
-$ctrl = new $controllerClass();
+if (!$found) {
+    die("Fichier contrôleur introuvable : $controllerClass");
+}
 
 $actionsAutorisees = [
-    // Produit
     'frigo', 'index', 'create', 'store', 'edit', 'update',
     'delete', 'ajouterFrigo', 'ajouterManuel', 'supprimerDuFrigo',
     'envoyerAuPanier', 'modifierQuantiteFrigo', 'ajouterFrigoQR',
-    'rechercherFrigo', 'ajouterParScan', 'genererSuggestionsFrigo',
-    // Commande
+    'ajouterParScan', 'rechercherFrigo',
+    'ajouterParVoix', 'confirmerAjoutVoix', 'listerFrigoParVoix',  // Ajouté
     'panier', 'ajouterPanier', 'modifierPanier', 'retirerPanier',
     'checkout', 'confirmer', 'annuler', 'updateCommande',
     'deleteCommande', 'appliquerPromo', 'supprimerPromo',
     'ajouterPromo', 'togglePromo', 'supprimerCodePromo',
-    'genererCodeBienvenue', 'genererCodeRelance',
-    // Categorie
-    'admin', 'store', 'edit', 'update', 'delete',
-    // Favori
-    'ajouter', 'supprimer', 'ajouterAuPanier',
-    // Statistique
-    'index', 'exportCSV'
+    'genererCodeBienvenue',
+    'admin', 'ajouter', 'supprimer', 'ajouterAuPanier',
+    'exportCSV',
 ];
 
+$ctrl = new $controllerClass();
+
 if (!in_array($action, $actionsAutorisees) || !method_exists($ctrl, $action)) {
-    die("Action introuvable: $action");
+    die("Action introuvable : $action");
 }
 
 $ctrl->$action();
-?>

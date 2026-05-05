@@ -1,55 +1,26 @@
 <?php
 $mode = $_GET['mode'] ?? 'front';
-?>
-<?php
+
 function getEmojiAliment(string $nom): string {
     $nom = strtolower(trim($nom));
     $emojis = [
-        'pomme'         => '🍎',
-        'banane'        => '🍌',
-        'orange'        => '🍊',
-        'fraise'        => '🍓',
-        'raisin'        => '🍇',
-        'mangue'        => '🥭',
-        'tomate'        => '🍅',
-        'carotte'       => '🥕',
-        'courgette'     => '🥒',
-        'salade'        => '🥬',
-        'poivron'       => '🫑',
-        'oignon'        => '🧅',
-        'lait'          => '🥛',
-        'yaourt'        => '🍶',
-        'fromage'       => '🧀',
-        'beurre'        => '🧈',
-        'crème'         => '🍦',
-        'creme'         => '🍦',
-        'poulet'        => '🍗',
-        'boeuf'         => '🥩',
-        'merguez'       => '🌭',
-        'thon'          => '🐟',
-        'eau'           => '💧',
-        'jus'           => '🧃',
-        'coca'          => '🥤',
-        'café'          => '☕',
-        'cafe'          => '☕',
-        'thé'           => '🍵',
-        'the'           => '🍵',
-        'limonade'      => '🍋',
-        'pâtes'         => '🍝',
-        'pates'         => '🍝',
-        'riz'           => '🍚',
-        'huile'         => '🫙',
-        'sucre'         => '🍬',
-        'pain'          => '🍞',
-        'croissant'     => '🥐',
-        'biscuits'      => '🍪',
-        'biscuit'       => '🍪',
+        'pomme'      => '🍎', 'banane'    => '🍌', 'orange'    => '🍊',
+        'fraise'     => '🍓', 'raisin'    => '🍇', 'mangue'    => '🥭',
+        'tomate'     => '🍅', 'carotte'   => '🥕', 'courgette' => '🥒',
+        'salade'     => '🥬', 'poivron'   => '🫑', 'oignon'    => '🧅',
+        'lait'       => '🥛', 'yaourt'    => '🍶', 'fromage'   => '🧀',
+        'beurre'     => '🧈', 'crème'     => '🍦', 'creme'     => '🍦',
+        'poulet'     => '🍗', 'boeuf'     => '🥩', 'merguez'   => '🌭',
+        'thon'       => '🐟', 'eau'       => '💧', 'jus'       => '🧃',
+        'coca'       => '🥤', 'café'      => '☕', 'cafe'      => '☕',
+        'thé'        => '🍵', 'the'       => '🍵', 'limonade'  => '🍋',
+        'pâtes'      => '🍝', 'pates'     => '🍝', 'riz'       => '🍚',
+        'huile'      => '🫙', 'sucre'     => '🍬', 'pain'      => '🍞',
+        'croissant'  => '🥐', 'biscuit'   => '🍪', 'biscuits'  => '🍪',
+        'oeuf'       => '🥚', 'ail'       => '🧄', 'pizza'     => '🍕',
     ];
-
     foreach ($emojis as $mot => $emoji) {
-        if (str_contains($nom, $mot)) {
-            return $emoji;
-        }
+        if (str_contains($nom, $mot)) return $emoji;
     }
     return '🥗';
 }
@@ -58,18 +29,16 @@ function getEmojiAliment(string $nom): string {
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Frigo Intelligent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧊 Frigo Intelligent</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="/frigo/public/css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="/frigo/public/js/validation.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg">
   <div class="container">
-    <a class="navbar-brand text-white fw-bold fs-4" href="/frigo/index.php?mode=front&controller=categorie&action=index">Frigo Intelligent</a>
+    <a class="navbar-brand text-white fw-bold fs-4"
+       href="/frigo/index.php">🧊 Frigo Intelligent</a>
     <div class="ms-auto d-flex align-items-center gap-3">
       <div class="btn-group btn-group-sm">
         <a href="/frigo/index.php?mode=front&controller=produit&action=frigo"
@@ -88,7 +57,7 @@ function getEmojiAliment(string $nom): string {
            class="text-white text-decoration-none">Supermarché</a>
         <a href="/frigo/index.php?mode=front&controller=commande&action=panier"
            class="btn btn-light btn-sm">
-          Panier (<?= count($_SESSION['panier'] ?? []) ?>)
+          🛒 Panier (<?= count($_SESSION['panier'] ?? []) ?>)
         </a>
       <?php else: ?>
         <a href="/frigo/index.php?mode=back&controller=produit&action=index"
@@ -98,7 +67,7 @@ function getEmojiAliment(string $nom): string {
         <a href="/frigo/index.php?mode=back&controller=commande&action=index"
            class="text-white text-decoration-none">Commandes</a>
         <a href="/frigo/index.php?mode=back&controller=statistique&action=index"
-           class="text-white text-decoration-none">📊 Stats</a>
+           class="text-white text-decoration-none">📊 Statistiques</a>
       <?php endif; ?>
     </div>
   </div>

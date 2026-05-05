@@ -9,48 +9,44 @@ class StatistiqueController {
     }
 
     public function index(): void {
-        // Vérifier qu'on est en mode backoffice
-        $mode = $_GET['mode'] ?? 'front';
-        if ($mode !== 'back') {
-            header('Location: /frigo/index.php?mode=back&controller=statistique&action=index');
-            exit;
-        }
-
-        $statsGlobales = $this->statistique->getStatsGlobales();
-        $caJournalier = $this->statistique->getCAparJour(30);
-        $topProduits = $this->statistique->getTopProduits(10);
+        $statsGlobales      = $this->statistique->getStatsGlobales();
+        $caJournalier       = $this->statistique->getCAparJour(30);
+        $topProduits        = $this->statistique->getTopProduits(10);
         $ventesParCategorie = $this->statistique->getVentesParCategorie();
-        $ventesParPaiement = $this->statistique->getVentesParPaiement();
-        $heuresAchats = $this->statistique->getHeuresAchats();
-        $tauxConversion = $this->statistique->getTauxConversion();
+        $ventesParPaiement  = $this->statistique->getVentesParPaiement();
+        $tauxConversion     = $this->statistique->getTauxConversion();
+        $commandesParStatut = $this->statistique->getCommandesParStatut();
 
         require 'app/view/statistiques/index.php';
     }
 
-    // Exporter les stats en CSV
     public function exportCSV(): void {
         $type = $_GET['type'] ?? 'ca';
-        
         header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename=statistiques_' . $type . '_' . date('Y-m-d') . '.csv');
-        
+        header('Content-Disposition: attachment; filename=stats_' . $type . '_' . date('Y-m-d') . '.csv');
         $output = fopen('php://output', 'w');
-        
+
         if ($type === 'ca') {
             $data = $this->statistique->getCAparJour(90);
-            fputcsv($output, ['Date', 'Chiffre d\'affaires', 'Nombre de commandes']);
+            fputcsv($output, ['Date', 'CA (TND)', 'Nb commandes']);
             foreach ($data as $row) {
-                fputcsv($output, [$row['jour'], $row['ca'], $row['nb_commandes']]);
+                fputcsv($output, [$row['jour'], number_format($row['ca'], 2), $row['nb_commandes']]);
             }
         } elseif ($type === 'produits') {
             $data = $this->statistique->getTopProduits(50);
-            fputcsv($output, ['Produit', 'Prix', 'Quantité vendue', 'Revenu']);
+            fputcsv($output, ['Produit', 'Prix', 'Qté vendue', 'Revenu']);
             foreach ($data as $row) {
-                fputcsv($output, [$row['nom'], $row['prix'], $row['total_vendu'], $row['revenue']]);
+                fputcsv($output, [$row['nom'], number_format($row['prix'], 2), $row['total_vendu'], number_format($row['revenue'], 2)]);
+            }
+        } elseif ($type === 'paiement') {
+            $data = $this->statistique->getVentesParPaiement();
+            fputcsv($output, ['Méthode de paiement', 'Nombre de commandes', 'Total (TND)']);
+            foreach ($data as $row) {
+                fputcsv($output, [$row['methode_paiement'], $row['nb_commandes'], number_format($row['total'], 2)]);
             }
         }
-        
         fclose($output);
         exit;
     }
 }
+?>

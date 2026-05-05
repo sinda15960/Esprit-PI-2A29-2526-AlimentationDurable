@@ -1,11 +1,15 @@
-<?php require 'app/view/layout/header.php'; ?>
+<?php
+$includeMap = true;
+require 'app/view/layout/header.php';
+?>
 
 <div class="container py-4">
-  <h2 class="fw-bold text-success">Finaliser la commande</h2>
+  <h2 class="fw-bold text-success">🛒 Finaliser la commande</h2>
 
   <?php if (!empty($_SESSION['success'])): ?>
     <div class="alert alert-success alert-dismissible">
       <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   <?php endif; ?>
 
@@ -20,13 +24,15 @@
   <?php endif; ?>
 
   <form id="form-commande" method="post"
-        action="/frigo/index.php?controller=commande&action=confirmer">
-        
-    <div class="row">
-      <!-- Colonne gauche : coordonnées client -->
+        action="/frigo/index.php?mode=front&controller=commande&action=confirmer">
+
+    <div class="row g-4">
+      <!-- Colonne gauche : infos client -->
       <div class="col-md-6">
-        <div class="card border-0 shadow-sm mb-4">
-          <div class="card-header bg-success text-white fw-bold">Vos coordonnées</div>
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-success text-white fw-bold">
+            📋 Informations de livraison
+          </div>
           <div class="card-body">
             <div class="mb-3">
               <label class="form-label fw-semibold">Nom complet</label>
@@ -39,119 +45,152 @@
                      id="telephone" maxlength="8">
               <div class="text-danger small" id="err-tel"></div>
             </div>
-          </div>
-        </div>
-        
-        <!-- Carte interactive (Idée 1) -->
-        <div class="card border-0 shadow-sm mb-4">
-          <div class="card-header bg-success text-white fw-bold">
-            📍 Choisissez votre adresse de livraison
-          </div>
-          <div class="card-body">
-            <div id="map" style="height: 300px; border-radius: 8px; margin-bottom: 10px;"></div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Adresse de livraison</label>
+              <textarea name="adresse" class="form-control" rows="2"
+                        id="adresse"></textarea>
+              <div class="text-danger small" id="err-adresse"></div>
+            </div>
             <input type="hidden" name="latitude" id="latitude" value="">
             <input type="hidden" name="longitude" id="longitude" value="">
-            <input type="hidden" name="adresse_lat" id="adresse_lat">
-            <input type="hidden" name="adresse_lng" id="adresse_lng">
-            <textarea name="adresse" class="form-control" rows="2" id="adresse" 
-                      placeholder="Adresse complète (cliquez sur la carte pour placer le point)"></textarea>
-            <div id="zone-info" class="mt-2"></div>
-            <div class="text-danger small" id="err-adresse"></div>
+            <input type="hidden" id="adresse_lat" value="">
+            <input type="hidden" id="adresse_lng" value="">
+          </div>
+        </div>
+
+        <!-- Carte de livraison -->
+        <div class="card border-0 shadow-sm mt-3">
+          <div class="card-header bg-success text-white fw-bold">
+            🗺️ Choisir votre adresse sur la carte
+          </div>
+          <div class="card-body p-2">
+            <p class="small text-muted mb-2">
+              Cliquez sur la carte pour définir votre adresse de livraison
+            </p>
+            <div id="map" style="height:300px;border-radius:8px;background-color:#e9ecef;"></div>
+            <div id="distance_info" class="mt-2 small text-success"></div>
+            <div id="zone-info" class="mt-1"></div>
+            <input type="hidden" id="frais_livraison" name="frais_livraison" value="0">
           </div>
         </div>
       </div>
-      
+
       <!-- Colonne droite : paiement -->
       <div class="col-md-6">
-        <div class="card border-0 shadow-sm mb-4">
-          <div class="card-header bg-success text-white fw-bold">💰 Paiement</div>
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-success text-white fw-bold">
+            💳 Méthode de paiement
+          </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label fw-semibold">Méthode de paiement</label>
-              <select name="methode_paiement" class="form-select" id="methode">
+              <select name="methode_paiement" class="form-select" id="methode"
+                      onchange="afficherFormulairePaiement(this.value)">
                 <option value="">-- Choisir --</option>
-                <option value="especes">Espèces (à la livraison)</option>
-                <option value="carte">Carte bancaire (paiement sécurisé)</option>
-                <option value="virement">Virement bancaire</option>
+                <option value="especes">💵 Espèces à la livraison</option>
+                <option value="carte">💳 Carte bancaire</option>
+                <option value="virement">🏦 Virement bancaire</option>
               </select>
               <div class="text-danger small" id="err-methode"></div>
             </div>
-            
-            <!-- Formulaire carte bancaire (caché par défaut, Idée 2) -->
-            <div id="cb-form" style="display: none;">
-              <div class="border rounded p-3 mt-2 bg-light">
-                <h6 class="fw-bold mb-3">💳 Informations carte bancaire</h6>
-                
-                <div class="mb-2">
-                  <label class="form-label small fw-semibold">Numéro de carte</label>
-                  <input type="text" name="carte_numero" class="form-control" 
-                         id="carte_numero" placeholder="1234 5678 9012 3456" maxlength="19">
-                  <div class="text-danger small" id="err-carte-numero"></div>
+
+            <!-- Formulaire carte bancaire -->
+            <div id="cb-form" style="display:none">
+              <div class="card bg-light border-0 p-3 mb-3">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Numéro de carte (16 chiffres)</label>
+                  <input type="text" name="carte_numero" class="form-control" id="carte_numero"
+                         placeholder="1234 5678 9012 3456"
+                         maxlength="19"
+                         oninput="formaterNumeroCarte(this)">
+                  <div class="text-danger small" id="err-carte-num"></div>
+                  <small class="text-muted" id="type-carte"></small>
                 </div>
-                
-                <div class="row">
-                  <div class="col-md-6 mb-2">
-                    <label class="form-label small fw-semibold">Date expiration</label>
-                    <input type="text" name="carte_expiration" class="form-control" 
-                           id="carte_expiration" placeholder="MM/AA" maxlength="5">
+                <div class="row g-3">
+                  <div class="col-6">
+                    <label class="form-label fw-semibold">Expiration (MM/AA)</label>
+                    <input type="text" name="carte_exp" class="form-control" id="carte_exp"
+                           placeholder="12/27" maxlength="5"
+                           oninput="formaterExpiration(this)">
                     <div class="text-danger small" id="err-carte-exp"></div>
                   </div>
-                  <div class="col-md-6 mb-2">
-                    <label class="form-label small fw-semibold">CVV</label>
-                    <input type="password" name="carte_cvv" class="form-control" 
-                           id="carte_cvv" placeholder="123" maxlength="3">
+                  <div class="col-6">
+                    <label class="form-label fw-semibold">CVV</label>
+                    <input type="text" name="carte_cvv" class="form-control" id="carte_cvv"
+                           placeholder="123" maxlength="3">
                     <div class="text-danger small" id="err-carte-cvv"></div>
                   </div>
                 </div>
-                
-                <div class="mb-2">
-                  <label class="form-label small fw-semibold">Nom du titulaire</label>
-                  <input type="text" name="carte_titulaire" class="form-control" 
-                         id="carte_titulaire" placeholder="Jean DUPONT">
+                <div class="mt-3">
+                  <label class="form-label fw-semibold">Nom du titulaire</label>
+                  <input type="text" name="carte_titulaire" class="form-control" id="carte_titulaire"
+                         placeholder="NOM PRENOM">
                   <div class="text-danger small" id="err-carte-titulaire"></div>
                 </div>
-                
-                <div class="alert alert-info small mt-2 mb-0">
-                  🔒 Test: utilisez 4242 4242 4242 4242, expiration 12/30, CVV 123
+                <div class="alert alert-info mt-3 small">
+                  🔒 Paiement simulé — aucune donnée réelle transmise
                 </div>
               </div>
             </div>
-            
-            <!-- Résumé total avec frais de livraison -->
-            <div class="mt-3 pt-2 border-top">
+
+            <!-- Récapitulatif -->
+            <?php
+              $panier    = $_SESSION['panier'] ?? [];
+              $promo     = $_SESSION['promo'] ?? null;
+              $sousTotal = array_sum(array_map(fn($i) => $i['prix'] * $i['quantite'], $panier));
+              $totalFinal = $sousTotal;
+              if ($promo) {
+                if ($promo['type_reduction'] === 'pourcentage') {
+                  $totalFinal = $sousTotal - ($sousTotal * $promo['reduction'] / 100);
+                } else {
+                  $totalFinal = max(0, $sousTotal - $promo['reduction']);
+                }
+              }
+            ?>
+            <div class="card bg-light border-0 p-3">
+              <h6 class="fw-bold mb-3">Récapitulatif</h6>
+              <?php foreach ($panier as $item): ?>
+                <div class="d-flex justify-content-between small mb-1">
+                  <span><?= htmlspecialchars($item['nom']) ?> x<?= $item['quantite'] ?></span>
+                  <span><?= number_format($item['prix'] * $item['quantite'], 2) ?> TND</span>
+                </div>
+              <?php endforeach; ?>
+              <hr>
               <div class="d-flex justify-content-between">
-                <span>Sous-total panier :</span>
-                <span id="total_display"><?= number_format($total ?? 0, 2) ?> TND</span>
+                <span>Sous-total :</span>
+                <span><?= number_format($sousTotal, 2) ?> TND</span>
               </div>
-              <div class="d-flex justify-content-between text-muted small">
-                <span>Frais de livraison :</span>
+              <?php if ($promo): ?>
+                <div class="d-flex justify-content-between text-success">
+                  <span>Promo (<?= htmlspecialchars($promo['code']) ?>) :</span>
+                  <span>- <?= $promo['type_reduction'] === 'pourcentage'
+                    ? $promo['reduction'] . '%'
+                    : number_format($promo['reduction'], 2) . ' TND' ?></span>
+                </div>
+              <?php endif; ?>
+              <div class="d-flex justify-content-between fw-bold text-success mt-1">
+                <span>Frais livraison :</span>
                 <span id="frais_livraison_span">0.00 TND</span>
               </div>
-              <div class="d-flex justify-content-between fw-bold mt-2">
-                <span>Total à payer :</span>
-                <span class="text-success" id="total_final_span">
-                  <?= number_format($total ?? 0, 2) ?> TND
-                </span>
+              <div class="d-flex justify-content-between fw-bold fs-5 mt-2">
+                <span>Total :</span>
+                <span id="total-final"><?= number_format($totalFinal, 2) ?> TND</span>
               </div>
             </div>
-            
-            <input type="hidden" name="total_initial" id="total_initial" value="<?= $total ?? 0 ?>">
-            <input type="hidden" name="frais_livraison" id="frais_livraison" value="0">
-            <input type="hidden" name="total_final" id="total_final_input" value="<?= $total ?? 0 ?>">
           </div>
-        </div>
-        
-        <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-success px-4" id="btn-confirmer">Confirmer la commande</button>
-          <a href="/frigo/index.php?controller=commande&action=annuler"
-             class="btn btn-outline-danger">Annuler</a>
         </div>
       </div>
     </div>
+
+    <div class="d-flex gap-2 mt-4">
+      <button type="submit" class="btn btn-success px-5">✅ Confirmer la commande</button>
+      <a href="/frigo/index.php?mode=front&controller=commande&action=annuler"
+         class="btn btn-outline-danger">❌ Annuler</a>
+    </div>
   </form>
 
+  <!-- Historique -->
   <?php if (!empty($historique)): ?>
-  <h4 class="mt-5 fw-bold">Historique récent</h4>
+  <h4 class="mt-5 fw-bold">📋 Historique récent</h4>
   <table class="table table-bordered table-hover mt-2">
     <thead class="table-success">
       <tr><th>#</th><th>Date</th><th>Client</th><th>Total</th><th>Statut</th></tr>
@@ -162,7 +201,7 @@
         <td><?= $h['id'] ?></td>
         <td><?= date('d/m/Y H:i', strtotime($h['date_commande'])) ?></td>
         <td><?= htmlspecialchars($h['nom_client']) ?></td>
-        <td><?= number_format($h['total'], 2) ?> TND</td>
+        <td><?= number_format($h['total'], 2) ?> TND</span></td>
         <td>
           <span class="badge bg-<?= $h['statut'] === 'confirmee'
             ? 'success' : ($h['statut'] === 'annulee' ? 'danger' : 'warning text-dark') ?>">
@@ -172,98 +211,238 @@
       </tr>
       <?php endforeach; ?>
     </tbody>
-  讲
+  追赶
   <?php endif; ?>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="/frigo/public/js/map.js"></script>
 <script>
-// Afficher/masquer formulaire CB selon méthode de paiement
-document.getElementById('methode').addEventListener('change', function() {
+var totalSansLivraison = <?= $totalFinal ?>;
+
+function afficherFormulairePaiement(methode) {
   var cbForm = document.getElementById('cb-form');
-  if (this.value === 'carte') {
+  if (methode === 'carte') {
     cbForm.style.display = 'block';
+    // Rendre les champs requis
+    document.getElementById('carte_numero').required = true;
+    document.getElementById('carte_exp').required = true;
+    document.getElementById('carte_cvv').required = true;
+    document.getElementById('carte_titulaire').required = true;
   } else {
     cbForm.style.display = 'none';
+    document.getElementById('carte_numero').required = false;
+    document.getElementById('carte_exp').required = false;
+    document.getElementById('carte_cvv').required = false;
+    document.getElementById('carte_titulaire').required = false;
+    // Effacer les messages d'erreur
+    document.getElementById('err-carte-num').textContent = '';
+    document.getElementById('err-carte-exp').textContent = '';
+    document.getElementById('err-carte-cvv').textContent = '';
+    document.getElementById('err-carte-titulaire').textContent = '';
   }
-});
-
-// Mettre à jour l'affichage du total
-function mettreAJourTotal() {
-  var totalInitial = parseFloat(document.getElementById('total_initial').value) || 0;
-  var frais = parseFloat(document.getElementById('frais_livraison').value) || 0;
-  var totalFinal = totalInitial + frais;
-  document.getElementById('total_final_span').textContent = totalFinal.toFixed(2) + ' TND';
-  document.getElementById('total_final_input').value = totalFinal.toFixed(2);
 }
 
-// Validation complète du formulaire
-document.getElementById('form-commande').addEventListener('submit', function(e){
-  let ok = true;
+function formaterNumeroCarte(input) {
+  var val = input.value.replace(/\D/g, '').substring(0, 16);
+  input.value = val.replace(/(.{4})/g, '$1 ').trim();
+  var type = detectCarteType(val);
+  document.getElementById('type-carte').textContent = val.length > 0 ? '💳 ' + type : '';
+}
+
+function formaterExpiration(input) {
+  var val = input.value.replace(/\D/g, '').substring(0, 4);
+  if (val.length >= 2) val = val.substring(0, 2) + '/' + val.substring(2);
+  input.value = val;
+}
+
+function mettreAJourTotalPanier() {
+  var frais = parseFloat(document.getElementById('frais_livraison').value) || 0;
+  var total = totalSansLivraison + frais;
+  document.getElementById('frais_livraison_span').textContent = frais.toFixed(2) + ' TND';
+  document.getElementById('total-final').textContent = total.toFixed(2) + ' TND';
+}
+
+// Validation du formulaire avant soumission
+document.getElementById('form-commande').addEventListener('submit', function(e) {
+  var ok = true;
   
-  // Validation des coordonnées
+  // Validation des champs normaux
   ok = validateNom(document.getElementById('nom_client').value, 'err-nom') && ok;
   ok = validateTelephone(document.getElementById('telephone').value, 'err-tel') && ok;
-  
-  // Validation adresse (latitude/longitude doivent être présents)
-  var lat = document.getElementById('latitude').value;
-  var lng = document.getElementById('longitude').value;
-  if (!lat || !lng) {
-    document.getElementById('err-adresse').textContent = 'Veuillez cliquer sur la carte pour définir votre adresse.';
-    ok = false;
-  } else {
-    document.getElementById('err-adresse').textContent = '';
-  }
-  
-  // Validation méthode de paiement
-  ok = validateSelect(document.getElementById('methode').value, 'err-methode', 'Choisir une méthode de paiement.') && ok;
-  
+  ok = validateAdresse(document.getElementById('adresse').value, 'err-adresse') && ok;
+  ok = validateSelect(document.getElementById('methode').value, 'err-methode', 'Veuillez choisir une méthode de paiement.') && ok;
+
   // Validation carte bancaire si méthode = carte
-  if (document.getElementById('methode').value === 'carte') {
-    ok = validateCarteNumero(document.getElementById('carte_numero').value, 'err-carte-numero') && ok;
-    ok = validateCarteExpiration(document.getElementById('carte_expiration').value, 'err-carte-exp') && ok;
-    ok = validateCarteCVV(document.getElementById('carte_cvv').value, 'err-carte-cvv') && ok;
-    ok = validateCarteTitulaire(document.getElementById('carte_titulaire').value, 'err-carte-titulaire') && ok;
+  var methode = document.getElementById('methode').value;
+  if (methode === 'carte') {
+    var carteNumero = document.getElementById('carte_numero');
+    var carteExp = document.getElementById('carte_exp');
+    var carteCvv = document.getElementById('carte_cvv');
+    var carteTitulaire = document.getElementById('carte_titulaire');
+    
+    // Vérifier que les champs existent et ne sont pas vides
+    if (!carteNumero || !carteNumero.value.trim()) {
+      document.getElementById('err-carte-num').textContent = 'Numéro de carte obligatoire.';
+      ok = false;
+    } else {
+      var numClean = carteNumero.value.replace(/\s/g, '');
+      if (!validateCarteNumero(numClean, 'err-carte-num')) ok = false;
+    }
+    
+    if (!carteExp || !carteExp.value.trim()) {
+      document.getElementById('err-carte-exp').textContent = 'Date d\'expiration obligatoire.';
+      ok = false;
+    } else {
+      if (!validateCarteExpiration(carteExp.value, 'err-carte-exp')) ok = false;
+    }
+    
+    if (!carteCvv || !carteCvv.value.trim()) {
+      document.getElementById('err-carte-cvv').textContent = 'CVV obligatoire.';
+      ok = false;
+    } else {
+      if (!validateCarteCVV(carteCvv.value, 'err-carte-cvv')) ok = false;
+    }
+    
+    if (!carteTitulaire || !carteTitulaire.value.trim()) {
+      document.getElementById('err-carte-titulaire').textContent = 'Nom du titulaire obligatoire.';
+      ok = false;
+    } else {
+      if (!validateCarteTitulaire(carteTitulaire.value, 'err-carte-titulaire')) ok = false;
+    }
+  }
+
+  if (!ok) {
+    e.preventDefault();
+    alert('Veuillez corriger les erreurs dans le formulaire avant de confirmer la commande.');
+  }
+});
+
+// Initialisation de la carte
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof L !== 'undefined') {
+    initMap();
+  } else {
+    var script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload = function() {
+      initMap();
+    };
+    document.head.appendChild(script);
+  }
+});
+
+function initMap() {
+  var latitudeMagasin = 36.8065;
+  var longitudeMagasin = 10.1815;
+  
+  var defaultLat = parseFloat(document.getElementById('latitude').value) || latitudeMagasin;
+  var defaultLng = parseFloat(document.getElementById('longitude').value) || longitudeMagasin;
+  
+  var map = L.map('map').setView([defaultLat, defaultLng], 13);
+  
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(map);
+  
+  var magasinIcon = L.divIcon({
+    html: '<div style="background-color:#2d6a2d; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow:0 2px 5px rgba(0,0,0,0.2);">🏪</div>',
+    iconSize: [36, 36],
+    className: 'magasin-marker'
+  });
+  L.marker([latitudeMagasin, longitudeMagasin], {icon: magasinIcon})
+    .addTo(map)
+    .bindPopup('<strong>🏪 Notre magasin</strong><br>Livraison depuis ce point');
+  
+  L.circle([latitudeMagasin, longitudeMagasin], {
+    color: '#2d6a2d',
+    fillColor: '#2d6a2d',
+    fillOpacity: 0.1,
+    radius: 10000
+  }).addTo(map);
+  
+  var marker = null;
+  
+  function ajouterMarqueur(lat, lng) {
+    if (marker) map.removeLayer(marker);
+    var userIcon = L.divIcon({
+      html: '<div style="background-color:#f0a500; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 2px 5px rgba(0,0,0,0.2);">📍</div>',
+      iconSize: [32, 32],
+      className: 'user-marker'
+    });
+    marker = L.marker([lat, lng], {icon: userIcon, draggable: true}).addTo(map);
+    marker.on('dragend', function(e) {
+      var pos = marker.getLatLng();
+      calculerFrais(pos.lat, pos.lng);
+      geocoderInverse(pos.lat, pos.lng);
+    });
+    document.getElementById('latitude').value = lat;
+    document.getElementById('longitude').value = lng;
   }
   
-  if(!ok) e.preventDefault();
-});
-
-// Formatage automatique du numéro de carte
-document.getElementById('carte_numero').addEventListener('input', function(e) {
-  var val = this.value.replace(/\s/g, '');
-  if (val.length > 16) val = val.substr(0, 16);
-  var formatted = val.replace(/(\d{4})(?=\d)/g, '$1 ');
-  this.value = formatted;
-});
-
-// Formatage automatique date expiration
-document.getElementById('carte_expiration').addEventListener('input', function(e) {
-  var val = this.value.replace(/\//g, '');
-  if (val.length > 4) val = val.substr(0, 4);
-  if (val.length >= 2) {
-    this.value = val.substr(0, 2) + (val.length > 2 ? '/' + val.substr(2) : '');
-  } else {
-    this.value = val;
+  function calculerFrais(lat, lng) {
+    var R = 6371;
+    var dLat = (lat - latitudeMagasin) * Math.PI / 180;
+    var dLng = (lng - longitudeMagasin) * Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(latitudeMagasin * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
+            Math.sin(dLng/2) * Math.sin(dLng/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    var distance = R * c;
+    
+    var frais = 0;
+    var livrable = true;
+    var message = '';
+    
+    if (distance <= 2) {
+      frais = 0;
+      message = 'Livraison OFFERTE';
+    } else if (distance <= 5) {
+      frais = 3.00;
+      message = 'Frais de livraison : 3.00 TND';
+    } else if (distance <= 10) {
+      frais = 5.00;
+      message = 'Frais de livraison : 5.00 TND';
+    } else {
+      livrable = false;
+      message = 'Zone non livrable (plus de 10km)';
+    }
+    
+    document.getElementById('distance_info').innerHTML = 'Distance: ' + distance.toFixed(2) + ' km | ' + message;
+    document.getElementById('frais_livraison').value = frais;
+    
+    if (livrable) {
+      document.getElementById('distance_info').style.color = '#2d6a2d';
+      document.getElementById('zone-info').innerHTML = '<div class="alert alert-success py-1">✅ Zone livrable</div>';
+    } else {
+      document.getElementById('distance_info').style.color = '#c0392b';
+      document.getElementById('zone-info').innerHTML = '<div class="alert alert-danger py-1">❌ Zone non livrable</div>';
+    }
+    
+    if (typeof mettreAJourTotalPanier !== 'undefined') mettreAJourTotalPanier();
   }
-});
-
-// Initialiser la carte
-document.addEventListener('DOMContentLoaded', function() {
-  initMap();
-  mettreAJourTotal();
-});
-
-// Définir la fonction globalement pour map.js
-window.mettreAJourTotalPanier = function() {
-  var frais = parseFloat(document.getElementById('frais_livraison').value) || 0;
-  var totalInitial = parseFloat(document.getElementById('total_initial').value) || 0;
-  var totalFinal = totalInitial + frais;
-  document.getElementById('frais_livraison_span').textContent = frais.toFixed(2) + ' TND';
-  document.getElementById('total_final_span').textContent = totalFinal.toFixed(2) + ' TND';
-  document.getElementById('total_final_input').value = totalFinal.toFixed(2);
-};
+  
+  function geocoderInverse(lat, lng) {
+    fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&zoom=18')
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.display_name) {
+          document.getElementById('adresse').value = data.display_name.substring(0, 200);
+        }
+      })
+      .catch(error => console.log('Erreur géocodage:', error));
+  }
+  
+  map.on('click', function(e) {
+    ajouterMarqueur(e.latlng.lat, e.latlng.lng);
+    calculerFrais(e.latlng.lat, e.latlng.lng);
+    geocoderInverse(e.latlng.lat, e.latlng.lng);
+  });
+  
+  setTimeout(function() {
+    map.invalidateSize();
+  }, 200);
+}
 </script>
 
 <?php require 'app/view/layout/footer.php'; ?>

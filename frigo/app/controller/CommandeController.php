@@ -64,7 +64,7 @@ class CommandeController {
         exit;
     }
 
-    // ========== CODE PROMO DYNAMIQUE (IDÉE 6) ==========
+    // ========== CODE PROMO DYNAMIQUE ==========
 
     private function verifierCodePromoAvance(string $code, string $telephone, float $totalPanier): array|false {
         $stmt = $this->pdo->prepare("
@@ -79,7 +79,6 @@ class CommandeController {
         
         if (!$promo) return false;
         
-        // Vérification client unique (un seul usage par téléphone)
         if ($promo['client_unique'] == 1 && !empty($telephone)) {
             $stmt = $this->pdo->prepare("
                 SELECT COUNT(*) FROM code_promo_utilisation
@@ -115,6 +114,37 @@ class CommandeController {
         exit;
     }
 
+    // ========== RECOMMANDATIONS PERSONNALISÉES ==========
+
+    private function getRecommandationsParFavoris(): array {
+        $stmt = $this->pdo->query("
+            SELECT p.*, c.nom AS categorie_nom
+            FROM produit p
+            LEFT JOIN categorie c ON p.categorie_id = c.id
+            WHERE p.id IN (
+                SELECT produit_id FROM favori
+            )
+            LIMIT 4
+        ");
+        return $stmt->fetchAll();
+    }
+
+    private function getRecommandationsParHistorique(string $telephone): array {
+        $stmt = $this->pdo->prepare("
+            SELECT p.*, c.nom AS categorie_nom, COUNT(cp.produit_id) as freq
+            FROM commande_produit cp
+            JOIN commande cmd ON cp.commande_id = cmd.id
+            JOIN produit p ON cp.produit_id = p.id
+            LEFT JOIN categorie c ON p.categorie_id = c.id
+            WHERE cmd.telephone = :tel
+            GROUP BY p.id
+            ORDER BY freq DESC
+            LIMIT 4
+        ");
+        $stmt->execute([':tel' => $telephone]);
+        return $stmt->fetchAll();
+    }
+
     // ========== PANIER ==========
 
     public function panier(): void {
@@ -124,11 +154,9 @@ class CommandeController {
             array_map(fn($i) => $i['prix'] * $i['quantite'], $panier)
         );
         
-        // Suggestions de produits complémentaires pour le panier
         $suggestionsComplementaires = [];
         if (!empty($panier)) {
             $idsProduits = array_keys($panier);
-            // Nettoyer les IDs (enlever les 'custom_')
             $idsProduits = array_filter($idsProduits, 'is_numeric');
             if (!empty($idsProduits)) {
                 $placeholders = implode(',', array_fill(0, count($idsProduits), '?'));
@@ -141,6 +169,18 @@ class CommandeController {
                 $stmt->execute($idsProduits);
                 $suggestionsComplementaires = $stmt->fetchAll();
             }
+        }
+
+        // Recommandations personnalisées
+        $recommandations = [];
+        $telephone = $_SESSION['telephone_client'] ?? '';
+        
+        if (!empty($telephone)) {
+            $recommandations = $this->getRecommandationsParHistorique($telephone);
+        }
+        
+        if (empty($recommandations)) {
+            $recommandations = $this->getRecommandationsParFavoris();
         }
         
         require 'app/view/commandes/panier.php';
@@ -192,16 +232,39 @@ class CommandeController {
         exit;
     }
 
-    public function checkout(): void {
-        $historique = $this->model->getHistorique();
-        $total = array_sum(
-            array_map(fn($i) => $i['prix'] * $i['quantite'], $_SESSION['panier'] ?? [])
-        );
-        require 'app/view/commandes/checkout.php';
+   public function checkout(): void {
+    $historique = $this->model->getHistorique();
+    $total = array_sum(
+        array_map(fn($i) => $i['prix'] * $i['quantite'], $_SESSION['panier'] ?? [])
+    );
+    require 'app/view/commandes/checkout.php';
     }
 
     public function confirmer(): void {
         $errors = $this->model->valider($_POST);
+        
+        // Validation carte bancaire si méthode = carte
+        if ($_POST['methode_paiement'] === 'carte') {
+            if (empty($_POST['carte_numero']) || empty($_POST['carte_exp']) || 
+                empty($_POST['carte_cvv']) || empty($_POST['carte_titulaire'])) {
+                $errors[] = "Tous les champs de la carte bancaire sont obligatoires.";
+            } else {
+                $numClean = preg_replace('/\s/', '', $_POST['carte_numero']);
+                if (!preg_match('/^\d{16}$/', $numClean)) {
+                    $errors[] = "Le numéro de carte doit contenir 16 chiffres.";
+                }
+                if (!preg_match('/^(0[1-9]|1[0-2])\/([0-9]{2})$/', $_POST['carte_exp'])) {
+                    $errors[] = "Format d'expiration invalide (MM/AA).";
+                }
+                if (!preg_match('/^\d{3}$/', $_POST['carte_cvv'])) {
+                    $errors[] = "Le CVV doit contenir 3 chiffres.";
+                }
+                if (strlen(trim($_POST['carte_titulaire'])) < 3) {
+                    $errors[] = "Le nom du titulaire est invalide.";
+                }
+            }
+        }
+        
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
             header('Location: /frigo/index.php?mode=front&controller=commande&action=checkout');
@@ -213,7 +276,6 @@ class CommandeController {
         $total  = $this->calculerTotal($panier, $promo);
         $tel    = preg_replace('/\s+/', '', $_POST['telephone']);
         
-        // Sauvegarder le téléphone en session pour les suggestions futures
         $_SESSION['telephone_client'] = $tel;
 
         $commandeId = $this->model->create([
@@ -232,7 +294,6 @@ class CommandeController {
             }
         }
 
-        // Log de l'utilisation du code promo
         if ($promo && isset($promo['id'])) {
             $stmt = $this->pdo->prepare("
                 INSERT INTO code_promo_utilisation (code_promo_id, commande_id, telephone_client, reduction_appliquee)
@@ -248,7 +309,6 @@ class CommandeController {
                 ':reduction' => abs($reductionCalculee)
             ]);
             
-            // Incrémenter le compteur d'utilisation
             $stmt = $this->pdo->prepare("
                 UPDATE code_promo SET utilisation_compteur = utilisation_compteur + 1 WHERE id = :id
             ");

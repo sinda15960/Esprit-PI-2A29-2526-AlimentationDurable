@@ -6,7 +6,7 @@ class ProduitController {
         $this->pdo = Database::getInstance()->getPdo();
     }
 
-    // ========== METHODES PRIVEES SQL ==========
+    // ===== REQUETES PRIVEES =====
 
     private function getProduitById(int $id): array|false {
         $stmt = $this->pdo->prepare("SELECT * FROM produit WHERE id = :id");
@@ -14,107 +14,134 @@ class ProduitController {
         return $stmt->fetch();
     }
 
-    private function ajouterFrigoDb(array $data): bool {
-        $stmt = $this->pdo->prepare("
-            INSERT INTO frigo_utilisateur
-            (produit_id, nom_custom, quantite, date_expiration, seuil_alerte, image)
-            VALUES (:produit_id, :nom_custom, :quantite, :date_expiration, :seuil_alerte, :image)
-        ");
-        return $stmt->execute($data);
+    private function getAllCategories(): array {
+        return $this->pdo->query("SELECT * FROM categorie ORDER BY nom ASC")->fetchAll();
     }
 
-    // ========== IA - SUGGESTIONS INTELLIGENTES (IDÉE 3a) ==========
-
-    /**
-     * Génère des suggestions basées sur le contenu du frigo d'un utilisateur
-     * Identifie le client par son numéro de téléphone
-     */
-    private function genererSuggestionsFrigo(string $telephone): array {
-        $suggestions = [];
+    private function getEmojiByNom(string $nom): string {
+        $nom = strtolower(trim($nom));
+        $emojis = [
+            'pomme' => '🍎', 'banane' => '🍌', 'orange' => '🍊', 'fraise' => '🍓',
+            'raisin' => '🍇', 'mangue' => '🥭', 'tomate' => '🍅', 'carotte' => '🥕',
+            'courgette' => '🥒', 'salade' => '🥬', 'poivron' => '🫑', 'oignon' => '🧅',
+            'lait' => '🥛', 'yaourt' => '🍶', 'fromage' => '🧀', 'beurre' => '🧈',
+            'creme' => '🍦', 'crème' => '🍦', 'poulet' => '🍗', 'boeuf' => '🥩',
+            'merguez' => '🌭', 'thon' => '🐟', 'eau' => '💧', 'jus' => '🧃',
+            'coca' => '🥤', 'cafe' => '☕', 'café' => '☕', 'the' => '🍵',
+            'thé' => '🍵', 'limonade' => '🍋', 'pates' => '🍝', 'pâtes' => '🍝',
+            'riz' => '🍚', 'huile' => '🫙', 'sucre' => '🍬', 'pain' => '🍞',
+            'croissant' => '🥐', 'biscuit' => '🍪', 'oeuf' => '🥚', 'ail' => '🧄',
+            'pizza' => '🍕', 'kiwi' => '🥝', 'ananas' => '🍍', 'cerise' => '🍒',
+            'myrtille' => '🫐', 'noix' => '🥜', 'chocolat' => '🍫'
+        ];
         
-        // 1. Détection des produits à stock faible
-        $stmt = $this->pdo->prepare("
-            SELECT f.*, COALESCE(p.nom, f.nom_custom) as nom, p.id as produit_id_ref
+        foreach ($emojis as $mot => $emoji) {
+            if (str_contains($nom, $mot)) return $emoji;
+        }
+        return '🥗';
+    }
+
+    private function getSuggestions(): array {
+        $suggestions = [];
+
+        $stmt = $this->pdo->query("
+            SELECT f.id, f.quantite, f.seuil_alerte,
+                   COALESCE(p.nom, f.nom_custom) AS nom,
+                   p.id AS produit_id
             FROM frigo_utilisateur f
             LEFT JOIN produit p ON f.produit_id = p.id
             WHERE f.quantite <= f.seuil_alerte
-            AND f.quantite > 0
-            AND (f.produit_id IS NOT NULL)
-            ORDER BY f.quantite ASC
             LIMIT 3
         ");
-        $stmt->execute();
-        $stockFaible = $stmt->fetchAll();
-        
-        foreach ($stockFaible as $item) {
+        foreach ($stmt->fetchAll() as $item) {
             $suggestions[] = [
-                'type' => 'stock_faible',
-                'produit_id' => $item['produit_id_ref'],
-                'message' => "Votre frigo n'a plus que {$item['quantite']}x {$item['nom']}. Voulez-vous en racheter ?"
+                'type'       => 'stock_faible',
+                'message'    => "Votre frigo manque de {$item['nom']} (quantité : {$item['quantite']}). Ajouter au panier ?",
+                'produit_id' => $item['produit_id'],
             ];
         }
-        
-        // 2. Détection des produits qui expirent bientôt (moins de 3 jours)
-        $stmt = $this->pdo->prepare("
-            SELECT f.*, COALESCE(p.nom, f.nom_custom) as nom,
-                   DATEDIFF(f.date_expiration, CURDATE()) as jours_restants
+
+        $stmt = $this->pdo->query("
+            SELECT COALESCE(p.nom, f.nom_custom) AS nom, f.date_expiration
             FROM frigo_utilisateur f
             LEFT JOIN produit p ON f.produit_id = p.id
             WHERE f.date_expiration IS NOT NULL
-            AND f.date_expiration <= DATE_ADD(CURDATE(), INTERVAL 3 DAY)
-            AND f.date_expiration >= CURDATE()
-            ORDER BY f.date_expiration ASC
+            AND f.date_expiration BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 3 DAY)
             LIMIT 3
         ");
-        $stmt->execute();
-        $expirationProche = $stmt->fetchAll();
-        
-        foreach ($expirationProche as $item) {
+        foreach ($stmt->fetchAll() as $item) {
             $suggestions[] = [
-                'type' => 'expiration_proche',
+                'type'       => 'expiration_proche',
+                'message'    => "{$item['nom']} expire le " . date('d/m/Y', strtotime($item['date_expiration'])) . ". Consommez-le vite !",
                 'produit_id' => null,
-                'message' => "⚠️ {$item['nom']} expire dans {$item['jours_restants']} jour(s) ! Consommez-le rapidement."
             ];
         }
-        
-        // 3. Suggestions de produits complémentaires basées sur l'historique
-        if (!empty($telephone)) {
-            $stmt = $this->pdo->prepare("
-                SELECT p.id, p.nom, COUNT(cp.id) as frequence
-                FROM commande c
-                JOIN commande_produit cp ON c.id = cp.commande_id
-                JOIN produit p ON cp.produit_id = p.id
-                WHERE c.telephone = :telephone
-                AND c.statut = 'confirmee'
-                GROUP BY p.id
-                ORDER BY frequence DESC
-                LIMIT 3
-            ");
-            $stmt->execute([':telephone' => $telephone]);
-            $historiqueAchats = $stmt->fetchAll();
-            
-            foreach ($historiqueAchats as $item) {
-                $check = $this->pdo->prepare("
-                    SELECT COUNT(*) FROM frigo_utilisateur 
-                    WHERE produit_id = :id AND quantite > 0
-                ");
-                $check->execute([':id' => $item['id']]);
-                $dejaPresent = $check->fetchColumn() > 0;
-                
-                if (!$dejaPresent) {
-                    $suggestions[] = [
-                        'type' => 'recommandation',
-                        'produit_id' => $item['id'],
-                        'message' => "Vous achetez souvent {$item['nom']}. Voulez-vous le commander ?"
-                    ];
-                }
-            }
-        }
-        
+
         return $suggestions;
     }
 
-    // ========== ACTIONS FRIGO ==========
+    // ===== VOIX OFF =====
+
+    public function ajouterParVoix(): void {
+    // Permettre l'accès AJAX
+    header('Content-Type: application/json');
+    
+    $nomAliment = trim($_POST['nom_aliment'] ?? '');
+    if (empty($nomAliment)) {
+        echo json_encode(['success' => false, 'message' => 'Nom d\'aliment vide']);
+        return;
+    }
+    
+    // Recherche dans la base de données (correspondance exacte ou LIKE)
+    $stmt = $this->pdo->prepare("SELECT * FROM produit WHERE LOWER(nom) = LOWER(:nom) OR LOWER(nom) LIKE LOWER(:like)");
+    $stmt->execute([
+        ':nom' => $nomAliment,
+        ':like' => '%' . $nomAliment . '%'
+    ]);
+    $produit = $stmt->fetch();
+    
+    if ($produit) {
+        echo json_encode([
+            'success' => true,
+            'produit' => [
+                'id' => $produit['id'],
+                'nom' => $produit['nom'],
+                'prix' => $produit['prix'],
+                'emoji' => $this->getEmojiByNom($produit['nom'])
+            ],
+            'message' => "Aliment trouvé : {$produit['nom']}"
+        ]);
+        } else {
+        echo json_encode([
+            'success' => false,
+            'message' => "L'aliment '$nomAliment' n'existe pas dans notre catalogue.",
+            'nom_saisi' => $nomAliment
+        ]);
+        }
+    }
+    public function confirmerAjoutVoix(): void {
+    $id = (int)($_POST['produit_id'] ?? 0);
+    $qte = (int)($_POST['quantite'] ?? 1);
+    $produit = $this->getProduitById($id);
+
+    if ($produit && $qte >= 1) {
+        $stmt = $this->pdo->prepare("
+            INSERT INTO frigo_utilisateur
+            (produit_id, nom_custom, quantite, date_expiration, seuil_alerte, emoji)
+            VALUES (:produit_id, NULL, :quantite, :date_expiration, 2, :emoji)
+        ");
+        $stmt->execute([
+            ':produit_id'      => $id,
+            ':quantite'        => $qte,
+            ':date_expiration' => $produit['date_expiration'] ?? null,
+            ':emoji'           => $this->getEmojiByNom($produit['nom']),
+        ]);
+        $_SESSION['success'] = "🎤 {$produit['nom']} ajouté au frigo par voix !";
+        }
+    header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
+    exit;
+    }
+    // ===== FRIGO =====
 
     public function frigo(): void {
         $stmt = $this->pdo->query("
@@ -126,17 +153,15 @@ class ProduitController {
         $produits = $stmt->fetchAll();
 
         $stmt = $this->pdo->query("
-            SELECT 
-                f.id, f.quantite, f.date_expiration,
-                f.seuil_alerte, f.produit_id, f.image,
-                COALESCE(p.nom, f.nom_custom) AS nom,
-                p.prix, c.nom AS categorie_nom, c.id AS categorie_id,
-                CASE
-                    WHEN f.date_expiration < CURDATE() THEN 'perime'
-                    WHEN f.date_expiration <= DATE_ADD(CURDATE(), INTERVAL 3 DAY)
-                         THEN 'bientot_perime'
-                    ELSE 'frais'
-                END AS etat
+            SELECT f.id, f.quantite, f.date_expiration, f.seuil_alerte,
+                   f.produit_id, f.emoji,
+                   COALESCE(p.nom, f.nom_custom) AS nom,
+                   p.prix, c.nom AS categorie_nom, c.id AS categorie_id,
+                   CASE
+                     WHEN f.date_expiration < CURDATE() THEN 'perime'
+                     WHEN f.date_expiration <= DATE_ADD(CURDATE(), INTERVAL 3 DAY) THEN 'bientot_perime'
+                     ELSE 'frais'
+                   END AS etat
             FROM frigo_utilisateur f
             LEFT JOIN produit p ON f.produit_id = p.id
             LEFT JOIN categorie c ON p.categorie_id = c.id
@@ -144,25 +169,28 @@ class ProduitController {
         ");
         $frigoItems = $stmt->fetchAll();
 
-        $stmt = $this->pdo->query("SELECT * FROM categorie ORDER BY nom ASC");
-        $categories = $stmt->fetchAll();
+        // Mettre à jour les emojis des items du frigo
+        foreach ($frigoItems as &$item) {
+            if (empty($item['emoji']) || $item['emoji'] === 'auto' || $item['emoji'] === '🥗') {
+                $item['emoji'] = $this->getEmojiByNom($item['nom']);
+            }
+        }
 
+        $categories      = $this->getAllCategories();
         $categorieActive = null;
+        $suggestions     = $this->getSuggestions();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['categorie_id'])) {
             $categorieActive = (int)$_POST['categorie_id'];
             $stmt = $this->pdo->prepare("
-                SELECT 
-                    f.id, f.quantite, f.date_expiration,
-                    f.image,
-                    COALESCE(p.nom, f.nom_custom) AS nom,
-                    p.prix, c.nom AS categorie_nom,
-                    CASE
-                        WHEN f.date_expiration < CURDATE() THEN 'perime'
-                        WHEN f.date_expiration <= DATE_ADD(CURDATE(), INTERVAL 3 DAY)
-                             THEN 'bientot_perime'
-                        ELSE 'frais'
-                    END AS etat
+                SELECT f.id, f.quantite, f.date_expiration, f.emoji,
+                       COALESCE(p.nom, f.nom_custom) AS nom,
+                       p.prix, c.nom AS categorie_nom,
+                       CASE
+                         WHEN f.date_expiration < CURDATE() THEN 'perime'
+                         WHEN f.date_expiration <= DATE_ADD(CURDATE(), INTERVAL 3 DAY) THEN 'bientot_perime'
+                         ELSE 'frais'
+                       END AS etat
                 FROM frigo_utilisateur f
                 LEFT JOIN produit p ON f.produit_id = p.id
                 LEFT JOIN categorie c ON p.categorie_id = c.id
@@ -171,17 +199,12 @@ class ProduitController {
             ");
             $stmt->execute([':categorie_id' => $categorieActive]);
             $frigoItems = $stmt->fetchAll();
+            foreach ($frigoItems as &$item) {
+                if (empty($item['emoji']) || $item['emoji'] === 'auto') {
+                    $item['emoji'] = $this->getEmojiByNom($item['nom']);
+                }
+            }
         }
-
-        // Récupérer le téléphone depuis la session ou les commandes récentes
-        $telephone = $_SESSION['telephone_client'] ?? '';
-        if (empty($telephone)) {
-            $stmt = $this->pdo->query("SELECT telephone FROM commande ORDER BY id DESC LIMIT 1");
-            $last = $stmt->fetch();
-            if ($last) $telephone = $last['telephone'];
-        }
-        
-        $suggestions = $this->genererSuggestionsFrigo($telephone);
 
         require 'app/view/produit/frigo_view.php';
     }
@@ -192,17 +215,20 @@ class ProduitController {
         $produit = $this->getProduitById($id);
 
         if ($produit && $qte >= 1) {
-            $this->ajouterFrigoDb([
+            $stmt = $this->pdo->prepare("
+                INSERT INTO frigo_utilisateur
+                (produit_id, nom_custom, quantite, date_expiration, seuil_alerte, emoji)
+                VALUES (:produit_id, NULL, :quantite, :date_expiration, 2, :emoji)
+            ");
+            $stmt->execute([
                 ':produit_id'      => $id,
-                ':nom_custom'      => null,
                 ':quantite'        => $qte,
                 ':date_expiration' => $produit['date_expiration'] ?? null,
-                ':seuil_alerte'    => 2,
-                ':image'           => null,
+                ':emoji'           => $this->getEmojiByNom($produit['nom']),
             ]);
             $_SESSION['success'] = "{$produit['nom']} ajouté au frigo !";
         }
-        header('Location: /frigo/index.php?controller=produit&action=frigo');
+        header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
         exit;
     }
 
@@ -211,7 +237,7 @@ class ProduitController {
         $nom    = trim($_POST['nom_custom'] ?? '');
         $qte    = (int)($_POST['quantite'] ?? 0);
         $date   = trim($_POST['date_expiration'] ?? '');
-        $image  = null;
+        $emoji  = $_POST['emoji'] ?? $this->getEmojiByNom($nom);
 
         if (strlen($nom) < 2) $errors[] = "Le nom doit contenir au moins 2 caractères.";
         if ($qte < 1)         $errors[] = "La quantité doit être au moins 1.";
@@ -220,34 +246,51 @@ class ProduitController {
             if (!$d) $errors[] = "Format de date invalide (YYYY-MM-DD).";
         }
 
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-            $ext     = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-            if (!in_array($ext, $allowed)) {
-                $errors[] = "Format image invalide (jpg, png, gif, webp).";
-            } else {
-                $nomFichier  = uniqid('aliment_') . '.' . $ext;
-                $destination = 'public/images/uploads/' . $nomFichier;
-                if (move_uploaded_file($_FILES['image']['tmp_name'], $destination)) {
-                    $image = $nomFichier;
-                }
-            }
-        }
-
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
         } else {
-            $this->ajouterFrigoDb([
-                ':produit_id'      => null,
+            $stmt = $this->pdo->prepare("
+                INSERT INTO frigo_utilisateur
+                (produit_id, nom_custom, quantite, date_expiration, seuil_alerte, emoji)
+                VALUES (NULL, :nom_custom, :quantite, :date_expiration, 2, :emoji)
+            ");
+            $stmt->execute([
                 ':nom_custom'      => htmlspecialchars($nom),
                 ':quantite'        => $qte,
                 ':date_expiration' => $date ?: null,
-                ':seuil_alerte'    => 2,
-                ':image'           => $image,
+                ':emoji'           => $emoji,
             ]);
-            $_SESSION['success'] = "Produit ajouté au frigo !";
+            $_SESSION['success'] = "$emoji $nom ajouté au frigo !";
         }
-        header('Location: /frigo/index.php?controller=produit&action=frigo');
+        header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
+        exit;
+    }
+
+    public function ajouterParScan(): void {
+        $produitId  = (int)($_GET['produit_id'] ?? 0);
+        $codeBarres = trim($_GET['code_barres'] ?? '');
+
+        $produit = null;
+        if ($produitId > 0) {
+            $produit = $this->getProduitById($produitId);
+        }
+
+        if ($produit) {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO frigo_utilisateur
+                (produit_id, nom_custom, quantite, date_expiration, seuil_alerte, emoji)
+                VALUES (:produit_id, NULL, 1, :date_expiration, 2, :emoji)
+            ");
+            $stmt->execute([
+                ':produit_id'      => $produit['id'],
+                ':date_expiration' => $produit['date_expiration'] ?? null,
+                ':emoji'           => $this->getEmojiByNom($produit['nom']),
+            ]);
+            $_SESSION['success'] = "✅ {$produit['nom']} scanné et ajouté au frigo !";
+        } else {
+            $_SESSION['errors'] = ["Produit non reconnu (code : $codeBarres). Ajoutez-le manuellement."];
+        }
+        header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
         exit;
     }
 
@@ -257,13 +300,11 @@ class ProduitController {
 
         if ($qte < 0) {
             $_SESSION['errors'] = ["La quantité ne peut pas être négative."];
-            header('Location: /frigo/index.php?controller=produit&action=frigo');
+            header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
             exit;
         }
 
-        $stmt = $this->pdo->prepare(
-            "UPDATE frigo_utilisateur SET quantite = :qte WHERE id = :id"
-        );
+        $stmt = $this->pdo->prepare("UPDATE frigo_utilisateur SET quantite = :qte WHERE id = :id");
         $stmt->execute([':qte' => $qte, ':id' => $id]);
 
         $stmt = $this->pdo->prepare("
@@ -283,132 +324,100 @@ class ProduitController {
                     'prix'     => $item['prix'] ?? 0,
                     'quantite' => 1
                 ];
-                $_SESSION['success'] =
-                    "Stock faible pour {$item['nom']} — ajouté au panier !";
+                $_SESSION['success'] = "Stock faible pour {$item['nom']} — ajouté au panier !";
             }
         } else {
             $_SESSION['success'] = "Quantité mise à jour.";
         }
-
-        header('Location: /frigo/index.php?controller=produit&action=frigo');
+        header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
         exit;
+    }
+    // ===== VOIX OFF POUR LISTER LE FRIGO =====
+
+public function listerFrigoParVoix(): void {
+    header('Content-Type: application/json');
+    
+    $stmt = $this->pdo->query("
+        SELECT 
+            f.id, f.quantite, f.date_expiration, f.emoji,
+            COALESCE(p.nom, f.nom_custom) AS nom,
+            p.prix,
+            CASE
+                WHEN f.date_expiration < CURDATE() THEN 'périmé'
+                WHEN f.date_expiration <= DATE_ADD(CURDATE(), INTERVAL 3 DAY) THEN 'bientôt périmé'
+                ELSE 'frais'
+            END AS etat
+        FROM frigo_utilisateur f
+        LEFT JOIN produit p ON f.produit_id = p.id
+        ORDER BY f.date_expiration ASC
+    ");
+    $frigoItems = $stmt->fetchAll();
+    
+    // Générer le texte à vocaliser
+    $texte = $this->genererTexteFrigo($frigoItems);
+    
+    echo json_encode([
+        'success' => true,
+        'texte' => $texte,
+        'items' => $frigoItems,
+        'total_items' => count($frigoItems)
+    ]);
+    }
+
+private function genererTexteFrigo(array $items): string {
+    if (empty($items)) {
+        return "Votre frigo est vide. Vous pouvez commander des aliments depuis le supermarché en cliquant sur le bouton Supermarché dans le menu.";
+     }
+    
+    $texte = "Voici le contenu de votre frigo : ";
+    $perimes = [];
+    $bientotPerimes = [];
+    $frais = [];
+    
+    foreach ($items as $item) {
+        $nom = $item['nom'];
+        $quantite = $item['quantite'];
+        $etat = $item['etat'];
+        
+        $itemTexte = "$nom, quantité $quantite";
+        
+        if ($etat === 'périmé') {
+            $perimes[] = $itemTexte . " (périmé)";
+            } elseif ($etat === 'bientôt périmé') {
+            $date = date('d/m/Y', strtotime($item['date_expiration']));
+            $bientotPerimes[] = $itemTexte . " (expire le $date)";
+            } else {
+            $frais[] = $itemTexte . " (frais)";
+            }
+        }
+    
+    if (!empty($frais)) {
+        $texte .= "\n\n✅ Aliments frais : " . implode(", ", $frais) . ".";
+        }
+    
+    if (!empty($bientotPerimes)) {
+        $texte .= "\n\n⚠️ Attention, aliments qui expirent bientôt : " . implode(", ", $bientotPerimes) . ". Pensez à les consommer rapidement !";
+        }
+    
+    if (!empty($perimes)) {
+        $texte .= "\n\n❌ Aliments périmés à jeter : " . implode(", ", $perimes) . ".";
+        }
+    
+    $total = count($items);
+    $texte .= "\n\nRésumé : Vous avez $total aliment" . ($total > 1 ? "s" : "") . " dans votre frigo.";
+    
+    return $texte;
     }
 
     public function supprimerDuFrigo(): void {
         $id = (int)($_GET['id'] ?? 0);
         $stmt = $this->pdo->prepare("DELETE FROM frigo_utilisateur WHERE id = :id");
         $stmt->execute([':id' => $id]);
-        header('Location: /frigo/index.php?controller=produit&action=frigo');
+        header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
         exit;
     }
 
-    public function envoyerAuPanier(): void {
-        $id   = (int)($_GET['id'] ?? 0);
-        $stmt = $this->pdo->prepare("
-            SELECT f.*, COALESCE(p.nom, f.nom_custom) AS nom, p.prix
-            FROM frigo_utilisateur f
-            LEFT JOIN produit p ON f.produit_id = p.id
-            WHERE f.id = :id
-        ");
-        $stmt->execute([':id' => $id]);
-        $item = $stmt->fetch();
-
-        if ($item) {
-            $pid = $item['produit_id'] ?? 'custom_' . $id;
-            $_SESSION['panier'][$pid] = [
-                'nom'      => $item['nom'],
-                'prix'     => $item['prix'] ?? 0,
-                'quantite' => $item['quantite']
-            ];
-            $_SESSION['success'] = "Produit ajouté au panier !";
-        }
-        header('Location: /frigo/index.php?controller=commande&action=panier');
-        exit;
-    }
-
-    // ========== SCAN CODE-BARRES / QR CODE (IDÉE 8) ==========
-
-    /**
-     * Ajoute un produit par scan de code-barres ou QR code
-     * Remplace l'ancienne méthode ajouterFrigoQR
-     */
-    public function ajouterParScan(): void {
-        $produitId = (int)($_GET['produit_id'] ?? 0);
-        $codeBarres = $_GET['code_barres'] ?? '';
-        $redirect = $_GET['redirect'] ?? 'frigo';
-        
-        if ($produitId > 0) {
-            $produit = $this->getProduitById($produitId);
-            if ($produit) {
-                $this->ajouterFrigoDb([
-                    ':produit_id'      => $produitId,
-                    ':nom_custom'      => null,
-                    ':quantite'        => 1,
-                    ':date_expiration' => $produit['date_expiration'] ?? null,
-                    ':seuil_alerte'    => 2,
-                    ':image'           => null,
-                ]);
-                $_SESSION['success'] = "{$produit['nom']} ajouté via scan !";
-            }
-        } 
-        elseif (!empty($codeBarres)) {
-            // Recherche du produit par code-barres dans la base
-            $stmt = $this->pdo->prepare("SELECT * FROM produit WHERE code_barres = :code");
-            $stmt->execute([':code' => $codeBarres]);
-            $produit = $stmt->fetch();
-            
-            if ($produit) {
-                $this->ajouterFrigoDb([
-                    ':produit_id'      => $produit['id'],
-                    ':nom_custom'      => null,
-                    ':quantite'        => 1,
-                    ':date_expiration' => $produit['date_expiration'] ?? null,
-                    ':seuil_alerte'    => 2,
-                    ':image'           => null,
-                ]);
-                $_SESSION['success'] = "{$produit['nom']} ajouté via scan code-barres !";
-            } else {
-                // Produit non trouvé : proposition d'ajout manuel
-                $_SESSION['pending_scan'] = $codeBarres;
-                $_SESSION['errors'] = ["Produit non trouvé. Ajoutez-le manuellement."];
-                header('Location: /frigo/index.php?mode=front&controller=produit&action=ajouterManuel');
-                exit;
-            }
-        }
-        
-        if ($redirect === 'panier') {
-            header('Location: /frigo/index.php?mode=front&controller=commande&action=panier');
-        } else {
-            header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
-        }
-        exit;
-    }
-
-    /**
-     * Ancienne méthode ajouterFrigoQR conservée pour compatibilité
-     */
-    public function ajouterFrigoQR(): void {
-        $id      = (int)($_GET['id'] ?? 0);
-        $produit = $this->getProduitById($id);
-
-        if ($produit) {
-            $this->ajouterFrigoDb([
-                ':produit_id'      => $id,
-                ':nom_custom'      => null,
-                ':quantite'        => 1,
-                ':date_expiration' => $produit['date_expiration'] ?? null,
-                ':seuil_alerte'    => 2,
-                ':image'           => null,
-            ]);
-            $_SESSION['success'] = "{$produit['nom']} ajouté via QR code !";
-        } else {
-            $_SESSION['errors'] = ["Produit non reconnu."];
-        }
-        header('Location: /frigo/index.php?controller=produit&action=frigo');
-        exit;
-    }
-
-    // ========== BACKOFFICE PRODUIT ==========
+    // ===== BACKOFFICE =====
 
     public function index(): void {
         $stmt = $this->pdo->query("
@@ -427,8 +436,7 @@ class ProduitController {
     }
 
     public function create(): void {
-        $stmt = $this->pdo->query("SELECT * FROM categorie ORDER BY nom ASC");
-        $categories = $stmt->fetchAll();
+        $categories = $this->getAllCategories();
         require 'app/view/produit/create.php';
     }
 
@@ -436,12 +444,12 @@ class ProduitController {
         $errors = $this->validate($_POST);
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
-            header('Location: /frigo/index.php?controller=produit&action=create');
+            header('Location: /frigo/index.php?mode=back&controller=produit&action=create');
             exit;
         }
         $stmt = $this->pdo->prepare("
-            INSERT INTO produit (nom, description, prix, quantite, date_expiration, categorie_id, image, code_barres)
-            VALUES (:nom, :description, :prix, :quantite, :date_expiration, :categorie_id, :image, :code_barres)
+            INSERT INTO produit (nom, description, prix, quantite, date_expiration, categorie_id, image)
+            VALUES (:nom, :description, :prix, :quantite, :date_expiration, :categorie_id, :image)
         ");
         $stmt->execute([
             ':nom'             => htmlspecialchars(trim($_POST['nom'])),
@@ -451,10 +459,9 @@ class ProduitController {
             ':date_expiration' => $_POST['date_expiration'] ?: null,
             ':categorie_id'    => (int)$_POST['categorie_id'],
             ':image'           => $_POST['image'] ?? null,
-            ':code_barres'     => $_POST['code_barres'] ?? null
         ]);
         $_SESSION['success'] = "Produit ajouté avec succès.";
-        header('Location: /frigo/index.php?controller=produit&action=index');
+        header('Location: /frigo/index.php?mode=back&controller=produit&action=index');
         exit;
     }
 
@@ -462,8 +469,7 @@ class ProduitController {
         $id      = (int)($_GET['id'] ?? 0);
         $produit = $this->getProduitById($id);
         if (!$produit) die("Produit introuvable.");
-        $stmt = $this->pdo->query("SELECT * FROM categorie ORDER BY nom ASC");
-        $categories = $stmt->fetchAll();
+        $categories = $this->getAllCategories();
         require 'app/view/produit/edit.php';
     }
 
@@ -472,14 +478,13 @@ class ProduitController {
         $errors = $this->validate($_POST);
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
-            header("Location: /frigo/index.php?controller=produit&action=edit&id=$id");
+            header("Location: /frigo/index.php?mode=back&controller=produit&action=edit&id=$id");
             exit;
         }
         $stmt = $this->pdo->prepare("
             UPDATE produit SET nom=:nom, description=:description, prix=:prix,
             quantite=:quantite, date_expiration=:date_expiration,
-            categorie_id=:categorie_id, image=:image, code_barres=:code_barres
-            WHERE id=:id
+            categorie_id=:categorie_id, image=:image WHERE id=:id
         ");
         $stmt->execute([
             ':id'              => $id,
@@ -490,10 +495,9 @@ class ProduitController {
             ':date_expiration' => $_POST['date_expiration'] ?: null,
             ':categorie_id'    => (int)$_POST['categorie_id'],
             ':image'           => $_POST['image'] ?? null,
-            ':code_barres'     => $_POST['code_barres'] ?? null
         ]);
         $_SESSION['success'] = "Produit modifié.";
-        header('Location: /frigo/index.php?controller=produit&action=index');
+        header('Location: /frigo/index.php?mode=back&controller=produit&action=index');
         exit;
     }
 
@@ -501,7 +505,7 @@ class ProduitController {
         $id = (int)($_GET['id'] ?? 0);
         $stmt = $this->pdo->prepare("DELETE FROM produit WHERE id = :id");
         $stmt->execute([':id' => $id]);
-        header('Location: /frigo/index.php?controller=produit&action=index');
+        header('Location: /frigo/index.php?mode=back&controller=produit&action=index');
         exit;
     }
 
@@ -525,3 +529,4 @@ class ProduitController {
         return $errors;
     }
 }
+?>
