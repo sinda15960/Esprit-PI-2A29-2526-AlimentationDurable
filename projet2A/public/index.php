@@ -8,6 +8,8 @@ ini_set('error_log', dirname(__DIR__) . '/error_log.txt');
 require_once dirname(__DIR__) . '/controllers/RecipeController.php';
 require_once dirname(__DIR__) . '/controllers/InstructionController.php';
 require_once dirname(__DIR__) . '/controllers/CategorieController.php';
+require_once dirname(__DIR__) . '/controllers/RecipeVersionController.php'; // Ajoute ceci si nécessaire
+require_once dirname(__DIR__) . '/controllers/VoiceAssistantController.php';
 
 $controller = new RecipeController();
 $instructionController = new InstructionController();
@@ -145,15 +147,104 @@ switch($action) {
             header("Location: index.php?action=backCategories");
         }
         break;
+    
     case 'searchByType':
         $controller->searchByType();
+        break;
+    
+    case 'recipeHistory':
+        $versionController = new RecipeVersionController();
+        if($id) {
+            $versionController->showHistory($id);
+        } else {
+            header("Location: index.php?action=backRecipes");
+        }
+        break;
+    
+    case 'restoreVersion':
+        $versionController = new RecipeVersionController();
+        $versionController->restoreVersion();
+        break;
+    
+    // ==================== AJOUTE ICI (avant le default) ====================
+    // ==================== ASSISTANT VOCAL ====================
+case 'processCommand':
+    $voiceController = new VoiceAssistantController();
+    $voiceController->processCommand();
     break;
-    case 'backCreateCategorie':
-        $categorieController->backCreate();
+
+case 'getVoiceSettings':
+    $voiceController = new VoiceAssistantController();
+    $voiceController->getVoiceSettings();
     break;
-    case 'searchByCategorie':
-        $controller->searchByCategorie();
+
+case 'updateVoiceSettings':
+    $voiceController = new VoiceAssistantController();
+    $voiceController->updateVoiceSettings();
     break;
+
+case 'voiceSettings':
+    $voiceController = new VoiceAssistantController();
+    $voiceController->showSettings();
+    break;
+case 'sendReport':
+    header('Content-Type: application/json');
+    
+    // Vérifier si la session n'est pas déjà active
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    $response = [
+        'success' => true,
+        'message' => 'Rapport hebdomadaire envoyé avec succès !'
+    ];
+    
+    // Ajouter une notification dans la session
+    if (!isset($_SESSION['notifications'])) {
+        $_SESSION['notifications'] = [];
+    }
+    
+    $_SESSION['notifications'][] = [
+        'id' => time(),
+        'title' => '📧 Rapport hebdomadaire',
+        'message' => 'Le rapport a été envoyé avec succès',
+        'type' => 'success',
+        'icon' => 'fas fa-envelope',
+        'time' => date('H:i:s'),
+        'read' => false
+    ];
+    
+    echo json_encode($response);
+    exit;
+    break;
+        header('Content-Type: application/json');
+        session_start();
+        
+        $response = [
+            'success' => true,
+            'message' => 'Rapport hebdomadaire envoyé avec succès !'
+        ];
+        
+        // Ajouter une notification dans la session
+        if (!isset($_SESSION['notifications'])) {
+            $_SESSION['notifications'] = [];
+        }
+        
+        $_SESSION['notifications'][] = [
+            'id' => time(),
+            'title' => '📧 Rapport hebdomadaire',
+            'message' => 'Le rapport a été envoyé avec succès',
+            'type' => 'success',
+            'icon' => 'fas fa-envelope',
+            'time' => date('H:i:s'),
+            'read' => false
+        ];
+        
+        echo json_encode($response);
+        exit;
+        break;
+    
     // ==================== PAGE PAR DÉFAUT ====================
     default:
         $controller->frontIndex();

@@ -16,11 +16,16 @@ class RecipeController {
         $this->recipeModel = new Recipe($this->db);
         $this->instructionModel = new Instruction($this->db);
         $this->categorieModel = new Categorie($this->db);
-        if (!isset($_SESSION['milestones_notified'])) {
-        $_SESSION['milestones_notified'] = [];
-    }
+        
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
+        }
+        
+        if (!isset($_SESSION['milestones_notified'])) {
+            $_SESSION['milestones_notified'] = [];
+        }
+        if (!isset($_SESSION['goals_notified'])) {
+            $_SESSION['goals_notified'] = [];
         }
     }
 
@@ -486,21 +491,207 @@ class RecipeController {
         }
     }
 
-   private function addNotification($title, $message, $type = 'info', $icon = 'fas fa-info-circle') {
-    if (!isset($_SESSION['notifications'])) {
-        $_SESSION['notifications'] = [];
+    // ==================== NOTIFICATIONS ====================
+    
+    private function addNotification($title, $message, $type = 'info', $icon = 'fas fa-info-circle') {
+        if (!isset($_SESSION['notifications'])) {
+            $_SESSION['notifications'] = [];
+        }
+        array_unshift($_SESSION['notifications'], [
+            'id' => time() . rand(1, 1000),
+            'title' => $title,
+            'message' => $message,
+            'type' => $type,
+            'icon' => $icon,
+            'time' => date('d/m/Y H:i'),
+            'read' => false
+        ]);
+        $_SESSION['notifications'] = array_slice($_SESSION['notifications'], 0, 50);
     }
-    array_unshift($_SESSION['notifications'], [
-        'id' => time() . rand(1, 1000),
-        'title' => $title,
-        'message' => $message,
-        'type' => $type,
-        'icon' => $icon,
-        'time' => date('d/m/Y H:i'),
-        'read' => false
-    ]);
-    $_SESSION['notifications'] = array_slice($_SESSION['notifications'], 0, 50);
-}
+
+    // ==================== OBJECTIFS CATEGORIES ====================
+    
+    private function checkCategoryGoals($idCategorie) {
+        $query = "SELECT COUNT(*) as total FROM recipes WHERE idCategorie = :idCategorie";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(":idCategorie", $idCategorie);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $nbRecettes = $result['total'] ?? 0;
+        
+        $goal = $_SESSION['category_goals'][$idCategorie] ?? 10;
+        
+        $query = "SELECT nom FROM categories WHERE idCategorie = :id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(":id", $idCategorie);
+        $stmt->execute();
+        $categorie = $stmt->fetch(PDO::FETCH_ASSOC);
+        $nomCategorie = $categorie['nom'] ?? 'Catégorie';
+        
+        $key = "goal_reached_{$idCategorie}";
+        if ($nbRecettes >= $goal && !isset($_SESSION['goals_notified'][$key])) {
+            $_SESSION['goals_notified'][$key] = true;
+            $this->addNotification(
+                "🏆 Objectif atteint !",
+                "La catégorie \"$nomCategorie\" a atteint son objectif de $goal recettes !",
+                "success",
+                "fas fa-trophy"
+            );
+        }
+        
+        $reste = $goal - $nbRecettes;
+        if ($reste == 2 && $nbRecettes < $goal) {
+            $key = "goal_reminder_{$idCategorie}";
+            if (!isset($_SESSION['goals_notified'][$key])) {
+                $_SESSION['goals_notified'][$key] = true;
+                $this->addNotification(
+                    "🔥 Encore $reste recettes !",
+                    "Plus que $reste recettes pour que la catégorie \"$nomCategorie\" atteigne son objectif de $goal recettes !",
+                    "warning",
+                    "fas fa-fire"
+                );
+            }
+        }
+    }
+
+    // ==================== NIVEAUX (BADGES) ====================
+    
+    private function checkRecipeMilestones() {
+        $stmt = $this->getAllRecipes();
+        $totalRecipes = $stmt->rowCount();
+        
+        $milestones = [
+            5 => ["🏅 Niveau Débutant", "Félicitations ! Vous avez créé 5 recettes. Niveau Débutant atteint !"],
+            10 => ["🍳 Niveau Apprenti", "Bravo ! 10 recettes créées. Vous êtes maintenant Niveau Apprenti !"],
+            20 => ["👨‍🍳 Niveau Cuisinier", "Excellent ! 20 recettes créées. Niveau Cuisinier atteint !"],
+            30 => ["🧑‍🍳 Niveau Chef", "Magnifique ! 30 recettes créées. Vous êtes devenu Chef !"],
+            50 => ["🏆 Niveau Master Chef", "Exceptionnel ! 50 recettes créées. Master Chef légendaire !"]
+        ];
+        
+        foreach ($milestones as $seuil => $milestone) {
+            if ($totalRecipes >= $seuil) {
+                $key = "milestone_$seuil";
+                if (!isset($_SESSION['milestones_notified'][$key])) {
+                    $_SESSION['milestones_notified'][$key] = true;
+                    $this->addNotification(
+                        $milestone[0],
+                        $milestone[1],
+                        "success",
+                        "fas fa-medal"
+                    );
+                }
+            }
+        }
+    }
+
+    // ==================== BACKOFFICE - CRUD ====================
+    
+    public function backCreate() {
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $errors = $this->validateRecipeData($_POST);
+            
+            if(empty($errors)) {
+                try {
+                    $image_url = null;
+                    if(isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                        $uploadDir = dirname(__DIR__) . '/uploads/recipes/';
+                        if(!file_exists($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+                        $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                        $fileName = uniqid() . '.' . $fileExtension;
+                        $uploadPath = $uploadDir . $fileName;
+                        
+                        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                        if(!in_array($_FILES['image']['type'], $allowedTypes)) {
+                            $_SESSION['error'] = "Format d'image non autorisé.";
+                        } else if($_FILES['image']['size'] > 2 * 1024 * 1024) {
+                            $_SESSION['error'] = "L'image ne doit pas dépasser 2MB.";
+                        } else {
+                            if(move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
+                                $image_url = '/uploads/recipes/' . $fileName;
+                            }
+                        }
+                    }
+                    
+                    $data = [
+                        'title' => $this->sanitizeInput($_POST['title']),
+                        'description' => $this->sanitizeInput($_POST['description']),
+                        'ingredients' => $this->sanitizeInput($_POST['ingredients']),
+                        'prep_time' => (int)$_POST['prep_time'],
+                        'cook_time' => (int)$_POST['cook_time'],
+                        'difficulty' => $_POST['difficulty'],
+                        'calories' => !empty($_POST['calories']) ? (int)$_POST['calories'] : null,
+                        'protein' => !empty($_POST['protein']) ? (float)$_POST['protein'] : null,
+                        'carbs' => !empty($_POST['carbs']) ? (float)$_POST['carbs'] : null,
+                        'fats' => !empty($_POST['fats']) ? (float)$_POST['fats'] : null,
+                        'image_url' => $image_url,
+                        'is_vegan' => isset($_POST['is_vegan']) ? 1 : 0,
+                        'is_vegetarian' => isset($_POST['is_vegetarian']) ? 1 : 0,
+                        'is_gluten_free' => isset($_POST['is_gluten_free']) ? 1 : 0,
+                        'idCategorie' => !empty($_POST['idCategorie']) ? (int)$_POST['idCategorie'] : null
+                    ];
+                    
+                    $recipeId = $this->createRecipe($data);
+                    
+                    if($recipeId) {
+                        $this->addNotification(
+                            "📝 Nouvelle recette",
+                            "La recette \"" . htmlspecialchars($data['title']) . "\" a été ajoutée",
+                            "success",
+                            "fas fa-plus-circle"
+                        );
+                        
+                        if(!empty($data['idCategorie'])) {
+                            $this->checkCategoryGoals($data['idCategorie']);
+                        }
+                        
+                        $this->checkRecipeMilestones();
+                        
+                        if(isset($_POST['instructions']) && is_array($_POST['instructions'])) {
+                            foreach($_POST['instructions'] as $step => $instruction) {
+                                if(!empty($instruction['description'])) {
+                                    $instrData = [
+                                        'recipe_id' => $recipeId,
+                                        'step_number' => $step + 1,
+                                        'description' => $this->sanitizeInput($instruction['description']),
+                                        'tip' => !empty($instruction['tip']) ? $this->sanitizeInput($instruction['tip']) : null
+                                    ];
+                                    
+                                    $query = "INSERT INTO instructions (recipe_id, step_number, description, tip)
+                                              VALUES (:recipe_id, :step_number, :description, :tip)";
+                                    $stmt = $this->db->prepare($query);
+                                    $stmt->bindParam(":recipe_id", $instrData['recipe_id']);
+                                    $stmt->bindParam(":step_number", $instrData['step_number']);
+                                    $stmt->bindParam(":description", $instrData['description']);
+                                    $stmt->bindParam(":tip", $instrData['tip']);
+                                    $stmt->execute();
+                                }
+                            }
+                        }
+                        
+                        $_SESSION['success'] = "Recette créée avec succès !";
+                        header("Location: index.php?action=backRecipes");
+                        exit();
+                    } else {
+                        $_SESSION['error'] = "Erreur lors de la création";
+                    }
+                } catch(Exception $e) {
+                    $_SESSION['error'] = "Erreur: " . $e->getMessage();
+                }
+            } else {
+                $_SESSION['errors'] = $errors;
+            }
+        }
+        
+        $stmtCategories = $this->getAllCategories();
+        $categories = [];
+        while($cat = $stmtCategories->fetch(PDO::FETCH_ASSOC)) {
+            $categories[] = $cat;
+        }
+        
+        require_once dirname(__DIR__) . '/views/backoffice/recipes/create.php';
+    }
 
     public function backEdit($id) {
         try {
@@ -522,49 +713,41 @@ class RecipeController {
                 $errors = $this->validateRecipeData($_POST);
                 
                 if(empty($errors)) {
-                    // GESTION DE L'UPLOAD D'IMAGE
-                    $image_url = $recipe['image_url']; // Garder l'image actuelle par défaut
+                    // Sauvegarde automatique de l'ancienne version
+                    $oldRecipe = $this->getRecipeById($id);
+                    if($oldRecipe) {
+                        $this->saveRecipeVersion($id, $oldRecipe, "Version avant modification - " . date('d/m/Y H:i'));
+                    }
                     
-                    // Vérifier si l'utilisateur veut supprimer l'image
+                    $image_url = $recipe['image_url'];
+                    
                     if(isset($_POST['delete_image']) && $_POST['delete_image'] == 1) {
                         $image_url = null;
-                        // Supprimer le fichier physique si existant
                         if(!empty($recipe['image_url']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url'])) {
                             unlink($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url']);
                         }
                     }
                     
-                    // Vérifier si un nouveau fichier a été uploadé
                     if(isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                         $uploadDir = dirname(__DIR__) . '/uploads/recipes/';
-                        
-                        // Créer le dossier s'il n'existe pas
                         if(!file_exists($uploadDir)) {
                             mkdir($uploadDir, 0777, true);
                         }
-                        
                         $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
                         $fileName = uniqid() . '.' . $fileExtension;
                         $uploadPath = $uploadDir . $fileName;
                         
-                        // Vérifier le type de fichier
                         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
                         if(!in_array($_FILES['image']['type'], $allowedTypes)) {
-                            $_SESSION['error'] = "Format d'image non autorisé. Utilisez JPG, PNG, GIF ou WEBP.";
-                        } 
-                        // Vérifier la taille (max 2MB)
-                        else if($_FILES['image']['size'] > 2 * 1024 * 1024) {
+                            $_SESSION['error'] = "Format d'image non autorisé.";
+                        } else if($_FILES['image']['size'] > 2 * 1024 * 1024) {
                             $_SESSION['error'] = "L'image ne doit pas dépasser 2MB.";
-                        }
-                        else {
+                        } else {
                             if(move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
-                                // Supprimer l'ancienne image si elle existe
                                 if(!empty($recipe['image_url']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url'])) {
                                     unlink($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url']);
                                 }
                                 $image_url = '/uploads/recipes/' . $fileName;
-                            } else {
-                                $_SESSION['error'] = "Erreur lors de l'upload de l'image.";
                             }
                         }
                     }
@@ -623,7 +806,6 @@ class RecipeController {
                 }
             }
             
-            // Récupérer les catégories pour le formulaire
             $stmtCategories = $this->getAllCategories();
             $categories = [];
             while($cat = $stmtCategories->fetch(PDO::FETCH_ASSOC)) {
@@ -631,126 +813,13 @@ class RecipeController {
             }
             
             require_once dirname(__DIR__) . '/views/backoffice/recipes/edit.php';
+            
         } catch(Exception $e) {
             $_SESSION['error'] = "Erreur: " . $e->getMessage();
             header("Location: index.php?action=backRecipes");
             exit();
         }
     }
-    public function backCreate() {
-    if($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $errors = $this->validateRecipeData($_POST);
-        
-        if(empty($errors)) {
-            try {
-                // Gestion de l'upload d'image
-                $image_url = null;
-                if(isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                    $uploadDir = dirname(__DIR__) . '/uploads/recipes/';
-                    if(!file_exists($uploadDir)) {
-                        mkdir($uploadDir, 0777, true);
-                    }
-                    $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-                    $fileName = uniqid() . '.' . $fileExtension;
-                    $uploadPath = $uploadDir . $fileName;
-                    
-                    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                    if(!in_array($_FILES['image']['type'], $allowedTypes)) {
-                        $_SESSION['error'] = "Format d'image non autorisé. Utilisez JPG, PNG, GIF ou WEBP.";
-                    } else if($_FILES['image']['size'] > 2 * 1024 * 1024) {
-                        $_SESSION['error'] = "L'image ne doit pas dépasser 2MB.";
-                    } else {
-                        if(move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
-                            $image_url = '/uploads/recipes/' . $fileName;
-                        } else {
-                            $_SESSION['error'] = "Erreur lors de l'upload de l'image.";
-                        }
-                    }
-                }
-                
-                $data = [
-                    'title' => $this->sanitizeInput($_POST['title']),
-                    'description' => $this->sanitizeInput($_POST['description']),
-                    'ingredients' => $this->sanitizeInput($_POST['ingredients']),
-                    'prep_time' => (int)$_POST['prep_time'],
-                    'cook_time' => (int)$_POST['cook_time'],
-                    'difficulty' => $_POST['difficulty'],
-                    'calories' => !empty($_POST['calories']) ? (int)$_POST['calories'] : null,
-                    'protein' => !empty($_POST['protein']) ? (float)$_POST['protein'] : null,
-                    'carbs' => !empty($_POST['carbs']) ? (float)$_POST['carbs'] : null,
-                    'fats' => !empty($_POST['fats']) ? (float)$_POST['fats'] : null,
-                    'image_url' => $image_url,
-                    'is_vegan' => isset($_POST['is_vegan']) ? 1 : 0,
-                    'is_vegetarian' => isset($_POST['is_vegetarian']) ? 1 : 0,
-                    'is_gluten_free' => isset($_POST['is_gluten_free']) ? 1 : 0,
-                    'idCategorie' => !empty($_POST['idCategorie']) ? (int)$_POST['idCategorie'] : null
-                ];
-                
-                $recipeId = $this->createRecipe($data);
-                
-                if($recipeId) {
-                    // Notification : Nouvelle recette
-                    $this->addNotification(
-                        "📝 Nouvelle recette",
-                        "La recette \"" . htmlspecialchars($data['title']) . "\" a été ajoutée",
-                        "success",
-                        "fas fa-plus-circle"
-                    );
-                    
-                    // Vérifier les objectifs de la catégorie concernée
-                    if(!empty($data['idCategorie'])) {
-                        $this->checkCategoryGoals($data['idCategorie']);
-                    }
-                    
-                    // Vérifier les niveaux (Chef)
-                    $this->checkRecipeMilestones();
-                    
-                    // Ajout des instructions
-                    if(isset($_POST['instructions']) && is_array($_POST['instructions'])) {
-                        foreach($_POST['instructions'] as $step => $instruction) {
-                            if(!empty($instruction['description'])) {
-                                $instrData = [
-                                    'recipe_id' => $recipeId,
-                                    'step_number' => $step + 1,
-                                    'description' => $this->sanitizeInput($instruction['description']),
-                                    'tip' => !empty($instruction['tip']) ? $this->sanitizeInput($instruction['tip']) : null
-                                ];
-                                
-                                $query = "INSERT INTO instructions (recipe_id, step_number, description, tip)
-                                          VALUES (:recipe_id, :step_number, :description, :tip)";
-                                $stmt = $this->db->prepare($query);
-                                $stmt->bindParam(":recipe_id", $instrData['recipe_id']);
-                                $stmt->bindParam(":step_number", $instrData['step_number']);
-                                $stmt->bindParam(":description", $instrData['description']);
-                                $stmt->bindParam(":tip", $instrData['tip']);
-                                $stmt->execute();
-                            }
-                        }
-                    }
-                    
-                    $_SESSION['success'] = "Recette créée avec succès !";
-                    header("Location: index.php?action=backRecipes");
-                    exit();
-                } else {
-                    $_SESSION['error'] = "Erreur lors de la création";
-                }
-            } catch(Exception $e) {
-                $_SESSION['error'] = "Erreur: " . $e->getMessage();
-            }
-        } else {
-            $_SESSION['errors'] = $errors;
-        }
-    }
-    
-    // Récupérer les catégories pour le formulaire
-    $stmtCategories = $this->getAllCategories();
-    $categories = [];
-    while($cat = $stmtCategories->fetch(PDO::FETCH_ASSOC)) {
-        $categories[] = $cat;
-    }
-    
-    require_once dirname(__DIR__) . '/views/backoffice/recipes/create.php';
-}
 
     private function getInstructionsByRecipe($recipe_id) {
         try {
@@ -765,6 +834,12 @@ class RecipeController {
         }
     }
 
+    private function saveRecipeVersion($recipe_id, $recipeData, $comment = '') {
+        require_once dirname(__DIR__) . '/models/RecipeVersion.php';
+        $versionModel = new RecipeVersion($this->db);
+        return $versionModel->saveVersion($recipe_id, $recipeData, $comment);
+    }
+
     public function backDelete($id) {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
@@ -776,22 +851,19 @@ class RecipeController {
                     exit();
                 }
                 
-                // Supprimer l'image associée si elle existe
                 if(!empty($recipe['image_url']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url'])) {
                     unlink($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url']);
                 }
                 
                 $this->deleteInstructionsByRecipe($id);
-                if($this->deleteRecipe($id)) {
-    $this->addNotification(
-        "🗑️ Recette supprimée",
-        "La recette \"" . htmlspecialchars($recipe['title']) . "\" a été supprimée",
-        "danger",
-        "fas fa-trash-alt"
-    );
-}
                 
                 if($this->deleteRecipe($id)) {
+                    $this->addNotification(
+                        "🗑️ Recette supprimée",
+                        "La recette \"" . htmlspecialchars($recipe['title']) . "\" a été supprimée",
+                        "danger",
+                        "fas fa-trash-alt"
+                    );
                     $_SESSION['success'] = "Recette supprimée avec succès !";
                 } else {
                     $_SESSION['error'] = "Erreur lors de la suppression";
@@ -839,7 +911,6 @@ class RecipeController {
                     $recipe = $this->getRecipeById($id);
                     
                     if($recipe) {
-                        // Supprimer l'image associée
                         if(!empty($recipe['image_url']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url'])) {
                             unlink($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url']);
                         }

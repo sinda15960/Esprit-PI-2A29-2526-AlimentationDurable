@@ -199,6 +199,6 @@
         </main>
     </div>
 
-    <script src="js/backoffice.js"></script>
+    
 </body>
 </html>

@@ -18,7 +18,9 @@ if(file_exists($headerPath)) {
     include $headerPath;
 }
 ?>
-
+<a href="index.php?action=recipeHistory&id=<?php echo $recipe['id']; ?>" class="btn-action history" title="Historique" style="background:#9b59b6; color:white; padding:5px 10px; border-radius:5px;">
+    <i class="fas fa-history"></i>
+</a>
 <!-- Stats Cards -->
 <div class="stats-cards">
     <div class="stat-card" data-aos="fade-up" data-aos-delay="0">
@@ -217,21 +219,24 @@ if(file_exists($headerPath)) {
                             </span>
                         </td>
                         <td class="actions">
-                            <div class="action-buttons">
-                                <a href="index.php?action=backShowRecipe&id=<?php echo $recipe['id']; ?>" class="btn-action view" title="Voir la recette">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="index.php?action=backEditRecipe&id=<?php echo $recipe['id']; ?>" class="btn-action edit" title="Modifier">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="index.php?action=backInstructions&id=<?php echo $recipe['id']; ?>" class="btn-action instructions" title="Gérer les instructions">
-                                    <i class="fas fa-list-ol"></i>
-                                </a>
-                                <button onclick="showDeleteModal(<?php echo $recipe['id']; ?>, '<?php echo htmlspecialchars(addslashes($recipe['title'])); ?>')" class="btn-action delete" title="Supprimer">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        </td>
+    <div class="action-buttons">
+        <a href="index.php?action=backShowRecipe&id=<?php echo $recipe['id']; ?>" class="btn-action view" title="Voir la recette">
+            <i class="fas fa-eye"></i>
+        </a>
+        <a href="index.php?action=backEditRecipe&id=<?php echo $recipe['id']; ?>" class="btn-action edit" title="Modifier">
+            <i class="fas fa-edit"></i>
+        </a>
+        <a href="index.php?action=backInstructions&id=<?php echo $recipe['id']; ?>" class="btn-action instructions" title="Gérer les instructions">
+            <i class="fas fa-list-ol"></i>
+        </a>
+        <a href="index.php?action=recipeHistory&id=<?php echo $recipe['id']; ?>" class="btn-action history" title="Historique" style="background:#9b59b6; color:white;">
+            <i class="fas fa-history"></i>
+        </a>
+        <button onclick="showDeleteModal(<?php echo $recipe['id']; ?>, '<?php echo htmlspecialchars(addslashes($recipe['title'])); ?>')" class="btn-action delete" title="Supprimer">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    </div>
+</td>
                     </tr>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -499,10 +504,21 @@ if(file_exists($headerPath)) {
 </div>
 
 <style>
-    .error-small {
-    font-size: 0.7rem;
-    margin-top: 0.3rem;
+    /* AFFICHAGE FORCÉ */
+.table-container { display: block !important; }
+.data-table { display: table !important; width: 100% !important; }
+.data-table thead { display: table-header-group !important; }
+.data-table tbody { display: table-row-group !important; }
+.data-table tr { display: table-row !important; }
+.data-table th, .data-table td { display: table-cell !important; }
+    .btn-action.history {
+    background: #9b59b6;
+    color: white;
 }
+.btn-action.history:hover {
+    background: #8e44ad;
+}
+    
 /* Style pour la comparaison */
 .compare-selectors {
     display: grid;
@@ -1353,6 +1369,63 @@ if(file_exists($headerPath)) {
     .planner-step {
         min-height: auto !important;
     }
+}
+/* Correction affichage tableau */
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.data-table {
+    width: 100%;
+    min-width: 800px;
+}
+
+.data-table th, .data-table td {
+    white-space: nowrap;
+    padding: 10px;
+}
+
+.recipe-title-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 150px;
+}
+
+.recipe-title-cell span {
+    white-space: normal;
+    word-break: break-word;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+/* Ajustement des cartes stats */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.stat-card {
+    padding: 15px;
+}
+
+/* Ajustement des filtres */
+.search-filter-bar {
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    flex-wrap: wrap;
+}
+
+.extra-buttons {
+    flex-wrap: wrap;
 }
 </style>
 

@@ -287,7 +287,6 @@ public function sendMail($to, $subject, $htmlContent, $altContent = '') {
         
         return $html;
     }
-    
     // Envoyer le rapport hebdomadaire
     public function sendWeeklyReport($recipientEmail = null) {
         $recipient = $recipientEmail ?? MailConfig::$default_recipient;
