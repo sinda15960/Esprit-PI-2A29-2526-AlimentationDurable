@@ -1,9 +1,7 @@
-<?php header('Content-Type: application/javascript'); ?>
 // =============================================
 // FONCTIONS DE VALIDATION SANS HTML5
 // =============================================
 
-// Valide un nom (min 2 caractères, lettres et espaces)
 function validateNom(valeur, idErreur) {
     var err = document.getElementById(idErreur);
     if (!err) return true;
@@ -20,7 +18,6 @@ function validateNom(valeur, idErreur) {
     return true;
 }
 
-// Valide un prix (nombre positif)
 function validatePrix(valeur, idErreur) {
     var err = document.getElementById(idErreur);
     if (!err) return true;
@@ -37,7 +34,6 @@ function validatePrix(valeur, idErreur) {
     return true;
 }
 
-// Valide une quantité (entier positif)
 function validateQuantite(valeur, idErreur) {
     var err = document.getElementById(idErreur);
     if (!err) return true;
@@ -54,7 +50,6 @@ function validateQuantite(valeur, idErreur) {
     return true;
 }
 
-// Valide un numéro de téléphone (exactement 8 chiffres)
 function validateTelephone(valeur, idErreur) {
     var err = document.getElementById(idErreur);
     if (!err) return true;
@@ -71,7 +66,6 @@ function validateTelephone(valeur, idErreur) {
     return true;
 }
 
-// Valide une adresse (min 5 caractères)
 function validateAdresse(valeur, idErreur) {
     var err = document.getElementById(idErreur);
     if (!err) return true;
@@ -88,7 +82,6 @@ function validateAdresse(valeur, idErreur) {
     return true;
 }
 
-// Valide une date au format YYYY-MM-DD
 function validateDate(valeur, idErreur) {
     var err = document.getElementById(idErreur);
     if (!err) return true;
@@ -102,7 +95,6 @@ function validateDate(valeur, idErreur) {
     return true;
 }
 
-// Valide un select (valeur non vide)
 function validateSelect(valeur, idErreur, message) {
     var err = document.getElementById(idErreur);
     if (!err) return true;
@@ -114,9 +106,8 @@ function validateSelect(valeur, idErreur, message) {
     return true;
 }
 
-// ========== NOUVELLES FONCTIONS POUR CARTE BANCAIRE ==========
+// ========== FONCTIONS POUR CARTE BANCAIRE ==========
 
-// Algorithme de Luhn (validation numéro de carte)
 function validateLuhn(numero) {
     var sum = 0;
     var alternate = false;
@@ -132,7 +123,6 @@ function validateLuhn(numero) {
     return (sum % 10 === 0);
 }
 
-// Valide un numéro de carte bancaire (16 chiffres + Luhn)
 function validateCarteNumero(valeur, idErreur) {
     var err = document.getElementById(idErreur);
     if (!err) return true;
@@ -148,13 +138,12 @@ function validateCarteNumero(valeur, idErreur) {
         return false;
     }
     if (!validateLuhn(valeur)) {
-        err.textContent = 'Numéro de carte invalide.';
+        err.textContent = 'Numéro de carte invalide (vérification Luhn).';
         return false;
     }
     return true;
 }
 
-// Valide la date d'expiration (MM/AA)
 function validateCarteExpiration(valeur, idErreur) {
     var err = document.getElementById(idErreur);
     if (!err) return true;
@@ -183,7 +172,6 @@ function validateCarteExpiration(valeur, idErreur) {
     return true;
 }
 
-// Valide le CVV (3 chiffres)
 function validateCarteCVV(valeur, idErreur) {
     var err = document.getElementById(idErreur);
     if (!err) return true;
@@ -201,7 +189,6 @@ function validateCarteCVV(valeur, idErreur) {
     return true;
 }
 
-// Valide le nom du titulaire
 function validateCarteTitulaire(valeur, idErreur) {
     var err = document.getElementById(idErreur);
     if (!err) return true;
@@ -219,7 +206,6 @@ function validateCarteTitulaire(valeur, idErreur) {
     return true;
 }
 
-// Détection automatique du type de carte (visa, mastercard, amex)
 function detectCarteType(numero) {
     var clean = numero.replace(/\s/g, '');
     if (/^4/.test(clean)) return 'Visa';
