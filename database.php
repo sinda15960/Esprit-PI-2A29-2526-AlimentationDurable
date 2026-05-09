@@ -1,35 +1,38 @@
 <?php
 class Database {
-    private static $instance = null;
-    private $conn;
+    private static $instance_front = null;
+    private static $instance_back = null;
     
-    private $host = 'localhost';
-    private $dbname = 'nutriflow_db';   // Vérifiez que c'est le bon nom
-    private $username = 'root';          // XAMPP: root par défaut
-    private $password = '';              // XAMPP: vide par défaut
-    
-    private function __construct() {
-        try {
-            $this->conn = new PDO(
-                "mysql:host={$this->host};dbname={$this->dbname};charset=utf8",
-                $this->username,
-                $this->password
-            );
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch(PDOException $e) {
-            die("Erreur DB: " . $e->getMessage());
+    public static function getFrontConnection() {
+        if (self::$instance_front === null) {
+            try {
+                self::$instance_front = new PDO(
+                    "mysql:host=localhost;dbname=nutriflow_front;charset=utf8mb4",
+                    "root",      // ← Changé de 'front_user' à 'root'
+                    "",          // ← Mot de passe vide par défaut sur XAMPP
+                    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+                );
+            } catch(PDOException $e) {
+                die("Erreur BD Front: " . $e->getMessage());
+            }
         }
+        return self::$instance_front;
     }
     
-    public static function getInstance() {
-        if (self::$instance === null) {
-            self::$instance = new Database();
+    public static function getBackConnection() {
+        if (self::$instance_back === null) {
+            try {
+                self::$instance_back = new PDO(
+                    "mysql:host=localhost;dbname=nutriflow_back;charset=utf8mb4",
+                    "root",      // ← Changé de 'back_user' à 'root'
+                    "",          // ← Mot de passe vide par défaut sur XAMPP
+                    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+                );
+            } catch(PDOException $e) {
+                die("Erreur BD Back: " . $e->getMessage());
+            }
         }
-        return self::$instance;
-    }
-    
-    public function getConnection() {
-        return $this->conn;
+        return self::$instance_back;
     }
 }
 ?>
