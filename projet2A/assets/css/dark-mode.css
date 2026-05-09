@@ -1,0 +1,151 @@
+/* Variables pour le mode clair (défaut) */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.3s;
+}
+
+/* Variables pour le mode sombre */
+body.dark-mode {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+/* Transition globale */
+* {
+    transition: background-color var(--transition-speed) ease,
+                color var(--transition-speed) ease,
+                border-color var(--transition-speed) ease,
+                box-shadow var(--transition-speed) ease;
+}
+
+/* Application des variables */
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.navbar, .footer, .feature-card, .stat-card, .auth-card, .profile-card {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    box-shadow: var(--card-shadow);
+}
+
+.nav-menu a {
+    color: var(--text-secondary);
+}
+
+.nav-menu a:hover {
+    color: #16a34a;
+}
+
+.feature-card:hover, .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    margin-left: 1rem;
+}
+
+.toggle-track {
+    width: 60px;
+    height: 30px;
+    background: linear-gradient(135deg, #64748b, #475569);
+    border-radius: 30px;
+    position: relative;
+    transition: all 0.3s;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+
+body.dark-mode .toggle-track {
+    background: linear-gradient(135deg, #16a34a, #14532d);
+}
+
+.toggle-thumb {
+    width: 26px;
+    height: 26px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+body.dark-mode .toggle-thumb {
+    transform: translateX(30px);
+}
+
+.toggle-icon {
+    position: absolute;
+    font-size: 14px;
+    transition: opacity 0.3s;
+}
+
+.sun {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+.moon {
+    opacity: 0;
+    transform: rotate(-90deg);
+}
+
+body.dark-mode .sun {
+    opacity: 0;
+    transform: rotate(90deg);
+}
+
+body.dark-mode .moon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+.toggle-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: color 0.3s;
+}
+
+/* Animation de ripple au changement */
+@keyframes ripple-effect {
+    0% { transform: scale(0); opacity: 0.5; }
+    100% { transform: scale(4); opacity: 0; }
+}
+
+.dark-mode-ripple {
+    position: fixed;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0) 70%);
+    pointer-events: none;
+    z-index: 9999;
+    animation: ripple-effect 0.6s ease-out forwards;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dark-mode-toggle {
+        margin: 0.5rem 0;
+    }
+}

@@ -40,6 +40,7 @@ INSERT INTO recipes (title, description, ingredients, prep_time, cook_time, diff
 ('Curry de Lentilles Corail', 'Un curry crémeux et réconfortant, riche en fer et protéines', 'Lentilles corail, Lait de coco, Tomates, Oignons, Ail, Gingembre, Épices, Coriandre', 10, 30, 'facile', 380, 18.2, 52.4, 8.5, 1, 1, 1),
 ('Salade de Pâtes Complètes au Pesto', 'Une salade fraîche et nourrissante, parfaite pour l''été', 'Pâtes complètes, Pesto maison, Tomates cerises, Roquette, Pignons de pin, Parmesan végétal', 15, 10, 'facile', 520, 14.8, 68.5, 18.2, 0, 1, 0);
 
+<<<<<<< HEAD
 INSERT INTO instructions (recipe_id, step_number, description, tip) VALUES
 (1, 1, 'Rincez le quinoa et faites-le cuire dans 2 volumes d''eau pendant 15 minutes', 'Ajoutez un bouillon cube pour plus de saveur'),
 (1, 2, 'Coupez les légumes en dés et enfournez à 200°C pendant 20 minutes', 'Mélangez-les à mi-cuisson'),
@@ -53,3 +54,8 @@ INSERT INTO instructions (recipe_id, step_number, description, tip) VALUES
 (3, 2, 'Préparez le pesto : basilic, pignons, ail, huile d''olive et parmesan végétal', ''),
 (3, 3, 'Mélangez les pâtes refroidies avec le pesto et les tomates cerises', ''),
 (3, 4, 'Ajoutez la roquette et les pignons juste avant de servir', '');
+=======
+-- Insertion d'un autre utilisateur normal pour test
+INSERT INTO users (username, email, password, full_name, role) 
+VALUES ('jane_smith', 'jane@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Jane Smith', 'user');
+>>>>>>> origin/sinda
