@@ -11,12 +11,27 @@ require_once 'C:/xampp/htdocs/gestion_plan/header.php';
         <?php
             $programme_nom = $exercices[0]['programme_nom'] ?? 'Programme';
             $programme_id  = $exercices[0]['programme_id'] ?? 0;
+
+            $tousTermines = count($exercices) > 0 && !in_array(false, array_map(
+                fn($ex) => $ex['statut'] === 'termine', $exercices
+            ));
         ?>
         <h4 class="mt-4 mb-3 text-success">📋 Programme : <?= htmlspecialchars($programme_nom) ?></h4>
 
-        <?php foreach ($exercices as $index => $e): ?>
+        <?php if ($tousTermines): ?>
+            <div class="alert alert-success mt-3">
+                🎉 Félicitations ! Vous avez terminé tous les exercices de ce programme !
+            </div>
+            <a href="index.php?module=exercice&action=resetProgramme&programme_id=<?= $programme_id ?>&office=front"
+               class="btn btn-warning mt-2 mb-4"
+               onclick="return confirm('Recommencer ce programme depuis le début ?')">
+                🔄 Recommencer le programme
+            </a>
+        <?php endif; ?>
+
+        <?php foreach ($exercices as $e): ?>
             <?php
-                $statut     = $e['statut'] ?? 'en_attente';
+                $statut    = $e['statut'] ?? 'en_attente';
                 $estTermine = ($statut === 'termine');
                 $estActif   = ($statut === 'en_cours');
                 $estBloque  = ($statut === 'en_attente');
@@ -37,27 +52,44 @@ require_once 'C:/xampp/htdocs/gestion_plan/header.php';
                             <p class="text-muted small mb-1"><?= htmlspecialchars($e['description'] ?? '') ?></p>
 
                             <?php if (!empty($e['duree_minutes'])): ?>
-                                <span class="badge bg-light text-dark">⏱ <?= $e['duree_minutes'] ?> min</span>
+                                <span class="badge bg-light text-dark border">⏱ <?= $e['duree_minutes'] ?> min</span>
                             <?php endif; ?>
 
                             <?php if ($estBloque): ?>
                                 <span class="badge bg-secondary ms-2">🔒 Terminez l'étape précédente</span>
                             <?php endif; ?>
+
+                            <!-- Aperçu note personnelle -->
+                            <?php if (!empty($e['note_user'])): ?>
+                                <div class="mt-2">
+                                    <span class="badge bg-info text-dark">
+                                        📝 <?= htmlspecialchars(mb_substr($e['note_user'], 0, 60)) ?><?= mb_strlen($e['note_user']) > 60 ? '…' : '' ?>
+                                    </span>
+                                </div>
+                            <?php endif; ?>
                         </div>
 
-                        <div class="ms-3">
+                        <div class="ms-3 d-flex flex-column gap-2 align-items-end">
                             <?php if ($estTermine): ?>
                                 <span class="badge bg-success fs-6">✅ Terminé</span>
 
                             <?php elseif ($estActif): ?>
                                 <a href="index.php?module=exercice&action=validerEtape&id=<?= $e['id'] ?>&programme_id=<?= $programme_id ?>&office=front"
-                                   class="btn btn-success"
+                                   class="btn btn-success btn-sm"
                                    onclick="return confirm('Marquer cet exercice comme terminé ?')">
                                     ✔ Valider
                                 </a>
 
                             <?php else: ?>
                                 <span class="badge bg-secondary fs-6">🔒 Verrouillé</span>
+                            <?php endif; ?>
+
+                            <!-- Lien vers la page détail (note) — visible si non bloqué -->
+                            <?php if (!$estBloque): ?>
+                                <a href="index.php?module=exercice&action=showExercice&id=<?= $e['id'] ?>&office=front"
+                                   class="btn btn-outline-primary btn-sm">
+                                    📝 <?= !empty($e['note_user']) ? 'Voir / Modifier note' : 'Ajouter une note' ?>
+                                </a>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -77,23 +109,6 @@ require_once 'C:/xampp/htdocs/gestion_plan/header.php';
             </div>
 
         <?php endforeach; ?>
-
-        <?php
-            $tousTermines = !in_array(false, array_map(
-                fn($ex) => $ex['statut'] === 'termine', $exercices
-            ));
-        ?>
-
-        <?php if ($tousTermines): ?>
-            <div class="alert alert-success mt-3">
-                🎉 Félicitations ! Vous avez terminé tous les exercices de ce programme !
-            </div>
-            <a href="index.php?module=exercice&action=resetProgramme&programme_id=<?= $programme_id ?>&office=front"
-               class="btn btn-warning mt-2"
-               onclick="return confirm('Recommencer ce programme depuis le début ?')">
-                🔄 Recommencer le programme
-            </a>
-        <?php endif; ?>
 
     <?php endif; ?>
 

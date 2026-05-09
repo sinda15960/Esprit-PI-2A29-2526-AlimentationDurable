@@ -1,13 +1,19 @@
-<?php 
-require_once 'C:/xampp/htdocs/gestion_plan/header.php'; 
+<?php
+require_once 'C:/xampp/htdocs/gestion_plan/header.php';
+require_once __DIR__ . '/../../../config.php';
+
+$pdo = getConnection();
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="section-title">🎯 Détail de l'Objectif</h2>
     <div class="d-flex gap-2">
-        <a href="index.php?module=objectif&action=edit&office=back&id=<?= $objectif['id'] ?>" 
+        <!-- ✅ URL corrigée : module=pdf&action=exportObjectif -->
+        <a href="index.php?module=pdf&action=exportObjectif&id=<?= $objectif['id'] ?>&office=back"
+           target="_blank" class="btn btn-danger">📄 Exporter PDF</a>
+        <a href="index.php?module=objectif&action=edit&office=back&id=<?= $objectif['id'] ?>"
            class="btn btn-warning">✏️ Modifier</a>
-        <a href="index.php?module=objectif&action=index&office=back" 
+        <a href="index.php?module=objectif&action=index&office=back"
            class="btn btn-secondary">← Retour</a>
     </div>
 </div>
@@ -54,9 +60,10 @@ require_once 'C:/xampp/htdocs/gestion_plan/header.php';
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="fw-bold mb-0">📋 Programmes liés</h6>
-                    <a href="index.php?module=programme&action=create&office=back" 
+                    <a href="index.php?module=programme&action=create&objectif_id=<?= $objectif['id'] ?>&office=back"
                        class="btn btn-sm btn-green">+ Ajouter</a>
                 </div>
+
                 <?php if (empty($programmes)): ?>
                     <div class="alert alert-info small">Aucun programme lié à cet objectif.</div>
                 <?php else: ?>
@@ -73,11 +80,18 @@ require_once 'C:/xampp/htdocs/gestion_plan/header.php';
                         <?php foreach ($programmes as $p): ?>
                             <tr>
                                 <td><?= htmlspecialchars($p['nom']) ?></td>
-                                <td><span class="badge bg-info text-dark"><?= $p['niveau'] ?></span></td>
+                                <td><span class="badge bg-info text-dark"><?= htmlspecialchars($p['niveau']) ?></span></td>
                                 <td><?= $p['duree_semaines'] ?> sem.</td>
-                                <td>
-                                    <a href="index.php?module=programme&action=edit&id=<?= $p['id'] ?>&office=back" 
-                                       class="btn btn-sm btn-warning">✏️</a>
+                                <td class="d-flex gap-1">
+                                    <a href="index.php?module=pdf&action=exportProgramme&id=<?= $p['id'] ?>&office=back"
+                                       target="_blank" class="btn btn-sm btn-danger" title="PDF">📄</a>
+                                    <a href="index.php?module=programme&action=show&id=<?= $p['id'] ?>&office=back"
+                                       class="btn btn-sm btn-green" title="Voir exercices">👁️</a>
+                                    <a href="index.php?module=programme&action=edit&id=<?= $p['id'] ?>&office=back"
+                                       class="btn btn-sm btn-warning" title="Modifier">✏️</a>
+                                    <a href="index.php?module=programme&action=delete&id=<?= $p['id'] ?>&objectif_id=<?= $objectif['id'] ?>&office=back"
+                                       class="btn btn-sm btn-danger" title="Supprimer"
+                                       onclick="return confirm('Supprimer ce programme ?')">🗑️</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -89,6 +103,4 @@ require_once 'C:/xampp/htdocs/gestion_plan/header.php';
     </div>
 </div>
 
-<?php 
-require_once 'C:/xampp/htdocs/gestion_plan/footer.php'; 
-?>
+<?php require_once 'C:/xampp/htdocs/gestion_plan/footer.php'; ?>

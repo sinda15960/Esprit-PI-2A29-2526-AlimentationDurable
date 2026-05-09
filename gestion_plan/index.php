@@ -23,16 +23,21 @@ if ($action === 'logout') {
 }
 
 $controllers = [
-    'objectif'   => 'controllers/ObjectifController.php',
-    'programme'  => 'controllers/ProgrammeController.php',
-    'exercice'   => 'controllers/ExerciceController.php',
+    'objectif'    => __DIR__ . '/controllers/ObjectifController.php',
+    'programme'   => __DIR__ . '/controllers/ProgrammeController.php',
+    'exercice'    => __DIR__ . '/controllers/ExerciceController.php',
+    'categorie'   => __DIR__ . '/controllers/CategorieController.php',
+    'statistique' => __DIR__ . '/controllers/StatistiqueController.php',
+    'favori'      => __DIR__ . '/controllers/FavoriController.php',
+    'pdf'         => __DIR__ . '/controllers/PdfController.php',
+    'coach'       => __DIR__ . '/controllers/CoachController.php',
 ];
 
 if (isset($controllers[$module])) {
     require_once $controllers[$module];
     $class = ucfirst($module) . 'Controller';
     $ctrl = new $class();
-    
+
     if (method_exists($ctrl, $action)) {
         $ctrl->$action($office);
     } else {
