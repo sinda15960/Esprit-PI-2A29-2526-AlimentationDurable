@@ -2,94 +2,73 @@
 require_once __DIR__ . '/Model.php';
 
 class Don extends Model {
-    // Attributs
-    private $id;
-    private $association_id;
-    private $donor_name;
-    private $donor_email;
-    private $donor_phone;
-    private $amount;
-    private $donation_type;
-    private $food_type;
-    private $quantity;
-    private $message;
-    private $status;
-    private $payment_method;
-    private $created_at;
-    
     protected $table = 'dons';
     
-    // Constructeur
-    public function __construct($data = array()) {
-        parent::__construct();
-        if(!empty($data)) {
-            $this->hydrate($data);
-        }
+    public function create($data) {
+        $sql = "INSERT INTO dons (association_id, donor_name, donor_email, donor_phone, amount, 
+                donation_type, food_type, quantity, message, payment_method) 
+                VALUES (:association_id, :donor_name, :donor_email, :donor_phone, :amount, 
+                :donation_type, :food_type, :quantity, :message, :payment_method)";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($data);
     }
     
-    // Destructeur
-    public function __destruct() {
-        parent::__destruct();
+    public function update($id, $data) {
+        $sql = "UPDATE dons SET status = :status WHERE id = :id";
+        $data['id'] = $id;
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($data);
     }
     
-    // Hydratation
-    public function hydrate($data) {
-        foreach($data as $key => $value) {
-            $method = 'set' . str_replace('_', '', ucwords($key, '_'));
-            if(method_exists($this, $method)) {
-                $this->$method($value);
-            }
-        }
-        return $this;
+    public function getDonsWithAssociation() {
+        $sql = "SELECT d.*, a.name as association_name 
+                FROM dons d JOIN associations a ON d.association_id = a.id 
+                ORDER BY d.created_at DESC";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll();
     }
     
-    // ============ GETTERS ============
-    public function getId() { return $this->id; }
-    public function getAssociationId() { return $this->association_id; }
-    public function getDonorName() { return $this->donor_name; }
-    public function getDonorEmail() { return $this->donor_email; }
-    public function getDonorPhone() { return $this->donor_phone; }
-    public function getAmount() { return $this->amount; }
-    public function getDonationType() { return $this->donation_type; }
-    public function getFoodType() { return $this->food_type; }
-    public function getQuantity() { return $this->quantity; }
-    public function getMessage() { return $this->message; }
-    public function getStatus() { return $this->status; }
-    public function getPaymentMethod() { return $this->payment_method; }
-    public function getCreatedAt() { return $this->created_at; }
+    // ============ MÉTHODE MANQUANTE À AJOUTER ============
+    public function findDonationById($id) {
+        $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = :id");
+        $stmt->execute(array('id' => $id));
+        return $stmt->fetch();
+    }
+    // ====================================================
     
-    // ============ SETTERS ============
-    public function setId($id) { $this->id = (int)$id; return $this; }
-    public function setAssociationId($association_id) { $this->association_id = (int)$association_id; return $this; }
-    public function setDonorName($donor_name) { $this->donor_name = htmlspecialchars(trim($donor_name)); return $this; }
-    public function setDonorEmail($donor_email) { $this->donor_email = trim($donor_email); return $this; }
-    public function setDonorPhone($donor_phone) { $this->donor_phone = trim($donor_phone); return $this; }
-    public function setAmount($amount) { $this->amount = (float)$amount; return $this; }
-    public function setDonationType($donation_type) { $this->donation_type = $donation_type; return $this; }
-    public function setFoodType($food_type) { $this->food_type = htmlspecialchars(trim($food_type)); return $this; }
-    public function setQuantity($quantity) { $this->quantity = (int)$quantity; return $this; }
-    public function setMessage($message) { $this->message = htmlspecialchars(trim($message)); return $this; }
-    public function setStatus($status) { $this->status = $status; return $this; }
-    public function setPaymentMethod($payment_method) { $this->payment_method = $payment_method; return $this; }
-    public function setCreatedAt($created_at) { $this->created_at = $created_at; return $this; }
+    // Total des dons VALIDES (exclut les annulés)
+    public function getTotalDonations() {
+        $stmt = $this->pdo->query("SELECT SUM(amount) as total FROM dons WHERE status != 'cancelled'");
+        $result = $stmt->fetch();
+        return isset($result['total']) ? $result['total'] : 0;
+    }
     
-    // Convertir l'objet en tableau
-    public function toArray() {
-        return array(
-            'id' => $this->id,
-            'association_id' => $this->association_id,
-            'donor_name' => $this->donor_name,
-            'donor_email' => $this->donor_email,
-            'donor_phone' => $this->donor_phone,
-            'amount' => $this->amount,
-            'donation_type' => $this->donation_type,
-            'food_type' => $this->food_type,
-            'quantity' => $this->quantity,
-            'message' => $this->message,
-            'status' => $this->status,
-            'payment_method' => $this->payment_method,
-            'created_at' => $this->created_at
-        );
+    // Total des dons CONFIRMÉS uniquement
+    public function getTotalConfirmedDonations() {
+        $stmt = $this->pdo->query("SELECT SUM(amount) as total FROM dons WHERE status = 'confirmed'");
+        $result = $stmt->fetch();
+        return isset($result['total']) ? $result['total'] : 0;
+    }
+    
+    // Total des dons EN ATTENTE
+    public function getTotalPendingDonations() {
+        $stmt = $this->pdo->query("SELECT SUM(amount) as total FROM dons WHERE status = 'pending'");
+        $result = $stmt->fetch();
+        return isset($result['total']) ? $result['total'] : 0;
+    }
+    
+    // Total des dons LIVRÉS
+    public function getTotalDeliveredDonations() {
+        $stmt = $this->pdo->query("SELECT SUM(amount) as total FROM dons WHERE status = 'delivered'");
+        $result = $stmt->fetch();
+        return isset($result['total']) ? $result['total'] : 0;
+    }
+    
+    // Total des dons ANNULÉS
+    public function getTotalCancelledDonations() {
+        $stmt = $this->pdo->query("SELECT SUM(amount) as total FROM dons WHERE status = 'cancelled'");
+        $result = $stmt->fetch();
+        return isset($result['total']) ? $result['total'] : 0;
     }
 }
 ?>
