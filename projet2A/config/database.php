@@ -1,20 +1,14 @@
 <?php
+
 class Database {
 
-    private static $instance = null;
-    private $pdo;
+    private static ?Database $instance = null;
+    private PDO $pdo;
 
-    private $host = "localhost";
-    private $db_name = "nutriflow_ai";
-    private $username = "root";
-    private $password = "";
-    private $conn;
-
-
-    private string $host = 'localhost';
-    private string $dbname = 'frigo_intelligent';
-    private string $user = 'root';
-    private string $password = '';
+    private string $host = "localhost";
+    private string $dbname = "frigo_intelligent";
+    private string $user = "root";
+    private string $password = "";
 
     private function __construct() {
         try {
@@ -24,31 +18,25 @@ class Database {
                 $this->user,
                 $this->password,
                 [
-                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES   => false
+                    PDO::ATTR_EMULATE_PREPARES => false
                 ]
             );
+
         } catch (PDOException $e) {
+
             die("Erreur connexion BDD : " . $e->getMessage());
+
         }
     }
 
+    public static function getInstance(): Database {
 
-    public static function getInstance(): self {
         if (self::$instance === null) {
-            self::$instance = new self();
-
-            $this->conn = new PDO(
-                "mysql:host=" . $this->host . ";dbname=" . $this->db_name,
-                $this->username,
-                $this->password
-            );
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->conn->exec("set names utf8");
-        } catch(PDOException $e) {
-            echo "Erreur de connexion : " . $e->getMessage();
+            self::$instance = new Database();
         }
+
         return self::$instance;
     }
 
@@ -57,6 +45,4 @@ class Database {
     }
 }
 
-
 ?>
-
