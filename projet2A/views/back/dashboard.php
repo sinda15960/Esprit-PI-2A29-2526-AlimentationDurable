@@ -189,7 +189,7 @@
             <!-- Gestion Donation -->
             <div class="management-card">
                 <div class="card-icon">💰</div>
-                <h3>Gestion Donation</h3>
+                <h3>Donation Management</h3>
                 <p>Manage donations, track fundraising campaigns, and view donor history.</p>
                 <div class="card-stats">
                     <div class="stat">
@@ -214,7 +214,7 @@
             <!-- Gestion Recette -->
             <div class="management-card">
                 <div class="card-icon">🍽️</div>
-                <h3>Gestion Recette</h3>
+                <h3>Recipe Management</h3>
                 <p>Create, edit, and manage healthy recipes with nutritional information.</p>
                 <div class="card-stats">
                     <div class="stat">
@@ -239,7 +239,7 @@
             <!-- Gestion Market Place -->
             <div class="management-card">
                 <div class="card-icon">🛒</div>
-                <h3>Gestion Market Place</h3>
+                <h3>Market Place Management</h3>
                 <p>Manage products, orders, vendors, and marketplace transactions.</p>
                 <div class="card-stats">
                     <div class="stat">
@@ -264,7 +264,7 @@
             <!-- Gestion Plan -->
             <div class="management-card">
                 <div class="card-icon">📋</div>
-                <h3>Gestion Plan</h3>
+                <h3>Plan Management</h3>
                 <p>Create and manage meal plans, subscription plans, and pricing.</p>
                 <div class="card-stats">
                     <div class="stat">
@@ -289,7 +289,7 @@
             <!-- Gestion Allergies -->
             <div class="management-card">
                 <div class="card-icon">⚠️</div>
-                <h3>Gestion Allergies</h3>
+                <h3>Allergy Management</h3>
                 <p>Manage allergens, dietary restrictions, and user allergy profiles.</p>
                 <div class="card-stats">
                     <div class="stat">
