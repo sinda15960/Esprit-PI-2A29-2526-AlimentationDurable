@@ -140,16 +140,22 @@ class DonController extends Controller {
         $this->redirect('/nutriflow-ai/public/admin/dons');
     }
     
-    // ============ EXPORT PDF (VERSION HTML = SIMPLE ET FONCTIONNELLE) ============
+    // ============ VIEW DON (AJOUTÉ) ============
+    
+    public function viewDon($id) {
+        $don = $this->findDonationById($id);
+        $associations = $this->getActiveAssociations();
+        $this->render('dons/view', array('don' => $don, 'associations' => $associations), 'back');
+    }
+    
+    // ============ EXPORT PDF ============
     
     public function exportPDF() {
         $dons = $this->getAllDonsWithAssociation();
         
-        // En-têtes pour forcer le téléchargement en HTML
         header('Content-Type: text/html');
         header('Content-Disposition: attachment; filename="dons_' . date('Y-m-d') . '.html"');
         
-        // Créer le contenu HTML
         echo '<!DOCTYPE html>';
         echo '<html>';
         echo '<head><meta charset="UTF-8"><title>Liste des dons - NutriFlow AI</title>';
@@ -168,7 +174,7 @@ class DonController extends Controller {
         echo '<h1>Liste des dons - NutriFlow AI</h1>';
         echo '<p>Date d\'export: ' . date('d/m/Y H:i') . '</p>';
         
-        echo '<table>';
+        echo '<tr>';
         echo '<tr><th>ID</th><th>Donateur</th><th>Email</th><th>Association</th><th>Type</th><th>Montant/Quantite</th><th>Statut</th><th>Date</th></tr>';
         
         $totalMontant = 0;
