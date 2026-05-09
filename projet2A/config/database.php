@@ -12,7 +12,6 @@ class Database {
 
     private function __construct() {
         try {
-
             $this->pdo = new PDO(
                 "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4",
                 $this->user,
@@ -23,27 +22,15 @@ class Database {
                     PDO::ATTR_EMULATE_PREPARES => false
                 ]
             );
-
-
         } catch (PDOException $e) {
-
             die("Erreur connexion BDD : " . $e->getMessage());
-
-
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->conn->exec("set names utf8");
-        } catch(PDOException $e) {
-            error_log("Erreur de connexion : " . $e->getMessage());
-
         }
     }
 
     public static function getInstance(): Database {
-
         if (self::$instance === null) {
             self::$instance = new Database();
         }
-
         return self::$instance;
     }
 
@@ -51,5 +38,3 @@ class Database {
         return $this->pdo;
     }
 }
-
-?>

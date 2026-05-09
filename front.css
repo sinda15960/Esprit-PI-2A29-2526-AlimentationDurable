@@ -80,7 +80,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #84cc16;
+    background: #10b981;
     border-radius: 10px;
     transition: background 0.2s ease;
 }
@@ -92,7 +92,7 @@
 /* Pour Firefox */
 * {
     scrollbar-width: thin;
-    scrollbar-color: #84cc16 #e8e8e0;
+    scrollbar-color: #10b981 #e8e8e0;
 }
 
 /* Transition générale */
@@ -156,147 +156,4 @@
     body {
         background: white !important;
     }
-
-    
-    .hero-container {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-        text-align: center;
-    }
-    
-    .hero-title {
-        font-size: 2.5rem;
-    }
-    
-    .hero-buttons {
-        justify-content: center;
-    }
-    
-    .image-wrapper {
-        height: 280px;
-    }
-    
-    .floating-card {
-        padding: 0.5rem 1rem;
-        font-size: 0.8rem;
-    }
-    
-    .floating-card span {
-        font-size: 1.1rem;
-    }
-    
-    .features {
-        padding: 3rem 1.5rem;
-    }
-    
-    .section-title {
-        font-size: 1.5rem;
-    }
-    
-    .features-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    .nav-menu {
-        position: fixed;
-        top: 70px;
-        left: -100%;
-        width: 80%;
-        height: calc(100vh - 70px);
-        background: white;
-        flex-direction: column;
-        padding: 2rem;
-        transition: left 0.3s ease;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        z-index: 999;
-    }
-    
-    .nav-menu.show {
-        left: 0;
-    }
-    
-    .nav-menu li {
-        width: 100%;
-    }
-    
-    .nav-menu a {
-        display: block;
-        padding: 1rem;
-        width: 100%;
-        text-align: center;
-    }
-    
-    .nav-btn {
-        margin-top: 0.5rem;
-    }
-    
-    /* Login responsive */
-    .login-card-simple {
-        padding: 1.5rem;
-    }
-    
-    .social-login {
-        flex-direction: column;
-    }
-    
-    .modal-content {
-        margin: 30% auto;
-        width: 95%;
-    }
-    
-    .auth-right h3 {
-        font-size: 1.5rem;
-    }
-    
-    .footer-grid {
-        grid-template-columns: 1fr;
-        text-align: center;
-    }
-    
-    .footer-logo {
-        justify-content: center;
-    }
-    
-    .social-links {
-        justify-content: center;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .delete-footer {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-    
-    .btn-cancel,
-    .btn-delete-confirm {
-        width: 100%;
-    }
-    
-    .delete-account-section {
-        text-align: center;
-    }
-    
-    .delete-account-btn {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .account-deleted-message {
-        width: 95%;
-        top: 70px;
-    }
-    
-    .deleted-alert {
-        padding: 0.75rem 1rem;
-    }
-    
-    .deleted-icon {
-        font-size: 1.8rem;
-    }
-    
-
 }
