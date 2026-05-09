@@ -2,7 +2,6 @@
 
 <div align="center">
 
-
 **Esprit School of Engineering — Projet Intégré 2A | 2025–2026**
 
 [🔗 GitHub Repository](https://github.com/sinda15960/Esprit-PI-2A29-2526-AlimentationDurable)
