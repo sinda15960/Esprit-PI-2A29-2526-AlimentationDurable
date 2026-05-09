@@ -106,7 +106,7 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 
 ---
 
-## 🌟 Ma Contribution — Nada Azlouk
+## 🌟 — Nada Azlouk
 
 ### Module : Gestion Allergies & Traitements
 
