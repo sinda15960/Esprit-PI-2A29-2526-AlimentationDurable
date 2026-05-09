@@ -1,84 +1,39 @@
 <?php
-require_once dirname(__DIR__) . '/config/database.php';
-
 class Instruction {
     private $conn;
     private $table = "instructions";
 
-    public $id;
-    public $recipe_id;
-    public $step_number;
-    public $description;
-    public $tip;
+    // Propriétés
+    private $id;
+    private $recipe_id;
+    private $step_number;
+    private $description;
+    private $tip;
 
-    public function __construct() {
-        $database = new Database();
-        $this->conn = $database->getConnection();
+    // Constructeur
+    public function __construct($db) {
+        $this->conn = $db;
     }
 
-    public function create() {
-        $query = "INSERT INTO " . $this->table . "
-                  SET recipe_id=:recipe_id, step_number=:step_number, 
-                      description=:description, tip=:tip";
-        
-        $stmt = $this->conn->prepare($query);
-        
-        $this->description = htmlspecialchars(strip_tags($this->description));
-        $this->tip = htmlspecialchars(strip_tags($this->tip));
-        
-        $stmt->bindParam(":recipe_id", $this->recipe_id);
-        $stmt->bindParam(":step_number", $this->step_number);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":tip", $this->tip);
-        
-        return $stmt->execute();
+    // Destructeur
+    public function __destruct() {
+        $this->conn = null;
     }
 
-    public function readByRecipe($recipe_id) {
-        $query = "SELECT * FROM " . $this->table . " 
-                  WHERE recipe_id = :recipe_id 
-                  ORDER BY step_number ASC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":recipe_id", $recipe_id);
-        $stmt->execute();
-        return $stmt;
-    }
+    // ==================== GETTERS ====================
+    public function getId() { return $this->id; }
+    public function getRecipeId() { return $this->recipe_id; }
+    public function getStepNumber() { return $this->step_number; }
+    public function getDescription() { return $this->description; }
+    public function getTip() { return $this->tip; }
+    public function getTable() { return $this->table; }
+    public function getConnection() { return $this->conn; }
 
-    public function update() {
-        $query = "UPDATE " . $this->table . "
-                  SET step_number=:step_number, description=:description, tip=:tip
-                  WHERE id = :id";
-        
-        $stmt = $this->conn->prepare($query);
-        
-        $stmt->bindParam(":id", $this->id);
-        $stmt->bindParam(":step_number", $this->step_number);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":tip", $this->tip);
-        
-        return $stmt->execute();
-    }
-
-    public function delete() {
-        $query = "DELETE FROM " . $this->table . " WHERE id = :id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":id", $this->id);
-        return $stmt->execute();
-    }
-
-    public function deleteByRecipe($recipe_id) {
-        $query = "DELETE FROM " . $this->table . " WHERE recipe_id = :recipe_id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":recipe_id", $recipe_id);
-        return $stmt->execute();
-    }
-
-    public function getById($id) {
-        $query = "SELECT * FROM " . $this->table . " WHERE id = :id LIMIT 0,1";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":id", $id);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+    // ==================== SETTERS ====================
+    public function setId($id) { $this->id = $id; }
+    public function setRecipeId($recipe_id) { $this->recipe_id = $recipe_id; }
+    public function setStepNumber($step_number) { $this->step_number = $step_number; }
+    public function setDescription($description) { $this->description = $description; }
+    public function setTip($tip) { $this->tip = $tip; }
 }
 ?>

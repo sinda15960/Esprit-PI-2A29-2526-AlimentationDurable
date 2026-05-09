@@ -22,6 +22,178 @@ if (session_status() === PHP_SESSION_NONE) {
     <link rel="stylesheet" href="css/backoffice.css">
     
     <style>
+        /* Notifications */
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 350px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: none;
+    margin-top: 10px;
+}
+
+.notification-dropdown.show {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+}
+
+.clear-all {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 0.7rem;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notification-item:hover {
+    background: #f8f9fa;
+}
+
+.notification-item.unread {
+    background: #e8f5e9;
+}
+
+.notification-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.notification-icon.info { background: #e3f2fd; color: #2196f3; }
+.notification-icon.success { background: #e8f5e9; color: #4caf50; }
+.notification-icon.warning { background: #fff3e0; color: #ff9800; }
+.notification-icon.danger { background: #ffebee; color: #f44336; }
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.notification-message {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.notification-time {
+    font-size: 0.65rem;
+    color: #999;
+    margin-top: 3px;
+}
+
+.notification-delete {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.notification-item:hover .notification-delete {
+    opacity: 1;
+}
+
+.notification-delete button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+}
+
+.notification-empty {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+}
+
+/* Toast notifications */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    min-width: 280px;
+    max-width: 350px;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    z-index: 1100;
+    border-left: 4px solid #2ecc71;
+}
+
+.toast-notification.show {
+    transform: translateX(0);
+}
+
+.toast-icon {
+    font-size: 1.5rem;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 3px;
+}
+
+.toast-message {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #999;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
         * {
             margin: 0;
             padding: 0;
@@ -328,8 +500,293 @@ if (session_status() === PHP_SESSION_NONE) {
             background: #27ae60;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <link rel="stylesheet" href="css/voice-assistant.css">
 </head>
+
 <body>
+        <!-- Bouton microphone flottant -->
+    <button class="voice-mic-btn" onclick="window.voiceAssistant?.startListening()">
+        <i class="fas fa-microphone"></i>
+    </button>
+    
+    <!-- Raccourci clavier hint -->
+    <div class="keyboard-hint">
+        <i class="fas fa-microphone-alt"></i> Appuyez sur <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd>
+    </div>
+    <script>
+// ==================== SYSTÈME DE NOTIFICATIONS ====================
+let notifications = [];
+
+function loadNotifications() {
+    const saved = localStorage.getItem('nutriflow_notifications');
+    if (saved) {
+        try {
+            notifications = JSON.parse(saved);
+        } catch(e) {
+            notifications = [];
+        }
+    } else {
+        notifications = [];
+    }
+    updateNotificationBadge();
+    renderNotifications();
+    console.log("📦 Notifications chargées:", notifications.length);
+}
+
+function saveNotifications() {
+    localStorage.setItem('nutriflow_notifications', JSON.stringify(notifications));
+}
+
+function updateNotificationBadge() {
+    const unreadCount = notifications.filter(n => !n.read).length;
+    const badge = document.getElementById('notificationCount');
+    if (badge) {
+        badge.textContent = unreadCount;
+        badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+    }
+}
+
+function renderNotifications() {
+    const list = document.getElementById('notificationList');
+    if (!list) return;
+    
+    if (notifications.length === 0) {
+        list.innerHTML = '<div class="notification-empty">📭 Aucune notification</div>';
+        return;
+    }
+    
+    list.innerHTML = notifications.map(notif => `
+        <div class="notification-item ${notif.read ? '' : 'unread'}" data-id="${notif.id}" onclick="markAsRead(${notif.id})">
+            <div class="notification-icon ${notif.type}">
+                <i class="${notif.icon}"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">${escapeHtml(notif.title)}</div>
+                <div class="notification-message">${escapeHtml(notif.message)}</div>
+                <div class="notification-time">${notif.time}</div>
+            </div>
+            <div class="notification-delete">
+                <button onclick="event.stopPropagation(); deleteNotification(${notif.id})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Fonction utilitaire pour éviter les injections XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function addNotification(title, message, type = 'info', icon = 'fas fa-info-circle') {
+    console.log("🔔 Nouvelle notification:", title);
+    const newNotif = {
+        id: Date.now(),
+        title: title,
+        message: message,
+        type: type,
+        icon: icon,
+        time: new Date().toLocaleString('fr-FR'),
+        read: false
+    };
+    notifications.unshift(newNotif);
+    if (notifications.length > 50) notifications = notifications.slice(0, 50);
+    saveNotifications();
+    renderNotifications();
+    updateNotificationBadge();
+    showToast(title, message);
+}
+
+function markAsRead(id) {
+    const notif = notifications.find(n => n.id === id);
+    if (notif && !notif.read) {
+        notif.read = true;
+        saveNotifications();
+        renderNotifications();
+        updateNotificationBadge();
+    }
+}
+
+function deleteNotification(id) {
+    notifications = notifications.filter(n => n.id !== id);
+    saveNotifications();
+    renderNotifications();
+    updateNotificationBadge();
+}
+
+function clearAllNotifications() {
+    if (confirm('Supprimer toutes les notifications ?')) {
+        notifications = [];
+        saveNotifications();
+        renderNotifications();
+        updateNotificationBadge();
+    }
+}
+
+function toggleNotificationDropdown() {
+    const dropdown = document.getElementById('notificationDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+
+function showToast(title, message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = `
+        <div class="toast-icon">🔔</div>
+        <div class="toast-content">
+            <div class="toast-title">${escapeHtml(title)}</div>
+            <div class="toast-message">${escapeHtml(message)}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
+// ==================== FONCTION RAPPORT CORRIGÉE ====================
+function sendWeeklyReport() {
+    if (!confirm('📧 Envoyer le rapport hebdomadaire ?')) {
+        return;
+    }
+    
+    // Cherche le bouton automatiquement
+    const btn = document.querySelector('.btn-report');
+    const originalText = btn ? btn.innerHTML : 'Rapport';
+    
+    if (btn) {
+        btn.innerHTML = '⏳ Envoi...';
+        btn.disabled = true;
+    }
+    
+    fetch('index.php?action=sendReport')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('✅ ' + data.message);
+                if (typeof addNotification === 'function') {
+                    addNotification('Rapport envoyé', data.message, 'success', 'fas fa-envelope');
+                }
+            } else {
+                alert('❌ ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('❌ Erreur: ' + error.message);
+        })
+        .finally(() => {
+            if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+}
+
+// ==================== SYNC SESSION PHP ====================
+function syncSessionNotifications() {
+    // Cette fonction sera appelée après le chargement de la page
+    // Pour éviter les conflits, on utilise une approche plus douce
+    const sessionNotifsElement = document.getElementById('session-notifications-data');
+    if (sessionNotifsElement && sessionNotifsElement.value) {
+        try {
+            const sessionNotifications = JSON.parse(sessionNotifsElement.value);
+            if (sessionNotifications && sessionNotifications.length > 0) {
+                let localNotifs = JSON.parse(localStorage.getItem('nutriflow_notifications') || '[]');
+                const newNotifs = sessionNotifications.filter(sn => !localNotifs.some(ln => ln.id === sn.id));
+                if (newNotifs.length > 0) {
+                    localStorage.setItem('nutriflow_notifications', JSON.stringify([...newNotifs, ...localNotifs]));
+                    loadNotifications(); // Recharger sans recharger la page
+                    // Optionnel: recharger la page seulement si nécessaire
+                    // location.reload();
+                }
+            }
+        } catch(e) {
+            console.error('Erreur sync session:', e);
+        }
+    }
+}
+
+// ==================== INITIALISATION ====================
+document.addEventListener('click', function(e) {
+    const badge = document.querySelector('.notification-badge');
+    const dropdown = document.getElementById('notificationDropdown');
+    if (badge && dropdown && !badge.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadNotifications();
+    syncSessionNotifications();
+});
+
+// TEST: Tape testNotif() dans la console
+window.testNotif = function() {
+    addNotification("🔔 Test notification", "Ceci est une notification de test", "success", "fas fa-bell");
+};
+
+// TEST: Tape testReport() dans la console
+window.testReport = function() {
+    sendWeeklyReport();
+};
+</script>
+
+<!-- Élément caché pour passer les données PHP au JS sans mélanger les types -->
+<input type="hidden" id="session-notifications-data" value='<?php echo json_encode($_SESSION['notifications'] ?? []); ?>'>
+
+<?php 
+// Vider les notifications de session APRÈS les avoir passées au JS
+if(isset($_SESSION['notifications']) && !empty($_SESSION['notifications'])) {
+    unset($_SESSION['notifications']);
+}
+?>
+
+<style>
+/* Notifications */
+.notification-badge { position: relative; cursor: pointer; }
+.notification-badge .badge { position: absolute; top: -10px; right: -10px; background: #e74c3c; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+.notification-dropdown { position: absolute; top: 100%; right: 0; width: 350px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1000; display: none; margin-top: 10px; }
+.notification-dropdown.show { display: block; }
+.notification-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #e0e0e0; font-weight: 600; }
+.notification-list { max-height: 400px; overflow-y: auto; }
+.notification-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+.notification-item.unread { background: #e8f5e9; }
+.notification-icon { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.notification-icon.info { background: #e3f2fd; color: #2196f3; }
+.notification-icon.success { background: #e8f5e9; color: #4caf50; }
+.notification-icon.warning { background: #fff3e0; color: #ff9800; }
+.notification-icon.danger { background: #ffebee; color: #f44336; }
+.notification-content { flex: 1; }
+.notification-title { font-size: 0.85rem; font-weight: 600; }
+.notification-message { font-size: 0.75rem; color: #666; }
+.notification-time { font-size: 0.65rem; color: #999; margin-top: 3px; }
+.notification-delete { opacity: 0; }
+.notification-item:hover .notification-delete { opacity: 1; }
+.notification-delete button { background: none; border: none; cursor: pointer; color: #999; }
+.notification-empty { text-align: center; padding: 30px; color: #999; }
+.toast-notification { position: fixed; bottom: 20px; right: 20px; background: white; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 12px; padding: 12px 15px; min-width: 280px; transform: translateX(400px); transition: transform 0.3s; z-index: 1100; border-left: 4px solid #2ecc71; }
+.toast-notification.show { transform: translateX(0); }
+.toast-icon { font-size: 1.5rem; }
+.toast-content { flex: 1; }
+.toast-title { font-weight: 600; }
+.toast-message { font-size: 0.75rem; color: #666; }
+.toast-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #999; }
+</style>
     <div class="backoffice-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
@@ -407,19 +864,32 @@ if (session_status() === PHP_SESSION_NONE) {
                 </div>
                 
                 <div class="top-bar-right">
-                    <div class="notification-badge">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge">3</span>
-                    </div>
-                    
-                    <div class="user-menu">
-                        <div class="user-avatar-small">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <span>Admin</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                </div>
+    <button onclick="sendWeeklyReport()" class="btn-report" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+        📧 Envoyer rapport
+    </button>
+    
+    <div class="notification-badge" onclick="toggleNotificationDropdown()">
+        <i class="fas fa-bell"></i>
+        <span class="badge" id="notificationCount">0</span>
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">
+                <span>🔔 Notifications</span>
+                <button onclick="clearAllNotifications()" class="clear-all">Tout effacer</button>
+            </div>
+            <div class="notification-list" id="notificationList">
+                <div class="notification-empty">Aucune notification</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="user-menu">
+        <div class="user-avatar-small">
+            <i class="fas fa-user"></i>
+        </div>
+        <span>Admin</span>
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</div>
             </div>
 
             <!-- Alert Container -->
@@ -470,3 +940,32 @@ if (session_status() === PHP_SESSION_NONE) {
                     }
                 });
             </script>
+            <script>
+// Charger les notifications depuis la session PHP
+const sessionNotifications = <?php echo json_encode($_SESSION['notifications'] ?? []); ?>;
+if (sessionNotifications.length > 0) {
+    let localNotifs = JSON.parse(localStorage.getItem('nutriflow_notifications') || '[]');
+    const newNotifs = sessionNotifications.filter(sn => !localNotifs.some(ln => ln.id === sn.id));
+    if (newNotifs.length > 0) {
+        localStorage.setItem('nutriflow_notifications', JSON.stringify([...newNotifs, ...localNotifs]));
+        // Vider les notifications de session
+        <?php unset($_SESSION['notifications']); ?>
+        location.reload();
+    }
+}
+</script>
+<!-- Scripts -->
+
+<script>
+// Charger les notifications depuis la session PHP
+const sessionNotifications = <?php echo json_encode($_SESSION['notifications'] ?? []); ?>;
+if (sessionNotifications.length > 0) {
+    let localNotifs = JSON.parse(localStorage.getItem('nutriflow_notifications') || '[]');
+    const newNotifs = sessionNotifications.filter(sn => !localNotifs.some(ln => ln.id === sn.id));
+    if (newNotifs.length > 0) {
+        localStorage.setItem('nutriflow_notifications', JSON.stringify([...newNotifs, ...localNotifs]));
+        <?php unset($_SESSION['notifications']); ?>
+        location.reload();
+    }
+}
+</script>

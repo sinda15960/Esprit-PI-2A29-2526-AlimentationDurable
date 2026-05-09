@@ -24,9 +24,16 @@ class Database {
                 ]
             );
 
+
         } catch (PDOException $e) {
 
             die("Erreur connexion BDD : " . $e->getMessage());
+
+
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn->exec("set names utf8");
+        } catch(PDOException $e) {
+            error_log("Erreur de connexion : " . $e->getMessage());
 
         }
     }

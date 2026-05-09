@@ -7,14 +7,14 @@ $breadcrumb = [
     ['label' => 'Créer']
 ];
 
-// Récupérer les catégories pour le select
-require_once dirname(__DIR__) . '/../../models/Categorie.php';
-$categorieObj = new Categorie();
-$stmtCategories = $categorieObj->readAll();
-$categories = [];
-while($cat = $stmtCategories->fetch(PDO::FETCH_ASSOC)) {
-    $categories[] = $cat;
-}
+// Récupérer les catégories directement avec PDO
+require_once dirname(__DIR__) . '/../../config/database.php';
+$database = new Database();
+$db = $database->getConnection();
+$query = "SELECT * FROM categories ORDER BY nom ASC";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $headerPath = dirname(__DIR__) . '/layout/header.php';
 if(file_exists($headerPath)) {
@@ -23,7 +23,7 @@ if(file_exists($headerPath)) {
 ?>
 
 <div class="form-container" data-aos="fade-up">
-    <form method="POST" id="recipeForm" action="index.php?action=backCreateRecipe" novalidate>
+    <form method="POST" id="recipeForm" action="index.php?action=backCreateRecipe" novalidate enctype="multipart/form-data">
         <div class="form-header">
             <h2><i class="fas fa-plus-circle"></i> Nouvelle recette</h2>
             <p>Créez une nouvelle recette durable et intelligente</p>
@@ -107,10 +107,7 @@ if(file_exists($headerPath)) {
                         <option value="">-- Sélectionnez une catégorie --</option>
                         <?php foreach($categories as $cat): ?>
                             <option value="<?php echo $cat['idCategorie']; ?>" 
-                                    data-icon="<?php echo $cat['icon']; ?>"
-                                    style="border-left: 3px solid <?php echo $cat['couleur']; ?>"
                                     <?php echo (isset($_POST['idCategorie']) && $_POST['idCategorie'] == $cat['idCategorie']) ? 'selected' : ''; ?>>
-                                <i class="<?php echo $cat['icon']; ?>" style="color: <?php echo $cat['couleur']; ?>"></i>
                                 <?php echo htmlspecialchars($cat['nom']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -119,13 +116,12 @@ if(file_exists($headerPath)) {
                     <small class="form-hint">Optionnel - Classez votre recette dans une catégorie</small>
                 </div>
                 
+                <!-- Champ UPLOAD D'IMAGE (remplace l'URL) -->
                 <div class="form-group">
-                    <label for="image_url">URL de l'image</label>
-                    <input type="text" id="image_url" name="image_url" 
-                           value="<?php echo isset($_POST['image_url']) ? htmlspecialchars($_POST['image_url']) : ''; ?>"
-                           placeholder="https://exemple.com/image.jpg">
-                    <div class="error-message" id="imageUrlError"></div>
-                    <small class="form-hint">Format: http:// ou https:// (optionnel)</small>
+                    <label for="image">Image de la recette</label>
+                    <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" class="file-input">
+                    <div class="error-message" id="imageError"></div>
+                    <small class="form-hint">Formats acceptés : JPG, PNG, GIF, WEBP (max 2MB)</small>
                 </div>
                 
                 <div class="checkbox-group">
@@ -487,6 +483,21 @@ if(file_exists($headerPath)) {
     font-size: 10px;
 }
 
+/* Style pour l'upload d'image */
+.file-input {
+    padding: 12px;
+    border: 2px dashed #e0e0e0;
+    border-radius: 10px;
+    background: #f8f9fa;
+    cursor: pointer;
+    width: 100%;
+}
+
+.file-input:hover {
+    border-color: #2ecc71;
+    background: #e8f5e9;
+}
+
 .instruction-group {
     background: white;
     padding: 1.5rem;
@@ -719,16 +730,7 @@ function updateStepNumbers() {
     instructionCount = groups.length;
 }
 
-function isValidUrl(string) {
-    try {
-        const url = new URL(string);
-        return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch (_) {
-        return false;
-    }
-}
-
-// Validation du formulaire
+// Validation du formulaire (modifiée pour l'upload)
 document.getElementById('recipeForm').addEventListener('submit', function(e) {
     let isValid = true;
     const errors = [];
@@ -874,21 +876,6 @@ document.getElementById('recipeForm').addEventListener('submit', function(e) {
             caloriesError.classList.remove('show');
             calories.classList.remove('error');
         }
-    }
-    
-    // Validation de l'URL de l'image
-    const imageUrl = document.getElementById('image_url');
-    const imageUrlError = document.getElementById('imageUrlError');
-    
-    if(imageUrl.value && !isValidUrl(imageUrl.value)) {
-        imageUrlError.textContent = 'Veuillez entrer une URL valide (http:// ou https://)';
-        imageUrlError.classList.add('show');
-        imageUrl.classList.add('error');
-        isValid = false;
-        errors.push('L\'URL de l\'image n\'est pas valide');
-    } else {
-        imageUrlError.classList.remove('show');
-        imageUrl.classList.remove('error');
     }
     
     // Validation des instructions

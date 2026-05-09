@@ -1,0 +1,20 @@
+<?php
+// Test simple
+echo "<h1>Test PHP</h1>";
+echo "<p>Le serveur fonctionne.</p>";
+
+// Test de connexion BDD
+try {
+    require_once '../config/database.php';
+    $database = new Database();
+    $conn = $database->getConnection();
+    echo "<p style='color:green'>✅ Connexion BDD réussie</p>";
+    
+    $stmt = $conn->query("SELECT COUNT(*) FROM recipes");
+    $count = $stmt->fetchColumn();
+    echo "<p>📊 Nombre de recettes : " . $count . "</p>";
+    
+} catch(Exception $e) {
+    echo "<p style='color:red'>❌ Erreur BDD : " . $e->getMessage() . "</p>";
+}
+?>

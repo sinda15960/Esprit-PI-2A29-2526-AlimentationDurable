@@ -4,19 +4,22 @@ require_once dirname(__DIR__) . '/models/Recipe.php';
 require_once dirname(__DIR__) . '/config/database.php';
 
 class InstructionController {
-    private $instruction;
-    private $recipe;
+    private $instructionModel;
+    private $recipeModel;
+    private $db;
 
     public function __construct() {
-        $this->instruction = new Instruction();
-        $this->recipe = new Recipe();
+        $database = new Database();
+        $this->db = $database->getConnection();
+        $this->instructionModel = new Instruction($this->db);
+        $this->recipeModel = new Recipe($this->db);
         
-        // Vérifier si la session n'est pas déjà active
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
     }
 
+    // ==================== VALIDATION ====================
     private function validateInstructionData($data) {
         $errors = [];
         
@@ -31,9 +34,117 @@ class InstructionController {
         return $errors;
     }
 
+    // ==================== LOGIQUE MÉTIER ====================
+    
+    public function getRecipeById($recipe_id) {
+        try {
+            $query = "SELECT * FROM recipes WHERE id = :id LIMIT 0,1";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":id", $recipe_id);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getInstructionById($id) {
+        try {
+            $query = "SELECT * FROM " . $this->instructionModel->getTable() . " WHERE id = :id LIMIT 0,1";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":id", $id);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getInstructionsByRecipe($recipe_id) {
+        try {
+            $query = "SELECT * FROM " . $this->instructionModel->getTable() . " 
+                      WHERE recipe_id = :recipe_id 
+                      ORDER BY step_number ASC";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":recipe_id", $recipe_id);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function createInstruction($data) {
+        try {
+            $query = "INSERT INTO " . $this->instructionModel->getTable() . "
+                      SET recipe_id = :recipe_id, step_number = :step_number, 
+                          description = :description, tip = :tip";
+            
+            $stmt = $this->db->prepare($query);
+            
+            $stmt->bindParam(":recipe_id", $data['recipe_id']);
+            $stmt->bindParam(":step_number", $data['step_number']);
+            $stmt->bindParam(":description", $data['description']);
+            $stmt->bindParam(":tip", $data['tip']);
+            
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateInstruction($id, $data) {
+        try {
+            $query = "UPDATE " . $this->instructionModel->getTable() . "
+                      SET step_number = :step_number, description = :description, tip = :tip
+                      WHERE id = :id";
+            
+            $stmt = $this->db->prepare($query);
+            
+            $stmt->bindParam(":id", $id);
+            $stmt->bindParam(":step_number", $data['step_number']);
+            $stmt->bindParam(":description", $data['description']);
+            $stmt->bindParam(":tip", $data['tip']);
+            
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteInstruction($id) {
+        try {
+            $query = "DELETE FROM " . $this->instructionModel->getTable() . " WHERE id = :id";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":id", $id);
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteInstructionsByRecipe($recipe_id) {
+        try {
+            $query = "DELETE FROM " . $this->instructionModel->getTable() . " WHERE recipe_id = :recipe_id";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":recipe_id", $recipe_id);
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // ==================== VUES (BACKOFFICE) ====================
+
     public function backIndex($recipe_id) {
-        $this->recipe->id = $recipe_id;
-        $recipe = $this->recipe->readOne();
+        $recipe = $this->getRecipeById($recipe_id);
         
         if(!$recipe) {
             $_SESSION['error'] = "La recette n'existe pas";
@@ -41,7 +152,7 @@ class InstructionController {
             exit();
         }
         
-        $stmt = $this->instruction->readByRecipe($recipe_id);
+        $stmt = $this->getInstructionsByRecipe($recipe_id);
         $instructions = [];
         while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $instructions[] = $row;
@@ -51,8 +162,7 @@ class InstructionController {
     }
 
     public function backCreate($recipe_id) {
-        $this->recipe->id = $recipe_id;
-        $recipe = $this->recipe->readOne();
+        $recipe = $this->getRecipeById($recipe_id);
         
         if(!$recipe) {
             $_SESSION['error'] = "La recette n'existe pas";
@@ -64,12 +174,14 @@ class InstructionController {
             $errors = $this->validateInstructionData($_POST);
             
             if(empty($errors)) {
-                $this->instruction->recipe_id = $recipe_id;
-                $this->instruction->step_number = $_POST['step_number'];
-                $this->instruction->description = $_POST['description'];
-                $this->instruction->tip = !empty($_POST['tip']) ? $_POST['tip'] : null;
+                $data = [
+                    'recipe_id' => $recipe_id,
+                    'step_number' => $_POST['step_number'],
+                    'description' => htmlspecialchars(strip_tags($_POST['description'])),
+                    'tip' => !empty($_POST['tip']) ? htmlspecialchars(strip_tags($_POST['tip'])) : null
+                ];
                 
-                if($this->instruction->create()) {
+                if($this->createInstruction($data)) {
                     $_SESSION['success'] = "Instruction ajoutée avec succès !";
                     header("Location: index.php?action=backInstructions&id=" . $recipe_id);
                     exit();
@@ -97,12 +209,13 @@ class InstructionController {
             $errors = $this->validateInstructionData($_POST);
             
             if(empty($errors)) {
-                $this->instruction->id = $id;
-                $this->instruction->step_number = $_POST['step_number'];
-                $this->instruction->description = $_POST['description'];
-                $this->instruction->tip = !empty($_POST['tip']) ? $_POST['tip'] : null;
+                $data = [
+                    'step_number' => $_POST['step_number'],
+                    'description' => htmlspecialchars(strip_tags($_POST['description'])),
+                    'tip' => !empty($_POST['tip']) ? htmlspecialchars(strip_tags($_POST['tip'])) : null
+                ];
                 
-                if($this->instruction->update()) {
+                if($this->updateInstruction($id, $data)) {
                     $_SESSION['success'] = "Instruction modifiée avec succès !";
                     header("Location: index.php?action=backInstructions&id=" . $instruction['recipe_id']);
                     exit();
@@ -123,9 +236,8 @@ class InstructionController {
             
             if($instruction) {
                 $recipe_id = $instruction['recipe_id'];
-                $this->instruction->id = $id;
                 
-                if($this->instruction->delete()) {
+                if($this->deleteInstruction($id)) {
                     $_SESSION['success'] = "Instruction supprimée avec succès !";
                 } else {
                     $_SESSION['error'] = "Erreur lors de la suppression";
@@ -139,20 +251,10 @@ class InstructionController {
         }
     }
 
-    private function getInstructionById($id) {
-        $database = new Database();
-        $conn = $database->getConnection();
-        
-        $query = "SELECT * FROM instructions WHERE id = :id LIMIT 0,1";
-        $stmt = $conn->prepare($query);
-        $stmt->bindParam(":id", $id);
-        $stmt->execute();
-        
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+    // ==================== VUES (FRONTOFFICE) ====================
 
     public function frontShowByRecipe($recipe_id) {
-        $stmt = $this->instruction->readByRecipe($recipe_id);
+        $stmt = $this->getInstructionsByRecipe($recipe_id);
         $instructions = [];
         while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $instructions[] = $row;

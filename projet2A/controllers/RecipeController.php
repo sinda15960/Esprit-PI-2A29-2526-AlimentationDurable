@@ -2,24 +2,34 @@
 require_once dirname(__DIR__) . '/models/Recipe.php';
 require_once dirname(__DIR__) . '/models/Instruction.php';
 require_once dirname(__DIR__) . '/models/Categorie.php';
+require_once dirname(__DIR__) . '/config/database.php';
 
 class RecipeController {
-    private $recipe;
-    private $instruction;
-    private $categorie;
+    private $recipeModel;
+    private $instructionModel;
+    private $categorieModel;
+    private $db;
 
     public function __construct() {
-        $this->recipe = new Recipe();
-        $this->instruction = new Instruction();
-        $this->categorie = new Categorie();
+        $database = new Database();
+        $this->db = $database->getConnection();
+        $this->recipeModel = new Recipe($this->db);
+        $this->instructionModel = new Instruction($this->db);
+        $this->categorieModel = new Categorie($this->db);
         
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+        
+        if (!isset($_SESSION['milestones_notified'])) {
+            $_SESSION['milestones_notified'] = [];
+        }
+        if (!isset($_SESSION['goals_notified'])) {
+            $_SESSION['goals_notified'] = [];
+        }
     }
 
     // ==================== VALIDATION ====================
-    
     private function validateRecipeData($data) {
         $errors = [];
         
@@ -46,18 +56,294 @@ class RecipeController {
         return $errors;
     }
 
-    // ==================== FRONTOFFICE ====================
+    private function sanitizeInput($input) {
+        return htmlspecialchars(strip_tags(trim($input)));
+    }
+
+    // ==================== LOGIQUE MÉTIER - RECETTES ====================
+    
+    public function getAllRecipes() {
+        try {
+            $query = "SELECT * FROM " . $this->recipeModel->getTable() . " ORDER BY created_at DESC";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getAllRecipesWithCategorie() {
+        try {
+            $query = "SELECT r.*, 
+                             c.idCategorie, c.nom as categorie_nom, 
+                             c.icon as categorie_icon, c.couleur as categorie_couleur,
+                             c.description as categorie_description
+                      FROM " . $this->recipeModel->getTable() . " r
+                      LEFT JOIN categories c ON r.idCategorie = c.idCategorie
+                      ORDER BY r.created_at DESC";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getRecipeById($id) {
+        try {
+            $query = "SELECT * FROM " . $this->recipeModel->getTable() . " WHERE id = :id LIMIT 0,1";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":id", $id);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getRecipeWithCategorie($id) {
+        try {
+            $query = "SELECT r.*, 
+                             c.idCategorie, c.nom as categorie_nom, 
+                             c.icon as categorie_icon, c.couleur as categorie_couleur
+                      FROM " . $this->recipeModel->getTable() . " r
+                      LEFT JOIN categories c ON r.idCategorie = c.idCategorie
+                      WHERE r.id = :id LIMIT 0,1";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":id", $id);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getRecipesByCategorie($idCategorie) {
+        try {
+            $query = "SELECT r.*, 
+                             c.nom as categorie_nom, c.icon as categorie_icon, c.couleur as categorie_couleur
+                      FROM " . $this->recipeModel->getTable() . " r
+                      LEFT JOIN categories c ON r.idCategorie = c.idCategorie
+                      WHERE r.idCategorie = :idCategorie
+                      ORDER BY r.created_at DESC";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":idCategorie", $idCategorie);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function searchRecipes($keyword) {
+        try {
+            $query = "SELECT r.*, 
+                             c.nom as categorie_nom, c.icon as categorie_icon, c.couleur as categorie_couleur
+                      FROM " . $this->recipeModel->getTable() . " r
+                      LEFT JOIN categories c ON r.idCategorie = c.idCategorie
+                      WHERE r.title LIKE :keyword 
+                         OR r.description LIKE :keyword 
+                         OR r.ingredients LIKE :keyword
+                         OR c.nom LIKE :keyword
+                      ORDER BY r.created_at DESC";
+            $stmt = $this->db->prepare($query);
+            $keyword = "%{$keyword}%";
+            $stmt->bindParam(":keyword", $keyword);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getRecipesByType($type) {
+        try {
+            $sql = "";
+            switch($type) {
+                case 'vegan':
+                    $sql = "is_vegan = 1";
+                    break;
+                case 'vegetarian':
+                    $sql = "is_vegetarian = 1";
+                    break;
+                case 'gluten_free':
+                    $sql = "is_gluten_free = 1";
+                    break;
+                default:
+                    $sql = "1=1";
+            }
+            
+            $query = "SELECT r.*, c.nom as categorie_nom, c.icon as categorie_icon, c.couleur as categorie_couleur
+                      FROM " . $this->recipeModel->getTable() . " r
+                      LEFT JOIN categories c ON r.idCategorie = c.idCategorie
+                      WHERE " . $sql . " 
+                      ORDER BY r.created_at DESC";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getQuickRecipes() {
+        try {
+            $query = "SELECT r.*, c.nom as categorie_nom, c.icon as categorie_icon, c.couleur as categorie_couleur
+                      FROM " . $this->recipeModel->getTable() . " r
+                      LEFT JOIN categories c ON r.idCategorie = c.idCategorie
+                      WHERE (r.prep_time + r.cook_time) <= 30
+                      ORDER BY (r.prep_time + r.cook_time) ASC";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function createRecipe($data) {
+        try {
+            $query = "INSERT INTO " . $this->recipeModel->getTable() . "
+                      (title, description, ingredients, prep_time, cook_time, difficulty, 
+                       calories, protein, carbs, fats, image_url, is_vegan, is_vegetarian, 
+                       is_gluten_free, idCategorie)
+                      VALUES 
+                      (:title, :description, :ingredients, :prep_time, :cook_time, :difficulty,
+                       :calories, :protein, :carbs, :fats, :image_url, :is_vegan, :is_vegetarian,
+                       :is_gluten_free, :idCategorie)";
+
+            $stmt = $this->db->prepare($query);
+            
+            $stmt->bindParam(":title", $data['title']);
+            $stmt->bindParam(":description", $data['description']);
+            $stmt->bindParam(":ingredients", $data['ingredients']);
+            $stmt->bindParam(":prep_time", $data['prep_time']);
+            $stmt->bindParam(":cook_time", $data['cook_time']);
+            $stmt->bindParam(":difficulty", $data['difficulty']);
+            $stmt->bindParam(":calories", $data['calories']);
+            $stmt->bindParam(":protein", $data['protein']);
+            $stmt->bindParam(":carbs", $data['carbs']);
+            $stmt->bindParam(":fats", $data['fats']);
+            $stmt->bindParam(":image_url", $data['image_url']);
+            $stmt->bindParam(":is_vegan", $data['is_vegan']);
+            $stmt->bindParam(":is_vegetarian", $data['is_vegetarian']);
+            $stmt->bindParam(":is_gluten_free", $data['is_gluten_free']);
+            $stmt->bindParam(":idCategorie", $data['idCategorie']);
+            
+            if($stmt->execute()) {
+                return $this->db->lastInsertId();
+            }
+            return false;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateRecipe($id, $data) {
+        try {
+            $query = "UPDATE " . $this->recipeModel->getTable() . "
+                      SET title = :title, 
+                          description = :description, 
+                          ingredients = :ingredients,
+                          prep_time = :prep_time, 
+                          cook_time = :cook_time, 
+                          difficulty = :difficulty,
+                          calories = :calories, 
+                          protein = :protein, 
+                          carbs = :carbs, 
+                          fats = :fats,
+                          image_url = :image_url, 
+                          is_vegan = :is_vegan, 
+                          is_vegetarian = :is_vegetarian,
+                          is_gluten_free = :is_gluten_free,
+                          idCategorie = :idCategorie
+                      WHERE id = :id";
+
+            $stmt = $this->db->prepare($query);
+            
+            $stmt->bindParam(":id", $id);
+            $stmt->bindParam(":title", $data['title']);
+            $stmt->bindParam(":description", $data['description']);
+            $stmt->bindParam(":ingredients", $data['ingredients']);
+            $stmt->bindParam(":prep_time", $data['prep_time']);
+            $stmt->bindParam(":cook_time", $data['cook_time']);
+            $stmt->bindParam(":difficulty", $data['difficulty']);
+            $stmt->bindParam(":calories", $data['calories']);
+            $stmt->bindParam(":protein", $data['protein']);
+            $stmt->bindParam(":carbs", $data['carbs']);
+            $stmt->bindParam(":fats", $data['fats']);
+            $stmt->bindParam(":image_url", $data['image_url']);
+            $stmt->bindParam(":is_vegan", $data['is_vegan']);
+            $stmt->bindParam(":is_vegetarian", $data['is_vegetarian']);
+            $stmt->bindParam(":is_gluten_free", $data['is_gluten_free']);
+            $stmt->bindParam(":idCategorie", $data['idCategorie']);
+
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteRecipe($id) {
+        try {
+            $query = "DELETE FROM " . $this->recipeModel->getTable() . " WHERE id = :id";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":id", $id);
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteInstructionsByRecipe($recipe_id) {
+        try {
+            $query = "DELETE FROM instructions WHERE recipe_id = :recipe_id";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":recipe_id", $recipe_id);
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // ==================== LOGIQUE MÉTIER - CATÉGORIES ====================
+    
+    public function getAllCategories() {
+        try {
+            $query = "SELECT * FROM categories ORDER BY nom ASC";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // ==================== VUES (FRONTOFFICE) ====================
     
     public function frontIndex() {
         try {
-            $stmt = $this->recipe->readAll();
+            $stmt = $this->getAllRecipesWithCategorie();
             $recipes = [];
             while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $recipes[] = $row;
             }
             
-            // Récupérer les catégories
-            $stmtCategories = $this->categorie->readAll();
+            $stmtCategories = $this->getAllCategories();
             $dbCategories = [];
             while($cat = $stmtCategories->fetch(PDO::FETCH_ASSOC)) {
                 $dbCategories[] = $cat;
@@ -74,15 +360,11 @@ class RecipeController {
 
     public function frontShow($id) {
         try {
-            $this->recipe->id = $id;
-            $recipe = $this->recipe->readOne();
+            $recipe = $this->getRecipeWithCategorie($id);
             
             if($recipe) {
-                $stmt = $this->instruction->readByRecipe($id);
-                $instructions = [];
-                while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $instructions[] = $row;
-                }
+                $instructionController = new InstructionController();
+                $instructions = $instructionController->frontShowByRecipe($id);
                 require_once dirname(__DIR__) . '/views/frontoffice/recipes/show.php';
             } else {
                 $_SESSION['error'] = "Recette non trouvée";
@@ -104,34 +386,34 @@ class RecipeController {
             $recipes = [];
             
             if(!empty($keyword)) {
-                $stmt = $this->recipe->searchWithCategorie($keyword);
+                $stmt = $this->searchRecipes($keyword);
                 $searchTitle = "Résultats pour : " . htmlspecialchars($keyword);
             } 
             elseif(!empty($type)) {
                 switch($type) {
                     case 'vegan':
-                        $stmt = $this->recipe->getByType('vegan');
+                        $stmt = $this->getRecipesByType('vegan');
                         $searchTitle = "Recettes Vegan";
                         break;
                     case 'vegetarian':
-                        $stmt = $this->recipe->getByType('vegetarian');
+                        $stmt = $this->getRecipesByType('vegetarian');
                         $searchTitle = "Recettes Végétariennes";
                         break;
                     case 'gluten_free':
-                        $stmt = $this->recipe->getByType('gluten_free');
+                        $stmt = $this->getRecipesByType('gluten_free');
                         $searchTitle = "Recettes Sans Gluten";
                         break;
                     case 'quick':
-                        $stmt = $this->recipe->getQuickRecipes();
+                        $stmt = $this->getQuickRecipes();
                         $searchTitle = "Recettes Rapides (moins de 30 min)";
                         break;
                     default:
-                        $stmt = $this->recipe->readAllWithCategorie();
+                        $stmt = $this->getAllRecipesWithCategorie();
                         $searchTitle = "Toutes les recettes";
                 }
             } 
             else {
-                $stmt = $this->recipe->readAllWithCategorie();
+                $stmt = $this->getAllRecipesWithCategorie();
                 $searchTitle = "Toutes nos recettes";
             }
             
@@ -149,11 +431,54 @@ class RecipeController {
         }
     }
 
-    // ==================== BACKOFFICE ====================
+    public function searchByCategorie() {
+        try {
+            $categorieNom = isset($_GET['categorie']) ? trim($_GET['categorie']) : '';
+            $recipes = [];
+            
+            if(!empty($categorieNom)) {
+                $query = "SELECT * FROM categories WHERE nom LIKE :keyword";
+                $stmt = $this->db->prepare($query);
+                $keyword = "%{$categorieNom}%";
+                $stmt->bindParam(":keyword", $keyword);
+                $stmt->execute();
+                
+                $categoriesTrouvees = [];
+                while($cat = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $categoriesTrouvees[] = $cat;
+                }
+                
+                $recipes = [];
+                foreach($categoriesTrouvees as $cat) {
+                    $stmtRecettes = $this->getRecipesByCategorie($cat['idCategorie']);
+                    while($row = $stmtRecettes->fetch(PDO::FETCH_ASSOC)) {
+                        if(!in_array($row, $recipes)) {
+                            $recipes[] = $row;
+                        }
+                    }
+                }
+                $searchTitle = "Recettes dans la catégorie : " . htmlspecialchars($categorieNom);
+            } else {
+                $stmt = $this->getAllRecipesWithCategorie();
+                while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $recipes[] = $row;
+                }
+                $searchTitle = "Toutes les recettes";
+            }
+            
+            require_once dirname(__DIR__) . '/views/frontoffice/recipes/search.php';
+        } catch(Exception $e) {
+            $_SESSION['error'] = "Erreur: " . $e->getMessage();
+            header("Location: index.php?action=frontRecipes");
+            exit();
+        }
+    }
+
+    // ==================== VUES (BACKOFFICE) ====================
     
     public function backIndex() {
         try {
-            $stmt = $this->recipe->readAll();
+            $stmt = $this->getAllRecipes();
             $recipes = [];
             while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $recipes[] = $row;
@@ -166,40 +491,181 @@ class RecipeController {
         }
     }
 
+    // ==================== NOTIFICATIONS ====================
+    
+    private function addNotification($title, $message, $type = 'info', $icon = 'fas fa-info-circle') {
+        if (!isset($_SESSION['notifications'])) {
+            $_SESSION['notifications'] = [];
+        }
+        array_unshift($_SESSION['notifications'], [
+            'id' => time() . rand(1, 1000),
+            'title' => $title,
+            'message' => $message,
+            'type' => $type,
+            'icon' => $icon,
+            'time' => date('d/m/Y H:i'),
+            'read' => false
+        ]);
+        $_SESSION['notifications'] = array_slice($_SESSION['notifications'], 0, 50);
+    }
+
+    // ==================== OBJECTIFS CATEGORIES ====================
+    
+    private function checkCategoryGoals($idCategorie) {
+        $query = "SELECT COUNT(*) as total FROM recipes WHERE idCategorie = :idCategorie";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(":idCategorie", $idCategorie);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $nbRecettes = $result['total'] ?? 0;
+        
+        $goal = $_SESSION['category_goals'][$idCategorie] ?? 10;
+        
+        $query = "SELECT nom FROM categories WHERE idCategorie = :id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(":id", $idCategorie);
+        $stmt->execute();
+        $categorie = $stmt->fetch(PDO::FETCH_ASSOC);
+        $nomCategorie = $categorie['nom'] ?? 'Catégorie';
+        
+        $key = "goal_reached_{$idCategorie}";
+        if ($nbRecettes >= $goal && !isset($_SESSION['goals_notified'][$key])) {
+            $_SESSION['goals_notified'][$key] = true;
+            $this->addNotification(
+                "🏆 Objectif atteint !",
+                "La catégorie \"$nomCategorie\" a atteint son objectif de $goal recettes !",
+                "success",
+                "fas fa-trophy"
+            );
+        }
+        
+        $reste = $goal - $nbRecettes;
+        if ($reste == 2 && $nbRecettes < $goal) {
+            $key = "goal_reminder_{$idCategorie}";
+            if (!isset($_SESSION['goals_notified'][$key])) {
+                $_SESSION['goals_notified'][$key] = true;
+                $this->addNotification(
+                    "🔥 Encore $reste recettes !",
+                    "Plus que $reste recettes pour que la catégorie \"$nomCategorie\" atteigne son objectif de $goal recettes !",
+                    "warning",
+                    "fas fa-fire"
+                );
+            }
+        }
+    }
+
+    // ==================== NIVEAUX (BADGES) ====================
+    
+    private function checkRecipeMilestones() {
+        $stmt = $this->getAllRecipes();
+        $totalRecipes = $stmt->rowCount();
+        
+        $milestones = [
+            5 => ["🏅 Niveau Débutant", "Félicitations ! Vous avez créé 5 recettes. Niveau Débutant atteint !"],
+            10 => ["🍳 Niveau Apprenti", "Bravo ! 10 recettes créées. Vous êtes maintenant Niveau Apprenti !"],
+            20 => ["👨‍🍳 Niveau Cuisinier", "Excellent ! 20 recettes créées. Niveau Cuisinier atteint !"],
+            30 => ["🧑‍🍳 Niveau Chef", "Magnifique ! 30 recettes créées. Vous êtes devenu Chef !"],
+            50 => ["🏆 Niveau Master Chef", "Exceptionnel ! 50 recettes créées. Master Chef légendaire !"]
+        ];
+        
+        foreach ($milestones as $seuil => $milestone) {
+            if ($totalRecipes >= $seuil) {
+                $key = "milestone_$seuil";
+                if (!isset($_SESSION['milestones_notified'][$key])) {
+                    $_SESSION['milestones_notified'][$key] = true;
+                    $this->addNotification(
+                        $milestone[0],
+                        $milestone[1],
+                        "success",
+                        "fas fa-medal"
+                    );
+                }
+            }
+        }
+    }
+
+    // ==================== BACKOFFICE - CRUD ====================
+    
     public function backCreate() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors = $this->validateRecipeData($_POST);
             
             if(empty($errors)) {
                 try {
-                    $this->recipe->title = trim($_POST['title']);
-                    $this->recipe->description = trim($_POST['description']);
-                    $this->recipe->ingredients = trim($_POST['ingredients']);
-                    $this->recipe->prep_time = (int)$_POST['prep_time'];
-                    $this->recipe->cook_time = (int)$_POST['cook_time'];
-                    $this->recipe->difficulty = $_POST['difficulty'];
-                    $this->recipe->calories = !empty($_POST['calories']) ? (int)$_POST['calories'] : null;
-                    $this->recipe->protein = !empty($_POST['protein']) ? (float)$_POST['protein'] : null;
-                    $this->recipe->carbs = !empty($_POST['carbs']) ? (float)$_POST['carbs'] : null;
-                    $this->recipe->fats = !empty($_POST['fats']) ? (float)$_POST['fats'] : null;
-                    $this->recipe->image_url = !empty($_POST['image_url']) ? trim($_POST['image_url']) : null;
-                    $this->recipe->is_vegan = isset($_POST['is_vegan']) ? 1 : 0;
-                    $this->recipe->is_vegetarian = isset($_POST['is_vegetarian']) ? 1 : 0;
-                    $this->recipe->is_gluten_free = isset($_POST['is_gluten_free']) ? 1 : 0;
-                    $this->recipe->idCategorie = !empty($_POST['idCategorie']) ? (int)$_POST['idCategorie'] : null;
+                    $image_url = null;
+                    if(isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                        $uploadDir = dirname(__DIR__) . '/uploads/recipes/';
+                        if(!file_exists($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+                        $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                        $fileName = uniqid() . '.' . $fileExtension;
+                        $uploadPath = $uploadDir . $fileName;
+                        
+                        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                        if(!in_array($_FILES['image']['type'], $allowedTypes)) {
+                            $_SESSION['error'] = "Format d'image non autorisé.";
+                        } else if($_FILES['image']['size'] > 2 * 1024 * 1024) {
+                            $_SESSION['error'] = "L'image ne doit pas dépasser 2MB.";
+                        } else {
+                            if(move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
+                                $image_url = '/uploads/recipes/' . $fileName;
+                            }
+                        }
+                    }
                     
-                    $recipeId = $this->recipe->create();
+                    $data = [
+                        'title' => $this->sanitizeInput($_POST['title']),
+                        'description' => $this->sanitizeInput($_POST['description']),
+                        'ingredients' => $this->sanitizeInput($_POST['ingredients']),
+                        'prep_time' => (int)$_POST['prep_time'],
+                        'cook_time' => (int)$_POST['cook_time'],
+                        'difficulty' => $_POST['difficulty'],
+                        'calories' => !empty($_POST['calories']) ? (int)$_POST['calories'] : null,
+                        'protein' => !empty($_POST['protein']) ? (float)$_POST['protein'] : null,
+                        'carbs' => !empty($_POST['carbs']) ? (float)$_POST['carbs'] : null,
+                        'fats' => !empty($_POST['fats']) ? (float)$_POST['fats'] : null,
+                        'image_url' => $image_url,
+                        'is_vegan' => isset($_POST['is_vegan']) ? 1 : 0,
+                        'is_vegetarian' => isset($_POST['is_vegetarian']) ? 1 : 0,
+                        'is_gluten_free' => isset($_POST['is_gluten_free']) ? 1 : 0,
+                        'idCategorie' => !empty($_POST['idCategorie']) ? (int)$_POST['idCategorie'] : null
+                    ];
+                    
+                    $recipeId = $this->createRecipe($data);
                     
                     if($recipeId) {
+                        $this->addNotification(
+                            "📝 Nouvelle recette",
+                            "La recette \"" . htmlspecialchars($data['title']) . "\" a été ajoutée",
+                            "success",
+                            "fas fa-plus-circle"
+                        );
+                        
+                        if(!empty($data['idCategorie'])) {
+                            $this->checkCategoryGoals($data['idCategorie']);
+                        }
+                        
+                        $this->checkRecipeMilestones();
+                        
                         if(isset($_POST['instructions']) && is_array($_POST['instructions'])) {
                             foreach($_POST['instructions'] as $step => $instruction) {
                                 if(!empty($instruction['description'])) {
-                                    $instr = new Instruction();
-                                    $instr->recipe_id = $recipeId;
-                                    $instr->step_number = $step + 1;
-                                    $instr->description = trim($instruction['description']);
-                                    $instr->tip = !empty($instruction['tip']) ? trim($instruction['tip']) : null;
-                                    $instr->create();
+                                    $instrData = [
+                                        'recipe_id' => $recipeId,
+                                        'step_number' => $step + 1,
+                                        'description' => $this->sanitizeInput($instruction['description']),
+                                        'tip' => !empty($instruction['tip']) ? $this->sanitizeInput($instruction['tip']) : null
+                                    ];
+                                    
+                                    $query = "INSERT INTO instructions (recipe_id, step_number, description, tip)
+                                              VALUES (:recipe_id, :step_number, :description, :tip)";
+                                    $stmt = $this->db->prepare($query);
+                                    $stmt->bindParam(":recipe_id", $instrData['recipe_id']);
+                                    $stmt->bindParam(":step_number", $instrData['step_number']);
+                                    $stmt->bindParam(":description", $instrData['description']);
+                                    $stmt->bindParam(":tip", $instrData['tip']);
+                                    $stmt->execute();
                                 }
                             }
                         }
@@ -218,13 +684,18 @@ class RecipeController {
             }
         }
         
+        $stmtCategories = $this->getAllCategories();
+        $categories = [];
+        while($cat = $stmtCategories->fetch(PDO::FETCH_ASSOC)) {
+            $categories[] = $cat;
+        }
+        
         require_once dirname(__DIR__) . '/views/backoffice/recipes/create.php';
     }
 
     public function backEdit($id) {
         try {
-            $this->recipe->id = $id;
-            $recipe = $this->recipe->readOne();
+            $recipe = $this->getRecipeById($id);
             
             if(!$recipe) {
                 $_SESSION['error'] = "Recette non trouvée";
@@ -232,7 +703,7 @@ class RecipeController {
                 exit();
             }
             
-            $stmt = $this->instruction->readByRecipe($id);
+            $stmt = $this->getInstructionsByRecipe($id);
             $existingInstructions = [];
             while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $existingInstructions[] = $row;
@@ -242,35 +713,84 @@ class RecipeController {
                 $errors = $this->validateRecipeData($_POST);
                 
                 if(empty($errors)) {
-                    $this->recipe->id = $id;
-                    $this->recipe->title = trim($_POST['title']);
-                    $this->recipe->description = trim($_POST['description']);
-                    $this->recipe->ingredients = trim($_POST['ingredients']);
-                    $this->recipe->prep_time = (int)$_POST['prep_time'];
-                    $this->recipe->cook_time = (int)$_POST['cook_time'];
-                    $this->recipe->difficulty = $_POST['difficulty'];
-                    $this->recipe->calories = !empty($_POST['calories']) ? (int)$_POST['calories'] : null;
-                    $this->recipe->protein = !empty($_POST['protein']) ? (float)$_POST['protein'] : null;
-                    $this->recipe->carbs = !empty($_POST['carbs']) ? (float)$_POST['carbs'] : null;
-                    $this->recipe->fats = !empty($_POST['fats']) ? (float)$_POST['fats'] : null;
-                    $this->recipe->image_url = !empty($_POST['image_url']) ? trim($_POST['image_url']) : null;
-                    $this->recipe->is_vegan = isset($_POST['is_vegan']) ? 1 : 0;
-                    $this->recipe->is_vegetarian = isset($_POST['is_vegetarian']) ? 1 : 0;
-                    $this->recipe->is_gluten_free = isset($_POST['is_gluten_free']) ? 1 : 0;
-                    $this->recipe->idCategorie = !empty($_POST['idCategorie']) ? (int)$_POST['idCategorie'] : null;
+                    // Sauvegarde automatique de l'ancienne version
+                    $oldRecipe = $this->getRecipeById($id);
+                    if($oldRecipe) {
+                        $this->saveRecipeVersion($id, $oldRecipe, "Version avant modification - " . date('d/m/Y H:i'));
+                    }
                     
-                    if($this->recipe->update()) {
-                        $this->instruction->deleteByRecipe($id);
+                    $image_url = $recipe['image_url'];
+                    
+                    if(isset($_POST['delete_image']) && $_POST['delete_image'] == 1) {
+                        $image_url = null;
+                        if(!empty($recipe['image_url']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url'])) {
+                            unlink($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url']);
+                        }
+                    }
+                    
+                    if(isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                        $uploadDir = dirname(__DIR__) . '/uploads/recipes/';
+                        if(!file_exists($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+                        $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                        $fileName = uniqid() . '.' . $fileExtension;
+                        $uploadPath = $uploadDir . $fileName;
+                        
+                        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                        if(!in_array($_FILES['image']['type'], $allowedTypes)) {
+                            $_SESSION['error'] = "Format d'image non autorisé.";
+                        } else if($_FILES['image']['size'] > 2 * 1024 * 1024) {
+                            $_SESSION['error'] = "L'image ne doit pas dépasser 2MB.";
+                        } else {
+                            if(move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
+                                if(!empty($recipe['image_url']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url'])) {
+                                    unlink($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url']);
+                                }
+                                $image_url = '/uploads/recipes/' . $fileName;
+                            }
+                        }
+                    }
+                    
+                    $data = [
+                        'title' => $this->sanitizeInput($_POST['title']),
+                        'description' => $this->sanitizeInput($_POST['description']),
+                        'ingredients' => $this->sanitizeInput($_POST['ingredients']),
+                        'prep_time' => (int)$_POST['prep_time'],
+                        'cook_time' => (int)$_POST['cook_time'],
+                        'difficulty' => $_POST['difficulty'],
+                        'calories' => !empty($_POST['calories']) ? (int)$_POST['calories'] : null,
+                        'protein' => !empty($_POST['protein']) ? (float)$_POST['protein'] : null,
+                        'carbs' => !empty($_POST['carbs']) ? (float)$_POST['carbs'] : null,
+                        'fats' => !empty($_POST['fats']) ? (float)$_POST['fats'] : null,
+                        'image_url' => $image_url,
+                        'is_vegan' => isset($_POST['is_vegan']) ? 1 : 0,
+                        'is_vegetarian' => isset($_POST['is_vegetarian']) ? 1 : 0,
+                        'is_gluten_free' => isset($_POST['is_gluten_free']) ? 1 : 0,
+                        'idCategorie' => !empty($_POST['idCategorie']) ? (int)$_POST['idCategorie'] : null
+                    ];
+                    
+                    if($this->updateRecipe($id, $data)) {
+                        $this->deleteInstructionsByRecipe($id);
                         
                         if(isset($_POST['instructions']) && is_array($_POST['instructions'])) {
                             foreach($_POST['instructions'] as $step => $instruction) {
                                 if(!empty($instruction['description'])) {
-                                    $instr = new Instruction();
-                                    $instr->recipe_id = $id;
-                                    $instr->step_number = $step + 1;
-                                    $instr->description = trim($instruction['description']);
-                                    $instr->tip = !empty($instruction['tip']) ? trim($instruction['tip']) : null;
-                                    $instr->create();
+                                    $instrData = [
+                                        'recipe_id' => $id,
+                                        'step_number' => $step + 1,
+                                        'description' => $this->sanitizeInput($instruction['description']),
+                                        'tip' => !empty($instruction['tip']) ? $this->sanitizeInput($instruction['tip']) : null
+                                    ];
+                                    
+                                    $query = "INSERT INTO instructions (recipe_id, step_number, description, tip)
+                                              VALUES (:recipe_id, :step_number, :description, :tip)";
+                                    $stmt = $this->db->prepare($query);
+                                    $stmt->bindParam(":recipe_id", $instrData['recipe_id']);
+                                    $stmt->bindParam(":step_number", $instrData['step_number']);
+                                    $stmt->bindParam(":description", $instrData['description']);
+                                    $stmt->bindParam(":tip", $instrData['tip']);
+                                    $stmt->execute();
                                 }
                             }
                         }
@@ -286,7 +806,14 @@ class RecipeController {
                 }
             }
             
+            $stmtCategories = $this->getAllCategories();
+            $categories = [];
+            while($cat = $stmtCategories->fetch(PDO::FETCH_ASSOC)) {
+                $categories[] = $cat;
+            }
+            
             require_once dirname(__DIR__) . '/views/backoffice/recipes/edit.php';
+            
         } catch(Exception $e) {
             $_SESSION['error'] = "Erreur: " . $e->getMessage();
             header("Location: index.php?action=backRecipes");
@@ -294,11 +821,29 @@ class RecipeController {
         }
     }
 
+    private function getInstructionsByRecipe($recipe_id) {
+        try {
+            $query = "SELECT * FROM instructions WHERE recipe_id = :recipe_id ORDER BY step_number ASC";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":recipe_id", $recipe_id);
+            $stmt->execute();
+            return $stmt;
+        } catch(PDOException $e) {
+            error_log("Erreur PDO: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function saveRecipeVersion($recipe_id, $recipeData, $comment = '') {
+        require_once dirname(__DIR__) . '/models/RecipeVersion.php';
+        $versionModel = new RecipeVersion($this->db);
+        return $versionModel->saveVersion($recipe_id, $recipeData, $comment);
+    }
+
     public function backDelete($id) {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
-                $this->recipe->id = $id;
-                $recipe = $this->recipe->readOne();
+                $recipe = $this->getRecipeById($id);
                 
                 if(!$recipe) {
                     $_SESSION['error'] = "Recette non trouvée";
@@ -306,9 +851,19 @@ class RecipeController {
                     exit();
                 }
                 
-                $this->instruction->deleteByRecipe($id);
+                if(!empty($recipe['image_url']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url'])) {
+                    unlink($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url']);
+                }
                 
-                if($this->recipe->delete()) {
+                $this->deleteInstructionsByRecipe($id);
+                
+                if($this->deleteRecipe($id)) {
+                    $this->addNotification(
+                        "🗑️ Recette supprimée",
+                        "La recette \"" . htmlspecialchars($recipe['title']) . "\" a été supprimée",
+                        "danger",
+                        "fas fa-trash-alt"
+                    );
                     $_SESSION['success'] = "Recette supprimée avec succès !";
                 } else {
                     $_SESSION['error'] = "Erreur lors de la suppression";
@@ -321,6 +876,30 @@ class RecipeController {
         exit();
     }
 
+    public function backShow($id) {
+        try {
+            $recipe = $this->getRecipeWithCategorie($id);
+            
+            if(!$recipe) {
+                $_SESSION['error'] = "Recette non trouvée";
+                header("Location: index.php?action=backRecipes");
+                exit();
+            }
+            
+            $stmt = $this->getInstructionsByRecipe($id);
+            $instructions = [];
+            while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $instructions[] = $row;
+            }
+            
+            require_once dirname(__DIR__) . '/views/backoffice/recipes/show.php';
+        } catch(Exception $e) {
+            $_SESSION['error'] = "Erreur: " . $e->getMessage();
+            header("Location: index.php?action=backRecipes");
+            exit();
+        }
+    }
+
     public function backBulkDelete() {
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ids']) && !empty($_POST['ids'])) {
             $ids = explode(',', $_POST['ids']);
@@ -329,12 +908,14 @@ class RecipeController {
             try {
                 foreach($ids as $id) {
                     $id = (int)$id;
-                    $this->recipe->id = $id;
-                    $recipe = $this->recipe->readOne();
+                    $recipe = $this->getRecipeById($id);
                     
                     if($recipe) {
-                        $this->instruction->deleteByRecipe($id);
-                        if($this->recipe->delete()) {
+                        if(!empty($recipe['image_url']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url'])) {
+                            unlink($_SERVER['DOCUMENT_ROOT'] . $recipe['image_url']);
+                        }
+                        $this->deleteInstructionsByRecipe($id);
+                        if($this->deleteRecipe($id)) {
                             $deletedCount++;
                         }
                     }
@@ -354,48 +935,9 @@ class RecipeController {
         exit();
     }
     
-    // Recherche par catégorie (par nom de catégorie)
-    public function searchByCategorie() {
-        try {
-            $categorieNom = isset($_GET['categorie']) ? trim($_GET['categorie']) : '';
-            $recipes = [];
-            
-            if(!empty($categorieNom)) {
-                $stmt = $this->categorie->search($categorieNom);
-                $categoriesTrouvees = [];
-                while($cat = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $categoriesTrouvees[] = $cat;
-                }
-                
-                $recipes = [];
-                foreach($categoriesTrouvees as $cat) {
-                    $stmtRecettes = $this->recipe->readByCategorie($cat['idCategorie']);
-                    while($row = $stmtRecettes->fetch(PDO::FETCH_ASSOC)) {
-                        if(!in_array($row, $recipes)) {
-                            $recipes[] = $row;
-                        }
-                    }
-                }
-                $searchTitle = "Recettes dans la catégorie : " . htmlspecialchars($categorieNom);
-            } else {
-                $stmt = $this->recipe->readAllWithCategorie();
-                while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $recipes[] = $row;
-                }
-                $searchTitle = "Toutes les recettes";
-            }
-            
-            require_once dirname(__DIR__) . '/views/frontoffice/recipes/search.php';
-        } catch(Exception $e) {
-            $_SESSION['error'] = "Erreur: " . $e->getMessage();
-            header("Location: index.php?action=frontRecipes");
-            exit();
-        }
-    }
-
     public function backExportCSV() {
         try {
-            $stmt = $this->recipe->readAll();
+            $stmt = $this->getAllRecipes();
             $recipes = [];
             while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $recipes[] = $row;

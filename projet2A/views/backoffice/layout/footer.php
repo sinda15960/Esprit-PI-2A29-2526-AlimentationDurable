@@ -126,5 +126,8 @@
         
         console.log('BackOffice chargé avec succès !');
     </script>
+    <script src="js/voice-assistant.js"></script>
+</body>
+</html>
 </body>
 </html>

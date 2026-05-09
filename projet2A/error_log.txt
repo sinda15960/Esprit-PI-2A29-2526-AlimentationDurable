@@ -1,0 +1,524 @@
+[21-Apr-2026 03:43:49 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 03:43:49 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 03:50:17 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 03:50:17 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:03:31 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views\frontoffice/../models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:03:31 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views\frontoffice/../models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:6
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(95): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:05:31 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views\frontoffice/../models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:05:31 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views\frontoffice/../models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:6
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(95): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:35 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:35 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:6
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(95): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:37 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:37 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:6
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(95): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:41 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:07:41 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:6
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(95): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 6
+[21-Apr-2026 04:10:20 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:10:20 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:46
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(44): CategorieController->frontRecettesByCategorie(6)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:10:24 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:10:24 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:46
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(44): CategorieController->frontRecettesByCategorie(11)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:10:35 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:10:35 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:46
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(44): CategorieController->frontRecettesByCategorie(11)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:12:12 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:12:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/frontoffice/categories/show.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:46
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(44): CategorieController->frontRecettesByCategorie(4)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 46
+[21-Apr-2026 04:22:24 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:22:24 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:33:56 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:33:56 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:51:51 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 04:51:51 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:09:55 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 7
+[21-Apr-2026 05:09:55 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai\views/models/Categorie.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php:7
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(109): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(22): RecipeController->frontIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\frontoffice\recipes\index.php on line 7
+[21-Apr-2026 05:16:20 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 126
+[21-Apr-2026 05:16:22 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 126
+[21-Apr-2026 05:16:29 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 126
+[21-Apr-2026 05:27:21 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:27:21 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:27:25 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:27:25 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:27:55 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:27:55 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/categories/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php:26
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(126): CategorieController->backIndex()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\CategorieController.php on line 26
+[21-Apr-2026 05:31:22 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method CategorieController::backCreate() in C:\xampp1\htdocs\nutriflow-ai\public\index.php:130
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 130
+[21-Apr-2026 05:35:45 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\categories\index.php on line 434
+[21-Apr-2026 05:35:58 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\categories\index.php on line 434
+[21-Apr-2026 05:35:59 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\categories\index.php on line 434
+[21-Apr-2026 06:43:11 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 155
+[21-Apr-2026 06:43:12 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public", expecting end of file in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 155
+[21-Apr-2026 15:22:52 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: Too few arguments to function Categorie::__construct(), 0 passed in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php on line 12 and exactly 1 expected in C:\xampp1\htdocs\nutriflow-ai\models\Categorie.php:15
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php(12): Categorie->__construct()
+#1 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(557): require_once('C:\\xampp1\\htdoc...')
+#2 C:\xampp1\htdocs\nutriflow-ai\public\index.php(56): RecipeController->backCreate()
+#3 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\models\Categorie.php on line 15
+[21-Apr-2026 15:24:03 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[21-Apr-2026 15:24:03 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php:161
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(94): InstructionController->backIndex(3)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[21-Apr-2026 15:25:06 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: Too few arguments to function Categorie::__construct(), 0 passed in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php on line 12 and exactly 1 expected in C:\xampp1\htdocs\nutriflow-ai\models\Categorie.php:15
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php(12): Categorie->__construct()
+#1 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(557): require_once('C:\\xampp1\\htdoc...')
+#2 C:\xampp1\htdocs\nutriflow-ai\public\index.php(56): RecipeController->backCreate()
+#3 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\models\Categorie.php on line 15
+[21-Apr-2026 15:33:32 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method Categorie::readAll() in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php:17
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(557): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(56): RecipeController->backCreate()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php on line 17
+[21-Apr-2026 15:35:07 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method Categorie::readAll() in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php:17
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(557): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(56): RecipeController->backCreate()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\create.php on line 17
+[26-Apr-2026 21:19:39 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[26-Apr-2026 21:19:39 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php:161
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(94): InstructionController->backIndex(5)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[26-Apr-2026 21:37:32 Europe/Berlin] PHP Warning:  require_once(C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php): Failed to open stream: No such file or directory in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[26-Apr-2026 21:37:32 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp1\htdocs\nutriflow-ai/views/backoffice/instructions/index.php' (include_path='C:\xampp1\php\PEAR') in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php:161
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(94): InstructionController->backIndex(6)
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php on line 161
+[26-Apr-2026 21:49:30 Europe/Berlin] PHP Warning:  Undefined variable $existingInstructions in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[26-Apr-2026 21:49:30 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php:27
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php(196): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(102): InstructionController->backCreate(5)
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[26-Apr-2026 21:50:33 Europe/Berlin] PHP Warning:  Undefined variable $existingInstructions in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[26-Apr-2026 21:50:33 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php:27
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php(196): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(102): InstructionController->backCreate(6)
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[26-Apr-2026 21:51:05 Europe/Berlin] PHP Warning:  Undefined variable $existingInstructions in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[26-Apr-2026 21:51:05 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php:27
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\InstructionController.php(196): require_once()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(102): InstructionController->backCreate(6)
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\instructions\create.php on line 27
+[05-May-2026 00:18:19 Europe/Berlin] PHP Fatal error:  Cannot redeclare RecipeController::addNotification() in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 651
+[05-May-2026 00:21:02 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method RecipeController::backCreate() in C:\xampp1\htdocs\nutriflow-ai\public\index.php:56
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 56
+[05-May-2026 00:21:20 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method RecipeController::backCreate() in C:\xampp1\htdocs\nutriflow-ai\public\index.php:56
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 56
+[05-May-2026 02:19:37 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "catch" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 651
+[05-May-2026 02:26:44 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "catch" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 651
+[05-May-2026 02:26:45 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "catch" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 651
+[05-May-2026 02:30:44 Europe/Berlin] PHP Fatal error:  Cannot redeclare RecipeController::backCreate() in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 644
+[05-May-2026 02:30:46 Europe/Berlin] PHP Fatal error:  Cannot redeclare RecipeController::backCreate() in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 644
+[05-May-2026 02:32:05 Europe/Berlin] PHP Fatal error:  Cannot redeclare RecipeController::saveRecipeVersion() in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 755
+[05-May-2026 02:32:06 Europe/Berlin] PHP Fatal error:  Cannot redeclare RecipeController::saveRecipeVersion() in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 755
+[05-May-2026 02:34:15 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:34:15 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:34:55 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:34:55 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:36:07 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:36:07 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:39:38 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:39:38 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:40:21 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:40:21 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:43:47 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type bool in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:44:15 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type bool in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:44:45 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:44:45 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:45:09 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "RecipeVersionController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:162
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 162
+[05-May-2026 02:48:57 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:48:57 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:49:03 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "RecipeVersionController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:162
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 162
+[05-May-2026 02:49:04 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "RecipeVersionController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:162
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 162
+[05-May-2026 02:49:36 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "RecipeVersionController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:162
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 162
+[05-May-2026 02:53:50 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:53:50 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:54:14 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:54:14 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:54:22 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 02:54:22 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:01:05 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:01:05 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:02:37 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:02:37 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:02:40 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:02:40 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:03:27 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:03:27 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:05:42 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:05:42 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:07:28 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:07:28 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:08:01 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:08:01 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:08:33 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 03:08:33 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:27:00 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "endif" in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 193
+[05-May-2026 04:27:01 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "endif" in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 193
+[05-May-2026 04:43:40 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:43:40 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:46:55 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:46:55 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:47:18 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:47:18 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:49:26 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:49:26 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:53:25 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:53:25 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:58:00 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:58:00 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:59:39 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 04:59:39 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:03:37 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:03:37 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:04:34 Europe/Berlin] Erreur de connexion : SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it
+[05-May-2026 05:04:34 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php:63
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(476): RecipeController->getAllRecipes()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(52): RecipeController->backIndex()
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 63
+[05-May-2026 05:04:44 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:04:44 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:06:23 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:06:23 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:06:39 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "RecipeVersionController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:162
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 162
+[05-May-2026 05:27:47 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:27:47 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:31:23 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:31:23 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:34:20 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:34:20 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:37:28 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:37:28 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:41:06 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method RecipeController::checkCategoryGoals() in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php:703
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(56): RecipeController->backCreate()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 703
+[05-May-2026 05:43:48 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method RecipeController::checkRecipeMilestones() in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php:764
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(56): RecipeController->backCreate()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 764
+[05-May-2026 05:44:27 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method RecipeController::checkRecipeMilestones() in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php:764
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\public\index.php(56): RecipeController->backCreate()
+#1 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 764
+[05-May-2026 05:48:31 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 890
+[05-May-2026 05:52:10 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:52:10 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:52:10 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:52:10 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:53:27 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:53:27 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:53:27 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 05:53:27 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:05:30 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:05:30 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:06:12 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:06:12 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:06:12 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:06:12 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:06:35 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "RecipeVersionController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:162
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 162
+[05-May-2026 06:07:22 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:07:22 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:09:10 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:09:10 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:09:56 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:09:56 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:10:07 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:10:07 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:10:42 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:10:42 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:13:38 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:13:38 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:13:38 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:13:38 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:18:35 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:18:35 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:19:24 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:19:24 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:20:47 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:20:47 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:32:49 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:32:49 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:32:52 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 172
+[05-May-2026 06:38:04 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:38:04 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:38:21 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 172
+[05-May-2026 06:41:09 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 171
+[05-May-2026 06:41:35 Europe/Berlin] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 171
+[05-May-2026 06:43:21 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:43:21 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:44:10 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:44:10 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:44:25 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:44:25 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:44:52 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:44:52 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:45:10 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:45:10 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:45:37 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:45:37 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:46:00 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 06:46:00 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:39:36 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:39:36 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:40:04 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:40:04 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:40:09 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:40:09 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:40:29 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:40:29 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:40:54 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:40:54 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:50:54 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: Too few arguments to function Recipe::__construct(), 0 passed in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeVersionController.php on line 9 and exactly 1 expected in C:\xampp1\htdocs\nutriflow-ai\models\Recipe.php:27
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeVersionController.php(9): Recipe->__construct()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(157): RecipeVersionController->showHistory(29)
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\models\Recipe.php on line 27
+[05-May-2026 10:50:56 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: Too few arguments to function Recipe::__construct(), 0 passed in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeVersionController.php on line 9 and exactly 1 expected in C:\xampp1\htdocs\nutriflow-ai\models\Recipe.php:27
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeVersionController.php(9): Recipe->__construct()
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(157): RecipeVersionController->showHistory(29)
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\models\Recipe.php on line 27
+[05-May-2026 10:51:14 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:51:14 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:52:52 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 10:52:52 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:11:15 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "private" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 826
+[05-May-2026 11:15:30 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "private" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 826
+[05-May-2026 11:15:31 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "private" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 826
+[05-May-2026 11:15:46 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "private" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 826
+[05-May-2026 11:15:47 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "private" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 826
+[05-May-2026 11:18:46 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "private" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 826
+[05-May-2026 11:18:47 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "private" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 826
+[05-May-2026 11:18:47 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "private" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 826
+[05-May-2026 11:18:47 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "private" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 826
+[05-May-2026 11:23:49 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 827
+[05-May-2026 11:23:50 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 827
+[05-May-2026 11:23:50 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 827
+[05-May-2026 11:23:51 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "public" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 827
+[05-May-2026 11:28:19 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "private" in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 735
+[05-May-2026 11:35:16 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:35:16 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:35:31 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method RecipeVersion::saveVersion() in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php:840
+Stack trace:
+#0 C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php(719): RecipeController->saveRecipeVersion(29, Array, 'Version avant m...')
+#1 C:\xampp1\htdocs\nutriflow-ai\public\index.php(62): RecipeController->backEdit(29)
+#2 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\controllers\RecipeController.php on line 840
+[05-May-2026 11:38:41 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:38:41 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:38:51 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:38:51 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:39:05 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:39:05 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:39:14 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:39:14 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:39:28 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 11:39:28 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 12:10:49 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 12:10:49 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 12:48:13 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 12:48:13 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 12:48:13 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:176
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 176
+[05-May-2026 12:48:26 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:171
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 171
+[05-May-2026 12:49:18 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:171
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 171
+[05-May-2026 12:49:35 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:171
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 171
+[05-May-2026 12:54:43 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:171
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 171
+[05-May-2026 12:54:57 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:171
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 171
+[05-May-2026 12:55:12 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:176
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 176
+[05-May-2026 12:57:19 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:171
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 171
+[05-May-2026 12:57:38 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 12:57:38 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 12:57:38 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:176
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 176
+[05-May-2026 12:57:43 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:171
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 171
+[05-May-2026 15:03:21 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:03:21 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:03:21 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:176
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 176
+[05-May-2026 15:03:45 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:171
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 171
+[05-May-2026 15:04:42 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:04:42 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:04:43 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:176
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 176
+[05-May-2026 15:07:30 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "VoiceAssistantController" not found in C:\xampp1\htdocs\nutriflow-ai\public\index.php:176
+Stack trace:
+#0 {main}
+  thrown in C:\xampp1\htdocs\nutriflow-ai\public\index.php on line 176
+[05-May-2026 15:11:45 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:11:45 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:11:59 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:11:59 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:21:23 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:21:23 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:37:29 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:37:29 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:39:26 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:39:26 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:41:07 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:41:07 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:41:32 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:41:32 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:41:40 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:41:40 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:41:46 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:41:46 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:42:34 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:42:34 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:42:45 Europe/Berlin] PHP Warning:  Undefined variable $recipe in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
+[05-May-2026 15:42:45 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp1\htdocs\nutriflow-ai\views\backoffice\recipes\index.php on line 21
