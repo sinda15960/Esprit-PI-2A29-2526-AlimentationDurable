@@ -2,20 +2,26 @@
     <div class="profile-card">
         <div class="profile-header">
             <div class="profile-avatar" id="dynamicAvatar">
-                <span id="avatarEmoji">👤</span>
+                <div class="avatar-content" id="avatarContent">
+                    <span class="avatar-emoji" id="avatarEmoji">👤</span>
+                    <img id="avatarImage" class="avatar-image" src="" alt="Avatar" style="display: none;">
+                </div>
             </div>
             <h2><?php echo htmlspecialchars($_SESSION['full_name'] ?: $_SESSION['username']); ?></h2>
             <p class="profile-email"><?php echo htmlspecialchars($_SESSION['email']); ?></p>
             <span class="role-badge"><?php echo ucfirst($_SESSION['role']); ?></span>
         </div>
 
-        <!-- Streak Widget - Chemin corrigé -->
+        <!-- Features Buttons (Donations, Recipes, Marketplace, Plans, Allergies) -->
+        <?php include dirname(__DIR__) . '/front/components/features-buttons.php'; ?>
+
+        <!-- Streak Widget -->
         <?php include dirname(__DIR__) . '/front/components/streak-widget.php'; ?>
 
-        <!-- Daily Quote Widget - Chemin corrigé -->
+        <!-- Daily Quote Widget -->
         <?php include dirname(__DIR__) . '/front/components/daily-quote.php'; ?>
 
-        <!-- Avatar Generator - Chemin corrigé -->
+        <!-- Avatar Generator -->
         <?php include dirname(__DIR__) . '/front/components/avatar-generator.php'; ?>
 
         <!-- Account Reactivated Message -->
@@ -185,6 +191,47 @@
 </div>
 
 <style>
+/* Profile Avatar */
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #16a34a, #14532d);
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.avatar-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.avatar-emoji {
+    font-size: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 /* Reactivated Message */
 .reactivated-message {
     background: linear-gradient(135deg, #dcfce7, #bbf7d0);
@@ -790,12 +837,174 @@ body.dark-mode .friend-name {
 </style>
 
 <script>
+// ========== AVATAR MANAGER ==========
+let avatarManager;
+
+class AvatarManager {
+    constructor(username) {
+        this.username = username;
+        this.loadAvatar();
+    }
+
+    loadAvatar() {
+        const savedAvatar = localStorage.getItem('userAvatar');
+        if (savedAvatar) {
+            try {
+                this.currentAvatar = JSON.parse(savedAvatar);
+            } catch(e) {
+                this.setDefaultAvatar();
+            }
+        } else {
+            this.setDefaultAvatar();
+        }
+        this.displayAvatar();
+        this.updateMainProfileAvatar();
+    }
+
+    setDefaultAvatar() {
+        this.currentAvatar = {
+            type: 'initials',
+            text: this.getInitials(),
+            color: this.getColorFromName()
+        };
+    }
+
+    getInitials() {
+        if (this.username && this.username !== 'User') {
+            return this.username.substring(0, 2).toUpperCase();
+        }
+        return '👤';
+    }
+
+    getColorFromName() {
+        const colors = ['#16a34a', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#6366f1'];
+        const index = this.username ? this.username.length % colors.length : 0;
+        return colors[index];
+    }
+
+    displayAvatar() {
+        const emojiSpan = document.getElementById('avatarEmoji');
+        const avatarImage = document.getElementById('avatarImage');
+        
+        if (!emojiSpan || !avatarImage) return;
+        
+        emojiSpan.style.display = 'flex';
+        avatarImage.style.display = 'none';
+        avatarImage.src = '';
+        
+        if (this.currentAvatar.type === 'initials') {
+            emojiSpan.innerHTML = this.currentAvatar.text;
+            emojiSpan.style.backgroundColor = this.currentAvatar.color;
+            emojiSpan.style.fontSize = '1.5rem';
+            emojiSpan.style.fontWeight = 'bold';
+            emojiSpan.style.color = 'white';
+        } 
+        else if (this.currentAvatar.type === 'emoji') {
+            emojiSpan.innerHTML = this.currentAvatar.emoji;
+            emojiSpan.style.backgroundColor = 'transparent';
+            emojiSpan.style.fontSize = '3rem';
+            emojiSpan.style.fontWeight = 'normal';
+            emojiSpan.style.color = 'white';
+        } 
+        else if (this.currentAvatar.type === 'photo' && this.currentAvatar.url) {
+            emojiSpan.style.display = 'none';
+            avatarImage.style.display = 'block';
+            avatarImage.src = this.currentAvatar.url;
+        }
+        
+        this.saveToLocal();
+    }
+
+    updateMainProfileAvatar() {
+        const mainAvatarDiv = document.querySelector('.profile-avatar');
+        if (!mainAvatarDiv) return;
+        
+        const contentDiv = mainAvatarDiv.querySelector('.avatar-content');
+        if (!contentDiv) return;
+        
+        if (this.currentAvatar.type === 'initials') {
+            const span = document.createElement('span');
+            span.className = 'avatar-emoji';
+            span.textContent = this.currentAvatar.text;
+            span.style.backgroundColor = this.currentAvatar.color;
+            span.style.fontSize = '1.5rem';
+            span.style.fontWeight = 'bold';
+            span.style.color = 'white';
+            span.style.display = 'flex';
+            span.style.alignItems = 'center';
+            span.style.justifyContent = 'center';
+            span.style.width = '100%';
+            span.style.height = '100%';
+            contentDiv.innerHTML = '';
+            contentDiv.appendChild(span);
+        } 
+        else if (this.currentAvatar.type === 'emoji') {
+            const span = document.createElement('span');
+            span.className = 'avatar-emoji';
+            span.textContent = this.currentAvatar.emoji;
+            span.style.fontSize = '3rem';
+            span.style.display = 'flex';
+            span.style.alignItems = 'center';
+            span.style.justifyContent = 'center';
+            span.style.width = '100%';
+            span.style.height = '100%';
+            contentDiv.innerHTML = '';
+            contentDiv.appendChild(span);
+        } 
+        else if (this.currentAvatar.type === 'photo' && this.currentAvatar.url) {
+            const img = document.createElement('img');
+            img.className = 'avatar-image';
+            img.src = this.currentAvatar.url;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            contentDiv.innerHTML = '';
+            contentDiv.appendChild(img);
+        }
+    }
+
+    saveToLocal() {
+        localStorage.setItem('userAvatar', JSON.stringify(this.currentAvatar));
+    }
+
+    setAvatar(avatarData) {
+        this.currentAvatar = avatarData;
+        this.displayAvatar();
+        this.updateMainProfileAvatar();
+        this.showToast('✅ Avatar updated!');
+    }
+
+    showToast(message) {
+        const existing = document.querySelectorAll('.avatar-toast');
+        existing.forEach(t => t.remove());
+        
+        const toast = document.createElement('div');
+        toast.className = 'avatar-toast';
+        toast.textContent = message;
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #16a34a;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            z-index: 10001;
+            font-size: 0.8rem;
+            animation: fadeInUp 0.3s ease;
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+}
+
 // ========== GOAL TRACKER ==========
 let userGoals = [];
 
 function loadGoals() {
     const savedGoals = localStorage.getItem('userGoals');
-    if(savedGoals) {
+    if (savedGoals) {
         userGoals = JSON.parse(savedGoals);
     } else {
         userGoals = [
@@ -814,9 +1023,9 @@ function saveGoals() {
 
 function renderGoals() {
     const goalsList = document.getElementById('goalsList');
-    if(!goalsList) return;
+    if (!goalsList) return;
     
-    if(userGoals.length === 0) {
+    if (userGoals.length === 0) {
         goalsList.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 1rem;">No goals yet. Click "Add Goal" to start! 🎯</p>';
         document.getElementById('goalsStats').innerHTML = '<span>🎯 0/0 goals completed</span>';
         return;
@@ -826,7 +1035,7 @@ function renderGoals() {
     goalsList.innerHTML = userGoals.map(goal => {
         const progress = (goal.current / goal.target) * 100;
         const isCompleted = goal.current >= goal.target;
-        if(isCompleted) completedCount++;
+        if (isCompleted) completedCount++;
         
         return `
             <div class="goal-item">
@@ -874,7 +1083,7 @@ function addGoal() {
     const target = parseInt(document.getElementById('goalTarget').value);
     const unit = document.getElementById('goalUnit').value.trim();
     
-    if(!name || !target || !unit) {
+    if (!name || !target || !unit) {
         alert('Please fill all fields');
         return;
     }
@@ -894,7 +1103,7 @@ function addGoal() {
 
 function incrementGoal(id) {
     const goal = userGoals.find(g => g.id === id);
-    if(goal && goal.current < goal.target) {
+    if (goal && goal.current < goal.target) {
         goal.current = Math.min(goal.target, goal.current + 1);
         saveGoals();
         renderGoals();
@@ -918,7 +1127,7 @@ const friendsData = [
 
 function loadFriends() {
     const friendsList = document.getElementById('friendsList');
-    if(!friendsList) return;
+    if (!friendsList) return;
     
     friendsList.innerHTML = friendsData.map(friend => `
         <div class="friend-item">
@@ -934,20 +1143,18 @@ function loadFriends() {
 
 // ========== DELETE ACCOUNT MODAL ==========
 function openDeleteModal() {
-    const modal = document.getElementById('deleteModal');
-    modal.style.display = 'block';
+    document.getElementById('deleteModal').style.display = 'block';
 }
 
 function closeDeleteModal() {
-    const modal = document.getElementById('deleteModal');
-    modal.style.display = 'none';
+    document.getElementById('deleteModal').style.display = 'none';
     document.getElementById('confirm_delete_input').value = '';
 }
 
 function confirmDelete() {
     const confirmInput = document.getElementById('confirm_delete_input').value;
-    if(confirmInput === 'DELETE') {
-        if(confirm('Are you absolutely sure? This action cannot be undone!')) {
+    if (confirmInput === 'DELETE') {
+        if (confirm('Are you absolutely sure? This action cannot be undone!')) {
             window.location.href = 'index.php?action=delete_account';
         }
     } else {
@@ -960,7 +1167,7 @@ function validateProfileForm() {
     let isValid = true;
     
     const username = document.getElementById('username');
-    if(username && username.value.length < 3) {
+    if (username && username.value.length < 3) {
         document.getElementById('usernameError').textContent = 'Username must be at least 3 characters';
         isValid = false;
     } else {
@@ -968,7 +1175,7 @@ function validateProfileForm() {
     }
     
     const age = document.getElementById('age');
-    if(age && age.value && (age.value < 1 || age.value > 120)) {
+    if (age && age.value && (age.value < 1 || age.value > 120)) {
         document.getElementById('ageError').textContent = 'Age must be between 1 and 120';
         isValid = false;
     } else {
@@ -976,7 +1183,7 @@ function validateProfileForm() {
     }
     
     const weight = document.getElementById('weight');
-    if(weight && weight.value && (weight.value < 20 || weight.value > 300)) {
+    if (weight && weight.value && (weight.value < 20 || weight.value > 300)) {
         document.getElementById('weightError').textContent = 'Weight must be between 20 and 300 kg';
         isValid = false;
     } else {
@@ -984,7 +1191,7 @@ function validateProfileForm() {
     }
     
     const height = document.getElementById('height');
-    if(height && height.value && (height.value < 100 || height.value > 250)) {
+    if (height && height.value && (height.value < 100 || height.value > 250)) {
         document.getElementById('heightError').textContent = 'Height must be between 100 and 250 cm';
         isValid = false;
     } else {
@@ -994,7 +1201,15 @@ function validateProfileForm() {
     return isValid;
 }
 
-// Close modal when clicking outside
+// ========== INITIALIZATION ==========
+document.addEventListener('DOMContentLoaded', function() {
+    const username = '<?php echo htmlspecialchars($_SESSION['username']); ?>';
+    avatarManager = new AvatarManager(username);
+    loadGoals();
+    loadFriends();
+});
+
+// Close modals when clicking outside
 window.onclick = function(event) {
     const deleteModal = document.getElementById('deleteModal');
     const addGoalModal = document.getElementById('addGoalModal');
@@ -1003,9 +1218,19 @@ window.onclick = function(event) {
     if (event.target == addGoalModal) closeAddGoalModal();
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    loadGoals();
-    loadFriends();
-});
+// Animation keyframes
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
 </script>
