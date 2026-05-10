@@ -1,11 +1,19 @@
+<?php
+/* Préfixe assets : évite les CSS 404 si l’URL ou le dossier virtuel change */
+$nfScriptDir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
+$nfScriptDir = str_replace('\\', '/', (string) $nfScriptDir);
+$nfScriptDir = rtrim($nfScriptDir, '/');
+$nfAssetPrefix = ($nfScriptDir === '' || $nfScriptDir === '.' || $nfScriptDir === '/') ? '' : $nfScriptDir . '/';
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title ?? 'NutriFlow AI - Healthy Eating Made Smart'; ?></title>
-    <link rel="stylesheet" href="assets/css/front-style.css">
-    <link rel="stylesheet" href="assets/css/dark-mode.css">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($nfAssetPrefix); ?>assets/css/front-style.css">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($nfAssetPrefix); ?>assets/css/dark-mode.css">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($nfAssetPrefix); ?>assets/css/auth.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -49,8 +57,8 @@
         </div>
     </footer>
 
-    <script src="assets/js/validation.js"></script>
-    <script src="assets/js/dark-mode.js"></script>
-    <script src="assets/js/confetti.js"></script>
+    <script src="<?php echo htmlspecialchars($nfAssetPrefix); ?>assets/js/validation.js"></script>
+    <script src="<?php echo htmlspecialchars($nfAssetPrefix); ?>assets/js/dark-mode.js"></script>
+    <script src="<?php echo htmlspecialchars($nfAssetPrefix); ?>assets/js/confetti.js"></script>
 </body>
 </html>

@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Si on reçoit allergie_nom au lieu de allergie_id
     if (isset($data['allergie_nom']) && !isset($data['allergie_id'])) {
-        require_once __DIR__ . '/../Model/Allergie.php';
+        require_once __DIR__ . '/../model/Allergie.php';
         $allergie = Allergie::findByNom($data['allergie_nom']);
         if ($allergie) {
             $data['allergie_id'] = $allergie->getId();

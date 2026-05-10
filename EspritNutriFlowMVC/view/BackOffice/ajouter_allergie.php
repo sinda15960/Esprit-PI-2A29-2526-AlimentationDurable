@@ -5,8 +5,8 @@ if (!isset($_SESSION['logged_in'])) {
     exit();
 }
 
-require_once __DIR__ . '/../../Model/Allergie.php';
-require_once __DIR__ . '/../../Model/Traitement.php';
+require_once __DIR__ . '/../../model/Allergie.php';
+require_once __DIR__ . '/../../model/Traitement.php';
 
 $error = '';
 $success = '';

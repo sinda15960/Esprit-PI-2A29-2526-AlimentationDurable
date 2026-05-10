@@ -5,7 +5,7 @@ if (!isset($_SESSION['logged_in'])) {
     exit();
 }
 
-require_once __DIR__ . '/../../Model/Feedback.php';
+require_once __DIR__ . '/../../model/Feedback.php';
 
 $action = $_GET['action'] ?? '';
 $id = $_GET['id'] ?? 0;

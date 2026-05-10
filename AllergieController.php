@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../Model/Allergie.php';
+require_once __DIR__ . '/model/Allergie.php';
 require_once __DIR__ . '/../Config/Database.php';
 
 class AllergieController {

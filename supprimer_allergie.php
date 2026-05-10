@@ -5,7 +5,7 @@ if (!isset($_SESSION['logged_in'])) {
     exit();
 }
 
-require_once __DIR__ . '/../../Model/Allergie.php';
+require_once __DIR__ . '/model/Allergie.php';
 
 $id = $_GET['id'] ?? 0;
 $allergie = Allergie::findById($id);

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../Model/Traitement.php';
+require_once __DIR__ . '/../model/Traitement.php';
 require_once __DIR__ . '/../Config/Database.php';
 
 class TraitementController {

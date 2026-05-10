@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../Model/Allergie.php';
+require_once __DIR__ . '/../../model/Allergie.php';
 require_once __DIR__ . '/../../Controller/AllergieController.php';
 
 // Création d'un objet Allergie (comme demandé par la prof)

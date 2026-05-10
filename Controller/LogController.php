@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../Model/Log.php';
+require_once __DIR__ . '/../model/Log.php';
 require_once __DIR__ . '/../Config/Database.php';
 
 class LogController {

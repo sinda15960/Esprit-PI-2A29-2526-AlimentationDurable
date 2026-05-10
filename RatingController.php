@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../Model/Rating.php';
+require_once __DIR__ . '/model/Rating.php';
 require_once __DIR__ . '/../Config/Database.php';
 
 class RatingController {

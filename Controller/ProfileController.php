@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../Model/UserProfile.php';
+require_once __DIR__ . '/../model/UserProfile.php';
 require_once __DIR__ . '/../Config/Database.php';
 
 class ProfileController {
