@@ -181,6 +181,92 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 - 👤 **LinkedIn** : [Nada Azlouk](https://www.linkedin.com/in/nada-az-095776319)
 - 🏫 **Esprit School of Engineering** : [esprit.tn](https://esprit.tn)
 
+🌟 — Sarra Dimassi
+Module : Gestion Recettes, Catégories & Planification IA
+
+🗄️ 1. Gestion des Recettes
+
+* CRUD complet des recettes (ajout, modification, suppression, affichage)
+* Gestion des informations : nom, ingrédients, calories, temps, difficulté, catégorie, image, description
+* Upload et gestion d’images des recettes
+* Validation des données côté client et serveur
+* Historique des modifications des recettes
+
+🥗 2. Planificateur de Repas Hebdomadaire IA
+
+* Génération automatique d’un menu équilibré pour toute la semaine
+* Adaptation selon les objectifs utilisateurs :
+
+  * Perte de poids
+  * Gain de poids
+  * Équilibre alimentaire
+* Alternance intelligente des types de plats
+* Équilibrage des calories et recommandations nutritionnelles
+
+🔍 3. Recherche Dynamique & Tri Avancé
+
+* Recherche instantanée des recettes et catégories
+* Tri dynamique (nom, calories, difficulté, temps)
+* Filtres avancés pour une navigation rapide
+* Affichage responsive et interactif
+
+📊 4. Statistiques & Analyse
+
+* Tableau de bord statistique interactif
+* Suivi des recettes par catégorie
+* Système d’objectifs et progression
+* Visualisation des performances et indicateurs
+* Export CSV des statistiques et données
+
+⚖️ 5. Comparateur de Recettes
+
+* Comparaison côte à côte de deux recettes
+* Analyse des calories, temps, difficulté et catégories
+* Identification des meilleures options nutritionnelles
+* Interface intuitive pour faciliter le choix des repas
+
+🎲 6. Fonctionnalités Intelligentes
+
+* Génération de recette surprise aléatoire
+* Système de notifications
+* Bouton “Envoyer rapport”
+* Suggestions intelligentes de repas
+
+🎤 7. Commandes Vocales
+
+* Intégration de reconnaissance vocale
+* Exécution d’actions vocales :
+
+  * Ajouter une recette
+  * Rechercher une catégorie
+  * Naviguer dans l’interface
+* Expérience utilisateur moderne et interactive
+
+📂 8. Gestion des Catégories
+
+* CRUD complet des catégories
+* Gestion des objectifs et progression par catégorie
+* Tri et statistiques avancées
+* Interface d’administration intuitive
+* Export CSV des données catégories
+
+🎨 9. Design UI/UX
+
+* Interface moderne et responsive (mobile / tablette / desktop)
+* Animations et transitions CSS fluides
+* Dashboard administrateur interactif
+* Palette cohérente avec le thème alimentation durable
+
+📸 Aperçu de l’interface
+Front Office	User Experience
+Recherche dynamique & recettes IA	Planificateur intelligent et commandes vocales
+Comparateur & recette surprise	Dashboard statistiques et exports CSV
+
+🔗 Liens utiles
+📁 Repository GitHub : Esprit-PI-2A29-2526-AlimentationDurable
+👤 LinkedIn : Sarra Dimassi
+🏫 Esprit School of Engineering : esprit.tn
+
 ---
 
 ## 👩‍💻 Contributeurs
