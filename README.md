@@ -97,11 +97,11 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 | Module | Responsable | Fonctionnalités |
 |--------|------------|-----------------|
 | 🗄️ Gestion Allergies & Traitements | **Nada Azlouk** | CRUD complet, chatbot IA, bouton SOS, alertes pollen, comparateur |
-| 🧊 Gestion Frigo | Sinda Lazaar | Inventaire, alertes péremption |
-| 📋 Gestion Plan Alimentaire | Maissa Jouini | Planification repas, recettes |
-| 👤 Gestion Utilisateurs | Cyrine Sboui | Authentification, profils |
+| 🧊 Gestion Frigo | **Sinda Lazaar** | Inventaire, alertes péremption |
+| 📋 Gestion Plan Alimentaire | **Maissa Jouini** | Planification repas, recettes |
+| 👤 Gestion Utilisateurs | **Cyrine Sboui** | Authentification, profils |
 | 🛒 Gestion Recettes & Catégories | **Sarra Dimassi** | CRUD recettes & catégories, planificateur de repas IA, recherche dynamique & tri, comparateur de recettes, statistiques & progression, export CSV, notifications, recette surprise, historique des modifications, commandes vocales, système de commandes |
-| 📊 Statistiques & Rapports | Hajer BenTemessek | Tableaux de bord, rapports |
+| 📊 Statistiques & Rapports | **Hajer BenTemessek** | Tableaux de bord, rapports |
 
 ---
 
@@ -283,11 +283,11 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 
 | Nom | Module |
 |-----|--------|
-| Sinda Lazaar | Gestion Frigo |
-| Maissa Jouini | Gestion Plan Alimentaire |
-| Cyrine Sboui | Gestion Utilisateurs |
-| Sarra Dimassi | Gestion Commandes |
-| Hajer BenTemessek | Statistiques & Rapports |
+| **Sinda Lazaar** | **Gestion Frigo** |
+| **Maissa Jouini** | **Gestion Plan Alimentaire** |
+| **Cyrine Sboui** | **Gestion Utilisateurs** |
+| **Sarra Dimassi** | **Gestion Recettes & Catégories** |
+| **Hajer BenTemessek** | **Statistiques & Rapports** |
 | **Nada Azlouk** | **Gestion Allergies & Traitements** |
 
 ---
