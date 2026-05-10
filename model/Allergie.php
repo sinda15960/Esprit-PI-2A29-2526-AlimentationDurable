@@ -1,5 +1,7 @@
 <?php
 // Model/Allergie.php - UNIQUEMENT la structure de la classe
+require_once __DIR__ . '/../config/database.php';
+
 class Allergie {
     private $id;
     private $nom;
@@ -76,6 +78,33 @@ class Allergie {
             'image_url' => $this->image_url,
             'vue_count' => $this->vue_count
         ];
+    }
+
+    /**
+     * @return self[]
+     */
+    public static function findAll() {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->query('SELECT * FROM allergies ORDER BY nom ASC');
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $list = [];
+        foreach ($rows as $row) {
+            $a = new self();
+            $a->setId($row['id']);
+            $a->setNom($row['nom']);
+            $a->setCategorie($row['categorie']);
+            $a->setDescription($row['description']);
+            $a->setSymptomes($row['symptomes']);
+            $a->setDeclencheurs($row['declencheurs']);
+            $a->setGravite($row['gravite']);
+            $a->setImageUrl($row['image_url'] ?? null);
+            $a->setVueCount((int)($row['vue_count'] ?? 0));
+            if (!empty($row['created_at'])) {
+                $a->setDateCreation($row['created_at']);
+            }
+            $list[] = $a;
+        }
+        return $list;
     }
 }
 ?>

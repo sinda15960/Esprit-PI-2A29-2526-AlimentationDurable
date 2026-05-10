@@ -1,5 +1,7 @@
 <?php
 // Model/Traitement.php - UNIQUEMENT la structure de la classe
+require_once __DIR__ . '/../config/database.php';
+
 class Traitement {
     private $id;
     private $allergie_id;
@@ -60,6 +62,33 @@ class Traitement {
             'note_moyenne' => $this->note_moyenne,
             'nb_notes' => $this->nb_notes
         ];
+    }
+
+    /**
+     * @return self[]
+     */
+    public static function findAll() {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->query('SELECT * FROM traitements ORDER BY id DESC');
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $list = [];
+        foreach ($rows as $row) {
+            $t = new self();
+            $t->setId($row['id']);
+            $t->setAllergieId($row['allergie_id']);
+            $t->setConseil($row['conseil']);
+            $t->setInterdits($row['interdits']);
+            $t->setMedicaments($row['medicaments'] ?? null);
+            $t->setDuree($row['duree'] ?? null);
+            $t->setNiveauUrgence($row['niveau_urgence']);
+            $t->setNoteMoyenne($row['note_moyenne'] ?? 0);
+            $t->setNbNotes((int)($row['nb_notes'] ?? 0));
+            if (!empty($row['created_at'])) {
+                $t->setDateCreation($row['created_at']);
+            }
+            $list[] = $t;
+        }
+        return $list;
     }
 }
 ?>
