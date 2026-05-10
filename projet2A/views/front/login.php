@@ -682,7 +682,7 @@ async function recognizeFace(signature) {
             
             setTimeout(() => {
                 if(data.user && data.user.role === 'admin') {
-                    window.location.href = '../dashboard.php#donations';
+                    window.location.href = '../../dashboard.php#donations';
                 } else {
                     window.location.href = 'index.php?action=profile';
                 }

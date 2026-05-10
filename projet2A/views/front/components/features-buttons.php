@@ -2,15 +2,15 @@
 /**
  * Raccourcis vers les modules du dépôt (hors projet2A) depuis le profil utilisateur.
  */
-$nfRepoRoot = '..';
-$nfRecipesFo = 'public/index.php';
+$nfRepoRoot = '../..';
+$nfRecipesFo = 'index.php';
 $nfFrigo = $nfRepoRoot . '/frigo/index.php';
 $nfPlan = $nfRepoRoot . '/gestion_plan/login.php';
 ?>
 <!-- Features Buttons Section -->
 <div class="features-buttons-grid">
-    <!-- Donations — tableau de bord dons & associations (session dédiée sur ../login.php si besoin) -->
-    <a class="feature-btn donations" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/dashboard.php" target="_blank" rel="noopener noreferrer">
+    <!-- Donations — tableau de bord dons (ancre #donations) -->
+    <a class="feature-btn donations" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/dashboard.php#donations" target="_blank" rel="noopener noreferrer">
         <span class="feature-icon">💝</span>
         <span class="feature-name">Donations</span>
         <span class="feature-arrow">→</span>

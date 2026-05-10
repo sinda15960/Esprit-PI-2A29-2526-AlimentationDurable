@@ -8,7 +8,7 @@ if (isset($_POST['login'])) {
     if ($username === 'admin' && $password === 'admin123') {
         $_SESSION['logged_in'] = true;
         $_SESSION['username'] = $username;
-        header('Location: dashboard.php');
+        header('Location: dashboard.php#donations');
         exit();
     } else {
         $error = "Identifiants incorrects";

@@ -24,7 +24,7 @@
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Dashboard</span>
                 </a>
-                <a href="../dashboard.php#donations" class="nav-item">
+                <a href="../../dashboard.php#donations" class="nav-item">
                     <span class="nav-icon">💰</span>
                     <span class="nav-text">Gestion des dons</span>
                 </a>

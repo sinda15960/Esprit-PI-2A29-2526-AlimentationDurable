@@ -180,11 +180,14 @@
 
     <!-- Management Sections — liens vers les modules du dépôt (dons, recettes, frigo, plans, allergies) -->
     <?php
-    $nfRepoRoot = '..';
-    $nfRecipesPublic = 'public/index.php';
+    // Depuis projet2A/public/index.php, remonter au dépôt (frigo, gestion_plan, dashboard dons, etc.)
+    $nfRepoRoot = '../..';
+    $nfRecipesPublic = 'index.php';
     $nfFrigoIndex = $nfRepoRoot . '/frigo/index.php';
     $nfPlanBack = $nfRepoRoot . '/gestion_plan/index.php?office=back&module=programme&action=index';
     $nfPlanCreate = $nfRepoRoot . '/gestion_plan/index.php?office=back&module=programme&action=create';
+    $nfDonationsDashboard = $nfRepoRoot . '/dashboard.php#donations';
+    $nfDonationForm = $nfRepoRoot . '/form.php';
     ?>
     <div class="management-sections">
         <div class="section-header">
@@ -213,8 +216,8 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <a class="btn-card" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/dashboard.php#donations">Gestion des dons</a>
-                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/form.php">Nouveau don</a>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfDonationsDashboard); ?>">Manage Donations</a>
+                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfDonationForm); ?>">+ New donation</a>
                 </div>
             </div>
 
