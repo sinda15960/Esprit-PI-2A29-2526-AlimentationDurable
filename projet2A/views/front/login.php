@@ -1,3 +1,9 @@
+<?php
+if (!function_exists('nf_repo_url')) {
+    require_once dirname(__DIR__, 2) . '/config/paths.php';
+}
+$nfAdminDonationsUrlJs = nf_repo_url('dashboard.php') . '#donations';
+?>
 <div class="auth-container">
     <div class="auth-card login-card-simple">
         <div class="auth-right">
@@ -682,7 +688,7 @@ async function recognizeFace(signature) {
             
             setTimeout(() => {
                 if(data.user && data.user.role === 'admin') {
-                    window.location.href = '../../dashboard.php#donations';
+                    window.location.href = <?php echo json_encode($nfAdminDonationsUrlJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
                 } else {
                     window.location.href = 'index.php?action=profile';
                 }

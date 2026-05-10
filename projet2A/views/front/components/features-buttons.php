@@ -1,44 +1,49 @@
 <?php
 /**
- * Raccourcis vers les modules du dépôt (hors projet2A) depuis le profil utilisateur.
+ * Raccourcis vers les modules du dépôt depuis le profil utilisateur.
+ * Utilise config/paths.php (chargé par index.php) pour des URL correctes sous /nutriflow-ai/.
  */
-$nfRepoRoot = '../..';
-$nfRecipesFo = 'index.php';
-$nfFrigo = $nfRepoRoot . '/frigo/index.php';
-$nfPlan = $nfRepoRoot . '/gestion_plan/login.php';
+if (!function_exists('nf_repo_url')) {
+    require_once dirname(__DIR__, 3) . '/config/paths.php';
+}
+$nfDonationsDashboard = nf_repo_url('dashboard.php') . '#donations';
+$nfRecipesFo = nf_projet_url('public/index.php') . '?action=frontRecipes';
+$nfFrigo = nf_repo_url('frigo/index.php');
+$nfPlan = nf_repo_url('gestion_plan/login.php');
+$nfAllergiesFo = nf_repo_url('allergies.php');
 ?>
 <!-- Features Buttons Section -->
 <div class="features-buttons-grid">
-    <!-- Donations — tableau de bord dons (ancre #donations) -->
-    <a class="feature-btn donations" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/dashboard.php#donations" target="_blank" rel="noopener noreferrer">
+    <!-- Donations — tableau de bord dons (section #donations), pas les allergies -->
+    <a class="feature-btn donations" href="<?php echo htmlspecialchars($nfDonationsDashboard); ?>">
         <span class="feature-icon">💝</span>
         <span class="feature-name">Donations</span>
         <span class="feature-arrow">→</span>
     </a>
 
     <!-- Recipes — front-office recettes -->
-    <a class="feature-btn recipes" href="<?php echo htmlspecialchars($nfRecipesFo); ?>?action=frontRecipes" target="_blank" rel="noopener noreferrer">
+    <a class="feature-btn recipes" href="<?php echo htmlspecialchars($nfRecipesFo); ?>">
         <span class="feature-icon">🍽️</span>
         <span class="feature-name">Recipes</span>
         <span class="feature-arrow">→</span>
     </a>
 
     <!-- Marketplace — module frigo -->
-    <a class="feature-btn marketplace" href="<?php echo htmlspecialchars($nfFrigo); ?>" target="_blank" rel="noopener noreferrer">
+    <a class="feature-btn marketplace" href="<?php echo htmlspecialchars($nfFrigo); ?>">
         <span class="feature-icon">🛒</span>
         <span class="feature-name">Marketplace</span>
         <span class="feature-arrow">→</span>
     </a>
 
     <!-- Meal Plans -->
-    <a class="feature-btn plans" href="<?php echo htmlspecialchars($nfPlan); ?>" target="_blank" rel="noopener noreferrer">
+    <a class="feature-btn plans" href="<?php echo htmlspecialchars($nfPlan); ?>">
         <span class="feature-icon">📋</span>
         <span class="feature-name">Meal Plans</span>
         <span class="feature-arrow">→</span>
     </a>
 
-    <!-- Allergies — front office allergies -->
-    <a class="feature-btn allergies" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/allergies.php" target="_blank" rel="noopener noreferrer">
+    <!-- Allergies — front office allergies (URL distincte des dons) -->
+    <a class="feature-btn allergies" href="<?php echo htmlspecialchars($nfAllergiesFo); ?>">
         <span class="feature-icon">⚠️</span>
         <span class="feature-name">Allergies</span>
         <span class="feature-arrow">→</span>

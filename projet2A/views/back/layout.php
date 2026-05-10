@@ -1,3 +1,9 @@
+<?php
+if (!function_exists('nf_repo_url')) {
+    require_once dirname(__DIR__, 2) . '/config/paths.php';
+}
+$nfAdminDonationsUrl = nf_repo_url('dashboard.php') . '#donations';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,7 +30,7 @@
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Dashboard</span>
                 </a>
-                <a href="../../dashboard.php#donations" class="nav-item">
+                <a href="<?php echo htmlspecialchars($nfAdminDonationsUrl); ?>" class="nav-item">
                     <span class="nav-icon">💰</span>
                     <span class="nav-text">Gestion des dons</span>
                 </a>

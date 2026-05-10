@@ -180,14 +180,17 @@
 
     <!-- Management Sections — liens vers les modules du dépôt (dons, recettes, frigo, plans, allergies) -->
     <?php
-    // Depuis projet2A/public/index.php, remonter au dépôt (frigo, gestion_plan, dashboard dons, etc.)
-    $nfRepoRoot = '../..';
-    $nfRecipesPublic = 'index.php';
-    $nfFrigoIndex = $nfRepoRoot . '/frigo/index.php';
-    $nfPlanBack = $nfRepoRoot . '/gestion_plan/index.php?office=back&module=programme&action=index';
-    $nfPlanCreate = $nfRepoRoot . '/gestion_plan/index.php?office=back&module=programme&action=create';
-    $nfDonationsDashboard = $nfRepoRoot . '/dashboard.php#donations';
-    $nfDonationForm = $nfRepoRoot . '/form.php';
+    if (!function_exists('nf_repo_url')) {
+        require_once dirname(__DIR__, 2) . '/config/paths.php';
+    }
+    $nfDonationsDashboard = nf_repo_url('dashboard.php') . '#donations';
+    $nfDonationForm = nf_repo_url('form.php');
+    $nfRecipesPublic = nf_projet_url('public/index.php');
+    $nfFrigoIndex = nf_repo_url('frigo/index.php');
+    $nfPlanBack = nf_repo_url('gestion_plan/index.php') . '?office=back&module=programme&action=index';
+    $nfPlanCreate = nf_repo_url('gestion_plan/index.php') . '?office=back&module=programme&action=create';
+    $nfGestionAllergies = nf_repo_url('gestion_allergies.php');
+    $nfAddAllergie = nf_repo_url('addAllergie.php');
     ?>
     <div class="management-sections">
         <div class="section-header">
@@ -241,8 +244,8 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <a class="btn-card" href="<?php echo htmlspecialchars($nfRecipesPublic); ?>?action=backRecipes" target="_blank" rel="noopener noreferrer">Manage Recipes</a>
-                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfRecipesPublic); ?>?action=backCreateRecipe" target="_blank" rel="noopener noreferrer">+ New Recipe</a>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfRecipesPublic); ?>?action=backRecipes">Manage Recipes</a>
+                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfRecipesPublic); ?>?action=backCreateRecipe">+ New Recipe</a>
                 </div>
             </div>
 
@@ -266,8 +269,8 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <a class="btn-card" href="<?php echo htmlspecialchars($nfFrigoIndex); ?>?mode=back&amp;controller=commande&amp;action=index" target="_blank" rel="noopener noreferrer">Manage Marketplace</a>
-                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfFrigoIndex); ?>?mode=back&amp;controller=produit&amp;action=create" target="_blank" rel="noopener noreferrer">+ Add Product</a>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfFrigoIndex); ?>?mode=back&amp;controller=commande&amp;action=index">Manage Marketplace</a>
+                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfFrigoIndex); ?>?mode=back&amp;controller=produit&amp;action=create">+ Add Product</a>
                 </div>
             </div>
 
@@ -291,8 +294,8 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <a class="btn-card" href="<?php echo htmlspecialchars($nfPlanBack); ?>" target="_blank" rel="noopener noreferrer">Manage Plans</a>
-                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfPlanCreate); ?>" target="_blank" rel="noopener noreferrer">+ Create Plan</a>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfPlanBack); ?>">Manage Plans</a>
+                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfPlanCreate); ?>">+ Create Plan</a>
                 </div>
             </div>
 
@@ -316,8 +319,8 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <a class="btn-card" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/gestion_allergies.php" target="_blank" rel="noopener noreferrer">Manage Allergies</a>
-                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/addAllergie.php" target="_blank" rel="noopener noreferrer">+ Add Allergen</a>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfGestionAllergies); ?>">Manage Allergies</a>
+                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfAddAllergie); ?>">+ Add Allergen</a>
                 </div>
             </div>
         </div>

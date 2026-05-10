@@ -97,7 +97,6 @@ $donsRecents = array_slice($dons, 0, 8);
         .alert-ok { background: #e8f5e9; border: 1px solid #a5d6a7; color: #1b5e20; }
         .muted { color: #666; font-size: 0.85rem; }
         .text-clip { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        #donations, #allergies { scroll-margin-top: 1.25rem; }
         @media (max-width: 768px) {
             th, td { font-size: 0.75rem; padding: 0.45rem 0.3rem; }
             .text-clip { max-width: 120px; }
@@ -108,12 +107,10 @@ $donsRecents = array_slice($dons, 0, 8);
     <div class="header">
         <h1>NutriFlow — Administration</h1>
         <div class="header-actions">
-            <a href="#donations">Gestion des dons</a>
             <a href="form.php">Faire un don</a>
             <a href="list.php">Associations</a>
             <a href="traitements.php">Traitements (site)</a>
             <a href="gestion_allergies.php">Allergies (MVC)</a>
-            <a href="#allergies">Allergies (hub)</a>
             <a href="logout.php" class="logout">Déconnexion</a>
         </div>
     </div>
@@ -135,6 +132,18 @@ $donsRecents = array_slice($dons, 0, 8);
 
         <div class="stats">
             <div class="stat-card">
+                <div class="stat-number"><?= count($allergies) ?></div>
+                <div class="stat-label">Allergies</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><?= count($traitements) ?></div>
+                <div class="stat-label">Traitements</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><?= (int) $totalAssociations ?></div>
+                <div class="stat-label">Associations</div>
+            </div>
+            <div class="stat-card">
                 <div class="stat-number"><?= (int) $totalDons ?></div>
                 <div class="stat-label">Dons enregistrés</div>
             </div>
@@ -143,79 +152,12 @@ $donsRecents = array_slice($dons, 0, 8);
                 <div class="stat-label">Montant (hors annulés)</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number"><?= (int) $totalAssociations ?></div>
-                <div class="stat-label">Associations</div>
-            </div>
-            <div class="stat-card">
                 <div class="stat-number"><?= (int) $donsAlimentaires ?></div>
                 <div class="stat-label">Dons alimentaires</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number"><?= count($allergies) ?></div>
-                <div class="stat-label">Allergies</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number"><?= count($traitements) ?></div>
-                <div class="stat-label">Traitements</div>
-            </div>
         </div>
 
-        <div class="section" id="donations">
-            <h2>Gestion des dons et partenaires</h2>
-            <div class="section-toolbar">
-                <a href="form.php" class="btn btn-add">Nouveau don (formulaire)</a>
-                <a href="list.php" class="btn btn-secondary">Liste des associations</a>
-                <span class="muted">Monétaires : <?= (int) $donsMonetaires ?> · Alimentaires : <?= (int) $donsAlimentaires ?> · Matériel : <?= (int) $donsEquipement ?></span>
-            </div>
-            <p class="muted" style="margin-bottom:0.75rem;">
-                Statuts — En attente : <?= (int) $statsParStatut['pending'] ?> · Confirmés : <?= (int) $statsParStatut['confirmed'] ?> ·
-                Livrés : <?= (int) $statsParStatut['delivered'] ?> · Annulés : <?= (int) $statsParStatut['cancelled'] ?>
-            </p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Donateur</th>
-                        <th>Association</th>
-                        <th>Type</th>
-                        <th>Détail</th>
-                        <th>Statut</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($donsRecents as $don): ?>
-                    <?php
-                        $st = $don['status'] ?? 'pending';
-                        $badgeClass = 'badge-pending';
-                        if ($st === 'confirmed') {
-                            $badgeClass = 'badge-confirmed';
-                        } elseif ($st === 'delivered') {
-                            $badgeClass = 'badge-delivered';
-                        } elseif ($st === 'cancelled') {
-                            $badgeClass = 'badge-cancelled';
-                        }
-                    ?>
-                    <tr>
-                        <td><?= htmlspecialchars($don['donor_name'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($don['association_name'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($don['donation_type'] ?? '') ?></td>
-                        <td>
-                            <?php if (($don['donation_type'] ?? '') === 'monetary'): ?>
-                                <?= number_format((float)($don['amount'] ?? 0), 2) ?> DT
-                            <?php else: ?>
-                                <?= htmlspecialchars((string)($don['food_type'] ?? '')) ?> — <?= (int)($don['quantity'] ?? 0) ?> kg
-                            <?php endif; ?>
-                        </td>
-                        <td><span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($st) ?></span></td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <?php if (count($donsRecents) === 0 && !$donationsLoadError): ?>
-                    <tr><td colspan="5" class="muted">Aucun don enregistré pour le moment.</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="section" id="allergies">
+        <div class="section">
             <h2>Gestion des allergies</h2>
             <div class="section-toolbar">
                 <a href="ajouter_allergie.php" class="btn btn-add">+ Ajouter une allergie</a>
@@ -269,6 +211,61 @@ $donsRecents = array_slice($dons, 0, 8);
                     <?php endforeach; ?>
                     <?php if (count($traitements) === 0): ?>
                     <tr><td colspan="4" class="muted">Aucun traitement.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section" id="donations">
+            <h2>Dons et partenaires</h2>
+            <div class="section-toolbar">
+                <a href="form.php" class="btn btn-add">Nouveau don (formulaire)</a>
+                <a href="list.php" class="btn btn-secondary">Liste des associations</a>
+                <span class="muted">Monétaires : <?= (int) $donsMonetaires ?> · Alimentaires : <?= (int) $donsAlimentaires ?> · Matériel : <?= (int) $donsEquipement ?></span>
+            </div>
+            <p class="muted" style="margin-bottom:0.75rem;">
+                Statuts — En attente : <?= (int) $statsParStatut['pending'] ?> · Confirmés : <?= (int) $statsParStatut['confirmed'] ?> ·
+                Livrés : <?= (int) $statsParStatut['delivered'] ?> · Annulés : <?= (int) $statsParStatut['cancelled'] ?>
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Donateur</th>
+                        <th>Association</th>
+                        <th>Type</th>
+                        <th>Détail</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($donsRecents as $don): ?>
+                    <?php
+                        $st = $don['status'] ?? 'pending';
+                        $badgeClass = 'badge-pending';
+                        if ($st === 'confirmed') {
+                            $badgeClass = 'badge-confirmed';
+                        } elseif ($st === 'delivered') {
+                            $badgeClass = 'badge-delivered';
+                        } elseif ($st === 'cancelled') {
+                            $badgeClass = 'badge-cancelled';
+                        }
+                    ?>
+                    <tr>
+                        <td><?= htmlspecialchars($don['donor_name'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($don['association_name'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($don['donation_type'] ?? '') ?></td>
+                        <td>
+                            <?php if (($don['donation_type'] ?? '') === 'monetary'): ?>
+                                <?= number_format((float)($don['amount'] ?? 0), 2) ?> DT
+                            <?php else: ?>
+                                <?= htmlspecialchars((string)($don['food_type'] ?? '')) ?> — <?= (int)($don['quantity'] ?? 0) ?> kg
+                            <?php endif; ?>
+                        </td>
+                        <td><span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($st) ?></span></td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php if (count($donsRecents) === 0 && !$donationsLoadError): ?>
+                    <tr><td colspan="5" class="muted">Aucun don enregistré pour le moment.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
