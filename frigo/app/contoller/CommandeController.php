@@ -12,7 +12,7 @@ class CommandeController {
 
     private function verifierCodePromo(string $code): array|false {
         $stmt = $this->pdo->prepare("
-            SELECT * FROM code_promo
+            SELECT * FROM frigo_code_promo
             WHERE code = :code
             AND actif = 1
             AND (date_expiration IS NULL OR date_expiration >= CURDATE())
@@ -36,11 +36,11 @@ class CommandeController {
     }
 
     public function appliquerPromo(): void {
-        $code = trim($_POST['code_promo'] ?? '');
+        $code = trim($_POST['frigo_code_promo'] ?? '');
 
         if (strlen($code) < 3) {
             $_SESSION['errors'] = ["Le code promo doit contenir au moins 3 caractères."];
-            header('Location: /frigo/index.php?mode=front&controller=commande&action=panier');
+            header('Location: ' . FRIGO_INDEX . '?mode=front&controller=commande&action=panier');
             exit;
         }
 
@@ -54,13 +54,13 @@ class CommandeController {
         } else {
             $_SESSION['errors'] = ["Code promo invalide ou expiré."];
         }
-        header('Location: /frigo/index.php?mode=front&controller=commande&action=panier');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=commande&action=panier');
         exit;
     }
 
     public function supprimerPromo(): void {
         unset($_SESSION['promo']);
-        header('Location: /frigo/index.php?mode=front&controller=commande&action=panier');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=commande&action=panier');
         exit;
     }
 
@@ -84,7 +84,7 @@ class CommandeController {
             }
         }
         $_SESSION['success'] = "Panier mis à jour !";
-        header('Location: /frigo/index.php?mode=front&controller=commande&action=panier');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=commande&action=panier');
         exit;
     }
 
@@ -93,19 +93,19 @@ class CommandeController {
         if ($id !== null && isset($_SESSION['panier'][$id])) {
             unset($_SESSION['panier'][$id]);
         }
-        header('Location: /frigo/index.php?mode=front&controller=commande&action=panier');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=commande&action=panier');
         exit;
     }
 
     public function ajouterPanier(): void {
         $id      = (int)($_POST['produit_id'] ?? 0);
         $qte     = (int)($_POST['quantite']   ?? 1);
-        $stmt    = $this->pdo->prepare("SELECT * FROM produit WHERE id = :id");
+        $stmt    = $this->pdo->prepare("SELECT * FROM frigo_produit WHERE id = :id");
         $stmt->execute([':id' => $id]);
         $produit = $stmt->fetch();
 
         if (!$produit || $qte < 1) {
-            header('Location: /frigo/index.php?mode=front&controller=categorie&action=index');
+            header('Location: ' . FRIGO_INDEX . '?mode=front&controller=categorie&action=index');
             exit;
         }
         if (!isset($_SESSION['panier'][$id])) {
@@ -117,7 +117,7 @@ class CommandeController {
         } else {
             $_SESSION['panier'][$id]['quantite'] += $qte;
         }
-        header('Location: /frigo/index.php?mode=front&controller=commande&action=panier');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=commande&action=panier');
         exit;
     }
 
@@ -129,7 +129,7 @@ class CommandeController {
         $errors = $this->model->valider($_POST);
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
-            header('Location: /frigo/index.php?mode=front&controller=commande&action=checkout');
+            header('Location: ' . FRIGO_INDEX . '?mode=front&controller=commande&action=checkout');
             exit;
         }
 
@@ -158,13 +158,13 @@ class CommandeController {
         unset($_SESSION['promo']);
         $_SESSION['success'] = "Commande #$commandeId confirmée ! Total : " .
             number_format($total, 2) . " TND";
-        header('Location: /frigo/index.php?mode=front&controller=commande&action=checkout');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=commande&action=checkout');
         exit;
     }
 
     public function annuler(): void {
         unset($_SESSION['panier']);
-        header('Location: /frigo/index.php?mode=front&controller=categorie&action=index');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=categorie&action=index');
         exit;
     }
 
@@ -179,7 +179,7 @@ class CommandeController {
         $tel = preg_replace('/\s+/', '', $_POST['telephone'] ?? '');
         if (!preg_match('/^\d{8}$/', $tel)) {
             $_SESSION['errors'] = ["Téléphone invalide (8 chiffres)."];
-            header('Location: /frigo/index.php?mode=back&controller=commande&action=index');
+            header('Location: ' . FRIGO_INDEX . '?mode=back&controller=commande&action=index');
             exit;
         }
         $this->model->updateCommande($id, [
@@ -191,14 +191,14 @@ class CommandeController {
             ':statut'           => $_POST['statut'],
         ]);
         $_SESSION['success'] = "Commande modifiée.";
-        header('Location: /frigo/index.php?mode=back&controller=commande&action=index');
+        header('Location: ' . FRIGO_INDEX . '?mode=back&controller=commande&action=index');
         exit;
     }
 
     public function deleteCommande(): void {
         $id = (int)($_GET['id'] ?? 0);
         $this->model->deleteCommande($id);
-        header('Location: /frigo/index.php?mode=back&controller=commande&action=index');
+        header('Location: ' . FRIGO_INDEX . '?mode=back&controller=commande&action=index');
         exit;
     }
 
@@ -223,7 +223,7 @@ class CommandeController {
         } else {
             try {
                 $stmt = $this->pdo->prepare("
-                    INSERT INTO code_promo (code, reduction, type_reduction, actif, date_expiration)
+                    INSERT INTO frigo_code_promo (code, reduction, type_reduction, actif, date_expiration)
                     VALUES (:code, :reduction, :type, 1, :date)
                 ");
                 $stmt->execute([
@@ -237,25 +237,25 @@ class CommandeController {
                 $_SESSION['errors'] = ["Ce code existe déjà."];
             }
         }
-        header('Location: /frigo/index.php?mode=back&controller=commande&action=index');
+        header('Location: ' . FRIGO_INDEX . '?mode=back&controller=commande&action=index');
         exit;
     }
 
     public function togglePromo(): void {
         $id = (int)($_GET['id'] ?? 0);
         $stmt = $this->pdo->prepare("
-            UPDATE code_promo SET actif = 1 - actif WHERE id = :id
+            UPDATE frigo_code_promo SET actif = 1 - actif WHERE id = :id
         ");
         $stmt->execute([':id' => $id]);
-        header('Location: /frigo/index.php?mode=back&controller=commande&action=index');
+        header('Location: ' . FRIGO_INDEX . '?mode=back&controller=commande&action=index');
         exit;
     }
 
     public function supprimerCodePromo(): void {
         $id = (int)($_GET['id'] ?? 0);
-        $stmt = $this->pdo->prepare("DELETE FROM code_promo WHERE id = :id");
+        $stmt = $this->pdo->prepare("DELETE FROM frigo_code_promo WHERE id = :id");
         $stmt->execute([':id' => $id]);
-        header('Location: /frigo/index.php?mode=back&controller=commande&action=index');
+        header('Location: ' . FRIGO_INDEX . '?mode=back&controller=commande&action=index');
         exit;
     }
 }

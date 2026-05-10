@@ -38,7 +38,7 @@ function listerFrigoParVoix() {
         statusSpan.style.color = '#f0a500';
     }
     
-    fetch('/frigo/index.php?mode=front&controller=produit&action=listerFrigoParVoix', {
+    fetch('index.php?mode=front&controller=produit&action=listerFrigoParVoix', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

@@ -1,5 +1,5 @@
 <?php
-require_once 'C:/xampp/htdocs/gestion_plan/header.php';
+require_once dirname(__DIR__, 3) . '/header.php';
 require_once __DIR__ . '/../../../config.php';
 
 // Récupérer les catégories directement avec PDO
@@ -124,5 +124,5 @@ function validerFormulaire() {
 </script>
 
 <?php
-require_once 'C:/xampp/htdocs/gestion_plan/footer.php';
+require_once dirname(__DIR__, 3) . '/footer.php';
 ?>

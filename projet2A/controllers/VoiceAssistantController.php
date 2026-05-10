@@ -6,7 +6,7 @@ class VoiceAssistantController {
     private $voiceSettings;
     
     public function __construct() {
-        $database = new Database();
+        $database = Database::getInstance();
         $this->db = $database->getConnection();
         $this->voiceSettings = new VoiceSettings($this->db);
         

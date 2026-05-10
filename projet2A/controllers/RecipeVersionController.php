@@ -7,7 +7,7 @@ class RecipeVersionController {
     private $recipeVersionModel;
 
     public function __construct() {
-        $database = new Database();
+        $database = Database::getInstance();
         $this->db = $database->getConnection();
         $this->recipeVersionModel = new RecipeVersion($this->db);
         

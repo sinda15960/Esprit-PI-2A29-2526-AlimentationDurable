@@ -4,7 +4,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: login.php');
     exit();
 }
-require_once __DIR__ . '/../../Controller/AllergieController.php';
+require_once __DIR__ . '/Controller/AllergieController.php';
 $controller = new AllergieController();
 $allergies = $controller->getAllAllergies();
 ?>

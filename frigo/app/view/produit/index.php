@@ -3,7 +3,7 @@
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold text-success">Gestion des produits</h2>
-    <a href="/frigo/index.php?controller=produit&action=create"
+    <a href="<?= FRIGO_INDEX ?>?controller=produit&action=create"
        class="btn btn-success">+ Ajouter un produit</a>
   </div>
 
@@ -45,9 +45,9 @@
                 : '-' ?></td>
           <td><span class="badge bg-<?= $badgeClass ?>"><?= $badgeLabel ?></span></td>
           <td>
-            <a href="/frigo/index.php?controller=produit&action=edit&id=<?= $p['id'] ?>"
+            <a href="<?= FRIGO_INDEX ?>?controller=produit&action=edit&id=<?= $p['id'] ?>"
                class="btn btn-warning btn-sm">Modifier</a>
-            <a href="/frigo/index.php?controller=produit&action=delete&id=<?= $p['id'] ?>"
+            <a href="<?= FRIGO_INDEX ?>?controller=produit&action=delete&id=<?= $p['id'] ?>"
                class="btn btn-danger btn-sm"
                onclick="return confirm('Supprimer ce produit ?')">Supprimer</a>
           </td>

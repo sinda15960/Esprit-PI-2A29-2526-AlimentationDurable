@@ -41,7 +41,7 @@ function initVoiceRecognition() {
         document.getElementById('voice-status').style.color = '#2d6a2d';
         
         // Envoyer au serveur pour vérification
-        fetch('/frigo/index.php?mode=front&controller=produit&action=ajouterParVoix', {
+        fetch('index.php?mode=front&controller=produit&action=ajouterParVoix', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -172,7 +172,7 @@ function confirmVoiceAdd(produitId) {
     if (modal) modal.hide();
     
     // Envoyer la requête d'ajout
-    fetch('/frigo/index.php?mode=front&controller=produit&action=confirmerAjoutVoix', {
+    fetch('index.php?mode=front&controller=produit&action=confirmerAjoutVoix', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -183,12 +183,12 @@ function confirmVoiceAdd(produitId) {
         if (response.redirected) {
             window.location.href = response.url;
         } else {
-            window.location.href = '/frigo/index.php?mode=front&controller=produit&action=frigo';
+            window.location.href = 'index.php?mode=front&controller=produit&action=frigo';
         }
     })
     .catch(error => {
         console.error('Erreur:', error);
-        window.location.href = '/frigo/index.php?mode=front&controller=produit&action=frigo';
+        window.location.href = 'index.php?mode=front&controller=produit&action=frigo';
     });
 }
 

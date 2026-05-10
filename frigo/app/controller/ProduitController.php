@@ -9,13 +9,13 @@ class ProduitController {
     // ===== REQUETES PRIVEES =====
 
     private function getProduitById(int $id): array|false {
-        $stmt = $this->pdo->prepare("SELECT * FROM produit WHERE id = :id");
+        $stmt = $this->pdo->prepare("SELECT * FROM frigo_produit WHERE id = :id");
         $stmt->execute([':id' => $id]);
         return $stmt->fetch();
     }
 
     private function getAllCategories(): array {
-        return $this->pdo->query("SELECT * FROM categorie ORDER BY nom ASC")->fetchAll();
+        return $this->pdo->query("SELECT * FROM frigo_categorie ORDER BY nom ASC")->fetchAll();
     }
 
     private function getEmojiByNom(string $nom): string {
@@ -49,7 +49,7 @@ class ProduitController {
                    COALESCE(p.nom, f.nom_custom) AS nom,
                    p.id AS produit_id
             FROM frigo_utilisateur f
-            LEFT JOIN produit p ON f.produit_id = p.id
+            LEFT JOIN frigo_produit p ON f.produit_id = p.id
             WHERE f.quantite <= f.seuil_alerte
             LIMIT 3
         ");
@@ -64,7 +64,7 @@ class ProduitController {
         $stmt = $this->pdo->query("
             SELECT COALESCE(p.nom, f.nom_custom) AS nom, f.date_expiration
             FROM frigo_utilisateur f
-            LEFT JOIN produit p ON f.produit_id = p.id
+            LEFT JOIN frigo_produit p ON f.produit_id = p.id
             WHERE f.date_expiration IS NOT NULL
             AND f.date_expiration BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 3 DAY)
             LIMIT 3
@@ -93,7 +93,7 @@ class ProduitController {
     }
     
     // Recherche dans la base de données (correspondance exacte ou LIKE)
-    $stmt = $this->pdo->prepare("SELECT * FROM produit WHERE LOWER(nom) = LOWER(:nom) OR LOWER(nom) LIKE LOWER(:like)");
+    $stmt = $this->pdo->prepare("SELECT * FROM frigo_produit WHERE LOWER(nom) = LOWER(:nom) OR LOWER(nom) LIKE LOWER(:like)");
     $stmt->execute([
         ':nom' => $nomAliment,
         ':like' => '%' . $nomAliment . '%'
@@ -138,7 +138,7 @@ class ProduitController {
         ]);
         $_SESSION['success'] = "🎤 {$produit['nom']} ajouté au frigo par voix !";
         }
-    header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
+    header('Location: ' . FRIGO_INDEX . '?mode=front&controller=produit&action=frigo');
     exit;
     }
     // ===== FRIGO =====
@@ -146,8 +146,8 @@ class ProduitController {
     public function frigo(): void {
         $stmt = $this->pdo->query("
             SELECT p.*, c.nom AS categorie_nom
-            FROM produit p
-            LEFT JOIN categorie c ON p.categorie_id = c.id
+            FROM frigo_produit p
+            LEFT JOIN frigo_categorie c ON p.categorie_id = c.id
             ORDER BY p.nom ASC
         ");
         $produits = $stmt->fetchAll();
@@ -163,8 +163,8 @@ class ProduitController {
                      ELSE 'frais'
                    END AS etat
             FROM frigo_utilisateur f
-            LEFT JOIN produit p ON f.produit_id = p.id
-            LEFT JOIN categorie c ON p.categorie_id = c.id
+            LEFT JOIN frigo_produit p ON f.produit_id = p.id
+            LEFT JOIN frigo_categorie c ON p.categorie_id = c.id
             ORDER BY f.date_expiration ASC
         ");
         $frigoItems = $stmt->fetchAll();
@@ -192,8 +192,8 @@ class ProduitController {
                          ELSE 'frais'
                        END AS etat
                 FROM frigo_utilisateur f
-                LEFT JOIN produit p ON f.produit_id = p.id
-                LEFT JOIN categorie c ON p.categorie_id = c.id
+                LEFT JOIN frigo_produit p ON f.produit_id = p.id
+                LEFT JOIN frigo_categorie c ON p.categorie_id = c.id
                 WHERE c.id = :categorie_id
                 ORDER BY f.date_expiration ASC
             ");
@@ -228,7 +228,7 @@ class ProduitController {
             ]);
             $_SESSION['success'] = "{$produit['nom']} ajouté au frigo !";
         }
-        header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=produit&action=frigo');
         exit;
     }
 
@@ -262,7 +262,7 @@ class ProduitController {
             ]);
             $_SESSION['success'] = "$emoji $nom ajouté au frigo !";
         }
-        header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=produit&action=frigo');
         exit;
     }
 
@@ -290,7 +290,7 @@ class ProduitController {
         } else {
             $_SESSION['errors'] = ["Produit non reconnu (code : $codeBarres). Ajoutez-le manuellement."];
         }
-        header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=produit&action=frigo');
         exit;
     }
 
@@ -300,7 +300,7 @@ class ProduitController {
 
         if ($qte < 0) {
             $_SESSION['errors'] = ["La quantité ne peut pas être négative."];
-            header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
+            header('Location: ' . FRIGO_INDEX . '?mode=front&controller=produit&action=frigo');
             exit;
         }
 
@@ -310,7 +310,7 @@ class ProduitController {
         $stmt = $this->pdo->prepare("
             SELECT f.*, COALESCE(p.nom, f.nom_custom) AS nom, p.prix
             FROM frigo_utilisateur f
-            LEFT JOIN produit p ON f.produit_id = p.id
+            LEFT JOIN frigo_produit p ON f.produit_id = p.id
             WHERE f.id = :id AND f.quantite <= f.seuil_alerte
         ");
         $stmt->execute([':id' => $id]);
@@ -329,7 +329,7 @@ class ProduitController {
         } else {
             $_SESSION['success'] = "Quantité mise à jour.";
         }
-        header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=produit&action=frigo');
         exit;
     }
     // ===== VOIX OFF POUR LISTER LE FRIGO =====
@@ -348,7 +348,7 @@ public function listerFrigoParVoix(): void {
                 ELSE 'frais'
             END AS etat
         FROM frigo_utilisateur f
-        LEFT JOIN produit p ON f.produit_id = p.id
+        LEFT JOIN frigo_produit p ON f.produit_id = p.id
         ORDER BY f.date_expiration ASC
     ");
     $frigoItems = $stmt->fetchAll();
@@ -413,7 +413,7 @@ private function genererTexteFrigo(array $items): string {
         $id = (int)($_GET['id'] ?? 0);
         $stmt = $this->pdo->prepare("DELETE FROM frigo_utilisateur WHERE id = :id");
         $stmt->execute([':id' => $id]);
-        header('Location: /frigo/index.php?mode=front&controller=produit&action=frigo');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=produit&action=frigo');
         exit;
     }
 
@@ -427,8 +427,8 @@ private function genererTexteFrigo(array $items): string {
                 WHEN p.date_expiration <= DATE_ADD(CURDATE(), INTERVAL 3 DAY) THEN 'bientot_perime'
                 ELSE 'frais'
             END AS etat
-            FROM produit p
-            LEFT JOIN categorie c ON p.categorie_id = c.id
+            FROM frigo_produit p
+            LEFT JOIN frigo_categorie c ON p.categorie_id = c.id
             ORDER BY p.date_expiration ASC
         ");
         $produits = $stmt->fetchAll();
@@ -444,11 +444,11 @@ private function genererTexteFrigo(array $items): string {
         $errors = $this->validate($_POST);
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
-            header('Location: /frigo/index.php?mode=back&controller=produit&action=create');
+            header('Location: ' . FRIGO_INDEX . '?mode=back&controller=produit&action=create');
             exit;
         }
         $stmt = $this->pdo->prepare("
-            INSERT INTO produit (nom, description, prix, quantite, date_expiration, categorie_id, image)
+            INSERT INTO frigo_produit (nom, description, prix, quantite, date_expiration, categorie_id, image)
             VALUES (:nom, :description, :prix, :quantite, :date_expiration, :categorie_id, :image)
         ");
         $stmt->execute([
@@ -461,7 +461,7 @@ private function genererTexteFrigo(array $items): string {
             ':image'           => $_POST['image'] ?? null,
         ]);
         $_SESSION['success'] = "Produit ajouté avec succès.";
-        header('Location: /frigo/index.php?mode=back&controller=produit&action=index');
+        header('Location: ' . FRIGO_INDEX . '?mode=back&controller=produit&action=index');
         exit;
     }
 
@@ -478,7 +478,7 @@ private function genererTexteFrigo(array $items): string {
         $errors = $this->validate($_POST);
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
-            header("Location: /frigo/index.php?mode=back&controller=produit&action=edit&id=$id");
+            header("Location: " . FRIGO_INDEX . "?mode=back&controller=produit&action=edit&id=$id");
             exit;
         }
         $stmt = $this->pdo->prepare("
@@ -497,15 +497,15 @@ private function genererTexteFrigo(array $items): string {
             ':image'           => $_POST['image'] ?? null,
         ]);
         $_SESSION['success'] = "Produit modifié.";
-        header('Location: /frigo/index.php?mode=back&controller=produit&action=index');
+        header('Location: ' . FRIGO_INDEX . '?mode=back&controller=produit&action=index');
         exit;
     }
 
     public function delete(): void {
         $id = (int)($_GET['id'] ?? 0);
-        $stmt = $this->pdo->prepare("DELETE FROM produit WHERE id = :id");
+        $stmt = $this->pdo->prepare("DELETE FROM frigo_produit WHERE id = :id");
         $stmt->execute([':id' => $id]);
-        header('Location: /frigo/index.php?mode=back&controller=produit&action=index');
+        header('Location: ' . FRIGO_INDEX . '?mode=back&controller=produit&action=index');
         exit;
     }
 

@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../Config/Database.php';
-require_once __DIR__ . '/../../Controller/CompareController.php';
+require_once __DIR__ . '/Controller/CompareController.php';
 
 $db = Database::getInstance()->getConnection();
 $compareController = new CompareController();

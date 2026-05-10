@@ -1,5 +1,5 @@
 <?php
-require_once 'C:/xampp/htdocs/gestion_plan/header.php';
+require_once dirname(__DIR__, 3) . '/header.php';
 ?>
 
 <h2 class="section-title">Recherche de programmes par categorie</h2>
@@ -80,5 +80,5 @@ function validerFormulaire() {
 </script>
 
 <?php
-require_once 'C:/xampp/htdocs/gestion_plan/footer.php';
+require_once dirname(__DIR__, 3) . '/footer.php';
 ?>

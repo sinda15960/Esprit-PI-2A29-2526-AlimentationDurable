@@ -6,7 +6,7 @@ echo "<p>Le serveur fonctionne.</p>";
 // Test de connexion BDD
 try {
     require_once '../config/database.php';
-    $database = new Database();
+    $database = Database::getInstance();
     $conn = $database->getConnection();
     echo "<p style='color:green'>✅ Connexion BDD réussie</p>";
     

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/../../Controller/UrgenceController.php';
+require_once __DIR__ . '/Controller/UrgenceController.php';
  
 if (!isset($_SESSION['urgence_session_id'])) {
     $_SESSION['urgence_session_id'] = session_id() . '_urg_' . time();

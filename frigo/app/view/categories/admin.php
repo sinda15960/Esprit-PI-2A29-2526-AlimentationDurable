@@ -23,7 +23,7 @@
     <div class="card-header bg-success text-white fw-bold">Ajouter une catégorie</div>
     <div class="card-body">
       <form method="post"
-            action="/frigo/index.php?controller=categorie&action=store"
+            action="<?= FRIGO_INDEX ?>?controller=categorie&action=store"
             id="form-add-cat">
         <div class="row g-3">
           <div class="col-md-4">
@@ -54,9 +54,9 @@
         <td><?= htmlspecialchars($cat['nom']) ?></td>
         <td><?= htmlspecialchars($cat['description'] ?? '') ?></td>
         <td>
-          <a href="/frigo/index.php?controller=categorie&action=edit&id=<?= $cat['id'] ?>"
+          <a href="<?= FRIGO_INDEX ?>?controller=categorie&action=edit&id=<?= $cat['id'] ?>"
              class="btn btn-warning btn-sm">Modifier</a>
-          <a href="/frigo/index.php?controller=categorie&action=delete&id=<?= $cat['id'] ?>"
+          <a href="<?= FRIGO_INDEX ?>?controller=categorie&action=delete&id=<?= $cat['id'] ?>"
              class="btn btn-danger btn-sm"
              onclick="return confirm('Supprimer cette catégorie ?')">Supprimer</a>
         </td>

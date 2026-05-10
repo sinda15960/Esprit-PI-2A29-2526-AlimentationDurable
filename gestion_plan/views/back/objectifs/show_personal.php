@@ -1,5 +1,5 @@
 <?php
-require_once 'C:/xampp/htdocs/gestion_plan/header.php';
+require_once dirname(__DIR__, 3) . '/header.php';
 require_once __DIR__ . '/../../../config.php';
 
 $pdo = getConnection();
@@ -168,4 +168,4 @@ $pdo = getConnection();
     </div>
 </div>
 
-<?php require_once 'C:/xampp/htdocs/gestion_plan/footer.php'; ?>
+<?php require_once dirname(__DIR__, 3) . '/footer.php'; ?>

@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../Config/Database.php';
-require_once __DIR__ . '/../../Controller/LogController.php';
+require_once __DIR__ . '/Controller/LogController.php';
 
 $db = Database::getInstance()->getConnection();
 $logController = new LogController();

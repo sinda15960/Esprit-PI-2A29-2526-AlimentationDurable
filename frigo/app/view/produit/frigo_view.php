@@ -63,7 +63,7 @@ require 'app/view/layout/header.php';
               <div class="alert alert-warning mb-0 d-flex justify-content-between align-items-center py-2">
                 <small><strong>⚠️ Stock faible</strong><br><?= htmlspecialchars($s['message']) ?></small>
                 <?php if ($s['produit_id']): ?>
-                  <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier">
+                  <form method="post" action="<?= FRIGO_INDEX ?>?mode=front&controller=commande&action=ajouterPanier">
                     <input type="hidden" name="produit_id" value="<?= $s['produit_id'] ?>">
                     <input type="hidden" name="quantite" value="1">
                     <button type="submit" class="btn btn-success btn-sm">+ Panier</button>
@@ -86,7 +86,7 @@ require 'app/view/layout/header.php';
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
       <form method="post"
-            action="/frigo/index.php?mode=front&controller=produit&action=frigo"
+            action="<?= FRIGO_INDEX ?>?mode=front&controller=produit&action=frigo"
             id="form-filtre">
         <div class="row g-3 align-items-end">
           <div class="col-md-6">
@@ -107,7 +107,7 @@ require 'app/view/layout/header.php';
           </div>
           <?php if (!empty($categorieActive)): ?>
           <div class="col-md-3">
-            <a href="/frigo/index.php?mode=front&controller=produit&action=frigo"
+            <a href="<?= FRIGO_INDEX ?>?mode=front&controller=produit&action=frigo"
                class="btn btn-outline-secondary w-100">Voir tout</a>
           </div>
           <?php endif; ?>
@@ -173,7 +173,7 @@ require 'app/view/layout/header.php';
             <?php endif; ?>
 
             <form method="post"
-                  action="/frigo/index.php?mode=front&controller=produit&action=modifierQuantiteFrigo"
+                  action="<?= FRIGO_INDEX ?>?mode=front&controller=produit&action=modifierQuantiteFrigo"
                   id="form_qte_<?= $item['id'] ?>" class="mt-2">
               <input type="hidden" name="frigo_id" value="<?= $item['id'] ?>">
               <label class="form-label small fw-semibold mb-1">Modifier la quantité</label>
@@ -199,7 +199,7 @@ require 'app/view/layout/header.php';
             </script>
 
             <div class="d-flex gap-2 mt-2">
-              <a href="/frigo/index.php?mode=front&controller=produit&action=supprimerDuFrigo&id=<?= $item['id'] ?>"
+              <a href="<?= FRIGO_INDEX ?>?mode=front&controller=produit&action=supprimerDuFrigo&id=<?= $item['id'] ?>"
                  class="btn btn-outline-danger btn-sm"
                  onclick="return confirm('Retirer du frigo ?')">Retirer</a>
             </div>
@@ -222,7 +222,7 @@ require 'app/view/layout/header.php';
             <h6 class="fw-bold text-center"><?= htmlspecialchars($p['nom']) ?></h6>
             <p class="small text-muted text-center"><?= htmlspecialchars($p['categorie_nom'] ?? '') ?></p>
             <form method="post"
-                  action="/frigo/index.php?mode=front&controller=produit&action=ajouterFrigo"
+                  action="<?= FRIGO_INDEX ?>?mode=front&controller=produit&action=ajouterFrigo"
                   id="form_p_<?= $p['id'] ?>">
               <input type="hidden" name="id" value="<?= $p['id'] ?>">
               <div class="input-group input-group-sm mt-2">
@@ -283,7 +283,7 @@ require 'app/view/layout/header.php';
       </div>
       <div class="modal-body">
         <form method="post"
-              action="/frigo/index.php?mode=front&controller=produit&action=ajouterManuel"
+              action="<?= FRIGO_INDEX ?>?mode=front&controller=produit&action=ajouterManuel"
               id="form-manuel">
           <div class="mb-3">
             <label class="form-label fw-semibold">Nom de l'aliment</label>
@@ -417,10 +417,10 @@ document.getElementById('modalScan').addEventListener('shown.bs.modal', function
 
       if (produitId) {
         window.location.href =
-          '/frigo/index.php?mode=front&controller=produit&action=ajouterParScan&produit_id=' + produitId;
+          'index.php?mode=front&controller=produit&action=ajouterParScan&produit_id=' + produitId;
       } else {
         window.location.href =
-          '/frigo/index.php?mode=front&controller=produit&action=ajouterParScan&code_barres=' + decodedText;
+          'index.php?mode=front&controller=produit&action=ajouterParScan&code_barres=' + decodedText;
       }
     },
     function(errorMessage) { }
@@ -440,9 +440,9 @@ function stopScan() {
 </script>
 
 <!-- Script voix off pour ajouter par voix -->
-<script src="/frigo/public/js/voice.js"></script>
+<script src="<?= FRIGO_BASE ?>/public/js/voice.js"></script>
 
 <!-- Script voix off pour lister le contenu du frigo -->
-<script src="/frigo/public/js/voice-frigo.js"></script>
+<script src="<?= FRIGO_BASE ?>/public/js/voice-frigo.js"></script>
 
 <?php require 'app/view/layout/footer.php'; ?>

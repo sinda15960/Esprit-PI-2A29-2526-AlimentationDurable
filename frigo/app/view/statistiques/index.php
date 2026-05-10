@@ -103,7 +103,7 @@
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-success text-white fw-bold d-flex justify-content-between">
           <span>📈 Chiffre d'affaires (30 derniers jours)</span>
-          <a href="/frigo/index.php?mode=back&controller=statistique&action=exportCSV&type=ca"
+          <a href="<?= FRIGO_INDEX ?>?mode=back&controller=statistique&action=exportCSV&type=ca"
              class="btn btn-light btn-sm">⬇️ CSV</a>
         </div>
         <div class="card-body">
@@ -137,7 +137,7 @@
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-success text-white fw-bold d-flex justify-content-between">
           <span>🏆 Top 10 produits vendus</span>
-          <a href="/frigo/index.php?mode=back&controller=statistique&action=exportCSV&type=produits"
+          <a href="<?= FRIGO_INDEX ?>?mode=back&controller=statistique&action=exportCSV&type=produits"
              class="btn btn-light btn-sm">⬇️ CSV</a>
         </div>
         <div class="card-body p-0">
@@ -171,7 +171,7 @@
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-success text-white fw-bold d-flex justify-content-between">
           <span>💳 Méthodes de paiement</span>
-          <a href="/frigo/index.php?mode=back&controller=statistique&action=exportCSV&type=paiement"
+          <a href="<?= FRIGO_INDEX ?>?mode=back&controller=statistique&action=exportCSV&type=paiement"
              class="btn btn-light btn-sm">⬇️ CSV</a>
         </div>
         <div class="card-body">

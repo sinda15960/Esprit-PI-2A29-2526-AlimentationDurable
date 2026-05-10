@@ -17,7 +17,7 @@ class FrigoUtilisateur {
                      ELSE 'frais'
                    END AS etat
             FROM frigo_utilisateur f
-            LEFT JOIN produit p ON f.produit_id = p.id
+            LEFT JOIN frigo_produit p ON f.produit_id = p.id
             ORDER BY f.date_expiration ASC
         ")->fetchAll();
     }
@@ -26,7 +26,7 @@ class FrigoUtilisateur {
         $stmt = $this->pdo->prepare("
             SELECT f.*, COALESCE(p.nom, f.nom_custom) AS nom, p.prix
             FROM frigo_utilisateur f
-            LEFT JOIN produit p ON f.produit_id = p.id
+            LEFT JOIN frigo_produit p ON f.produit_id = p.id
             WHERE f.id = :id
         ");
         $stmt->execute([':id' => $id]);
@@ -53,7 +53,7 @@ class FrigoUtilisateur {
         $stmt = $this->pdo->prepare("
             SELECT f.*, COALESCE(p.nom, f.nom_custom) AS nom, p.prix
             FROM frigo_utilisateur f
-            LEFT JOIN produit p ON f.produit_id = p.id
+            LEFT JOIN frigo_produit p ON f.produit_id = p.id
             WHERE f.id = :id AND f.quantite <= f.seuil_alerte
         ");
         $stmt->execute([':id' => $id]);
@@ -69,7 +69,7 @@ class FrigoUtilisateur {
         $stmt = $this->pdo->prepare("
             SELECT f.*, COALESCE(p.nom, f.nom_custom) AS nom, p.prix
             FROM frigo_utilisateur f
-            LEFT JOIN produit p ON f.produit_id = p.id
+            LEFT JOIN frigo_produit p ON f.produit_id = p.id
             WHERE f.id = :id
         ");
         $stmt->execute([':id' => $id]);

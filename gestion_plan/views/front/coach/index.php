@@ -1,5 +1,5 @@
 <?php 
-require_once 'C:/xampp/htdocs/gestion_plan/header.php'; 
+require_once dirname(__DIR__, 3) . '/header.php'; 
 ?>
 
 <style>
@@ -277,5 +277,5 @@ async function envoyerMessage() {
 </script>
 
 <?php 
-require_once 'C:/xampp/htdocs/gestion_plan/footer.php'; 
+require_once dirname(__DIR__, 3) . '/footer.php'; 
 ?>

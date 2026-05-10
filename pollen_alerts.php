@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../Config/Database.php';
-require_once __DIR__ . '/../../Controller/PollenController.php';
+require_once __DIR__ . '/Controller/PollenController.php';
 
 if (!isset($_SESSION['pollen_session_id'])) {
     $_SESSION['pollen_session_id'] = session_id() . '_pollen_' . time();

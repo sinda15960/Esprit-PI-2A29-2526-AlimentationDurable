@@ -6,7 +6,7 @@ class Database {
     private PDO $pdo;
 
     private string $host = "localhost";
-    private string $dbname = "frigo_intelligent";
+    private string $dbname = "nutriflow_db";
     private string $user = "root";
     private string $password = "";
 
@@ -35,6 +35,10 @@ class Database {
     }
 
     public function getPdo(): PDO {
+        return $this->pdo;
+    }
+
+    public function getConnection(): PDO {
         return $this->pdo;
     }
 }

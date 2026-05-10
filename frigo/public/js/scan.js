@@ -56,7 +56,7 @@ function traiterCodeBarres(code) {
     }
     
     // Rediriger vers l'action appropriée
-    var url = '/frigo/index.php?mode=front&controller=produit&action=ajouterParScan';
+    var url = 'index.php?mode=front&controller=produit&action=ajouterParScan';
     if (produitId) {
         url += '&produit_id=' + produitId;
     } else if (codeBarres) {

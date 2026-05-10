@@ -12,7 +12,7 @@ class Statistique {
                 DATE(date_commande) as jour,
                 COALESCE(SUM(total), 0) as ca,
                 COUNT(*) as nb_commandes
-            FROM commande
+            FROM frigo_commande
             WHERE date_commande >= DATE_SUB(CURDATE(), INTERVAL :jours DAY)
             GROUP BY DATE(date_commande)
             ORDER BY jour ASC
@@ -29,9 +29,9 @@ class Statistique {
                 p.prix,
                 COALESCE(SUM(cp.quantite), 0) as total_vendu,
                 COALESCE(SUM(cp.quantite * cp.prix_unitaire), 0) as revenue
-            FROM produit p
-            LEFT JOIN commande_produit cp ON cp.produit_id = p.id
-            LEFT JOIN commande c ON cp.commande_id = c.id
+            FROM frigo_produit p
+            LEFT JOIN frigo_commande_produit cp ON cp.produit_id = p.id
+            LEFT JOIN frigo_commande c ON cp.commande_id = c.id
             GROUP BY p.id
             ORDER BY total_vendu DESC
             LIMIT :limite
@@ -46,9 +46,9 @@ class Statistique {
                 COALESCE(c.nom, 'Sans catégorie') as categorie,
                 COUNT(cp.id) as nb_ventes,
                 COALESCE(SUM(cp.quantite * cp.prix_unitaire), 0) as revenue
-            FROM commande_produit cp
-            JOIN produit p ON cp.produit_id = p.id
-            LEFT JOIN categorie c ON p.categorie_id = c.id
+            FROM frigo_commande_produit cp
+            JOIN frigo_produit p ON cp.produit_id = p.id
+            LEFT JOIN frigo_categorie c ON p.categorie_id = c.id
             GROUP BY c.id
             ORDER BY revenue DESC
         ");
@@ -58,14 +58,14 @@ class Statistique {
     public function getStatsGlobales(): array {
         $stmt = $this->pdo->query("
             SELECT 
-                (SELECT COUNT(*) FROM commande) as total_commandes,
-                (SELECT COALESCE(SUM(total), 0) FROM commande) as ca_total,
-                (SELECT COALESCE(AVG(total), 0) FROM commande) as panier_moyen,
-                (SELECT COUNT(*) FROM commande WHERE statut = 'en_attente') as commandes_attente,
-                (SELECT COUNT(*) FROM commande WHERE statut = 'confirmee') as commandes_confirmees,
-                (SELECT COUNT(*) FROM commande WHERE statut = 'annulee') as commandes_annulees,
-                (SELECT COUNT(*) FROM produit WHERE quantite < 5) as stocks_faibles,
-                (SELECT COUNT(*) FROM produit WHERE date_expiration IS NOT NULL AND date_expiration < CURDATE()) as produits_perimes,
+                (SELECT COUNT(*) FROM frigo_commande) as total_commandes,
+                (SELECT COALESCE(SUM(total), 0) FROM frigo_commande) as ca_total,
+                (SELECT COALESCE(AVG(total), 0) FROM frigo_commande) as panier_moyen,
+                (SELECT COUNT(*) FROM frigo_commande WHERE statut = 'en_attente') as commandes_attente,
+                (SELECT COUNT(*) FROM frigo_commande WHERE statut = 'confirmee') as commandes_confirmees,
+                (SELECT COUNT(*) FROM frigo_commande WHERE statut = 'annulee') as commandes_annulees,
+                (SELECT COUNT(*) FROM frigo_produit WHERE quantite < 5) as stocks_faibles,
+                (SELECT COUNT(*) FROM frigo_produit WHERE date_expiration IS NOT NULL AND date_expiration < CURDATE()) as produits_perimes,
                 (SELECT COUNT(*) FROM frigo_utilisateur f 
                  WHERE f.date_expiration IS NOT NULL
                  AND f.date_expiration <= DATE_ADD(CURDATE(), INTERVAL 3 DAY)
@@ -80,7 +80,7 @@ class Statistique {
                 methode_paiement,
                 COUNT(*) as nb_commandes,
                 COALESCE(SUM(total), 0) as total
-            FROM commande
+            FROM frigo_commande
             GROUP BY methode_paiement
         ");
         return $stmt->fetchAll();
@@ -91,7 +91,7 @@ class Statistique {
             SELECT 
                 HOUR(date_commande) as heure,
                 COUNT(*) as nb_commandes
-            FROM commande
+            FROM frigo_commande
             GROUP BY HOUR(date_commande)
             ORDER BY heure ASC
         ");
@@ -103,7 +103,7 @@ class Statistique {
             SELECT 
                 COUNT(*) as total,
                 SUM(CASE WHEN statut = 'confirmee' THEN 1 ELSE 0 END) as confirmees
-            FROM commande
+            FROM frigo_commande
         ");
         $result = $stmt->fetch();
         $total = $result['total'];
@@ -118,7 +118,7 @@ class Statistique {
                 statut,
                 COUNT(*) as nb_commandes,
                 COALESCE(SUM(total), 0) as total
-            FROM commande
+            FROM frigo_commande
             GROUP BY statut
         ");
         return $stmt->fetchAll();

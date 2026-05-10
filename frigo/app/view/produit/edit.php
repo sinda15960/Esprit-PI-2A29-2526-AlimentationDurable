@@ -14,7 +14,7 @@
   <?php endif; ?>
 
   <form method="post"
-        action="/frigo/index.php?controller=produit&action=update"
+        action="<?= FRIGO_INDEX ?>?controller=produit&action=update"
         id="form-edit">
     <input type="hidden" name="id" value="<?= $produit['id'] ?>">
     <div class="mb-3">
@@ -55,7 +55,7 @@
       <select name="categorie_id" class="form-select" id="p-cat">
         <option value="">-- Choisir --</option>
         <?php foreach ($categories as $c): ?>
-          <option value="<?= $c['id'] ?>" <?= $c['id'] == $produit['categorie_id'] ? 'selected' : ?>>
+          <option value="<?= $c['id'] ?>" <?= $c['id'] == $produit['categorie_id'] ? 'selected' : '' ?>>
             <?= htmlspecialchars($c['nom']) ?>
           </option>
         <?php endforeach; ?>
@@ -64,7 +64,7 @@
     </div>
     <div class="d-flex gap-2">
       <button type="submit" class="btn btn-warning">Modifier</button>
-      <a href="/frigo/index.php?controller=produit&action=index"
+      <a href="<?= FRIGO_INDEX ?>?controller=produit&action=index"
          class="btn btn-outline-secondary">Annuler</a>
     </div>
   </form>

@@ -9,7 +9,7 @@ $breadcrumb = [
 
 // Récupérer les catégories directement avec PDO
 require_once dirname(__DIR__) . '/../../config/database.php';
-$database = new Database();
+$database = Database::getInstance();
 $db = $database->getConnection();
 $query = "SELECT * FROM categories ORDER BY nom ASC";
 $stmt = $db->prepare($query);

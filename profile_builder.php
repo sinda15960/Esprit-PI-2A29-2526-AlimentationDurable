@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../Config/Database.php';
-require_once __DIR__ . '/../../Controller/ProfileController.php';
+require_once __DIR__ . '/Controller/ProfileController.php';
 
 $db = Database::getInstance()->getConnection();
 

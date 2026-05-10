@@ -11,7 +11,7 @@ class RecipeController {
     private $db;
 
     public function __construct() {
-        $database = new Database();
+        $database = Database::getInstance();
         $this->db = $database->getConnection();
         $this->recipeModel = new Recipe($this->db);
         $this->instructionModel = new Instruction($this->db);

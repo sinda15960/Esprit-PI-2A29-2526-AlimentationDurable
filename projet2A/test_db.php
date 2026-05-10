@@ -8,7 +8,7 @@ echo "<h1>Test Base de Données NutriFlow AI</h1>";
 try {
     // Test de connexion
     require_once 'config/database.php';
-    $database = new Database();
+    $database = Database::getInstance();
     $conn = $database->getConnection();
     echo "<p style='color:green'>✓ Connexion à la base de données réussie !</p>";
     

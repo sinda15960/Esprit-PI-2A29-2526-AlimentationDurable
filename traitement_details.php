@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../Config/Database.php';
-require_once __DIR__ . '/../../Controller/RatingController.php';
+require_once __DIR__ . '/Controller/RatingController.php';
 <?php require_once __DIR__ . '/urgence_button.php'; ?>
 
 // Initialisation session pour l'urgence

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once 'config/paths.php';
 
 spl_autoload_register(function($class) {
     $paths = [

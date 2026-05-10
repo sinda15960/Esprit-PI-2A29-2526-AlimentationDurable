@@ -1,5 +1,5 @@
 <?php
-require_once 'C:/xampp/htdocs/gestion_plan/header.php';
+require_once dirname(__DIR__, 3) . '/header.php';
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -50,5 +50,5 @@ require_once 'C:/xampp/htdocs/gestion_plan/header.php';
 <?php endif; ?>
 
 <?php
-require_once 'C:/xampp/htdocs/gestion_plan/footer.php';
+require_once dirname(__DIR__, 3) . '/footer.php';
 ?>

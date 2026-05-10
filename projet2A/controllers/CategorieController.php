@@ -9,7 +9,7 @@ class CategorieController {
     private $db;
 
     public function __construct() {
-        $database = new Database();
+        $database = Database::getInstance();
         $this->db = $database->getConnection();
         $this->categorieModel = new Categorie($this->db);
         $this->recipeModel = new Recipe($this->db);

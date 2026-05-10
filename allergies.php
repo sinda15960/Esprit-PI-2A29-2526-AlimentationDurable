@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../../Controller/AllergieController.php';
-require_once __DIR__ . '/../../Controller/TraitementController.php';
+require_once __DIR__ . '/Controller/AllergieController.php';
+require_once __DIR__ . '/Controller/TraitementController.php';
 
 $allergieController = new AllergieController();
 $traitementController = new TraitementController();
@@ -162,7 +162,7 @@ $allergies = $allergieController->getAllAllergies();
             <div class="feedback-title">💬 feedback</div>
             <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">Signalez une erreur, suggérez un traitement ou partagez votre expérience</p>
             <div id="feedback-message"></div>
-            <form id="feedback-form" action="../../Controller/save_feedback.php" method="POST">
+            <form id="feedback-form" action="Controller/save_feedback.php" method="POST">
                 <div class="form-group">
                     <label>Type de remarque *</label>
                     <select name="type" required>

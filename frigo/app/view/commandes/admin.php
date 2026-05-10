@@ -17,7 +17,7 @@
 
     <!-- Ajouter un code -->
     <form method="post"
-          action="/frigo/index.php?controller=commande&action=ajouterPromo"
+          action="<?= FRIGO_INDEX ?>?controller=commande&action=ajouterPromo"
           id="form-add-promo" class="mb-3">
       <div class="row g-3 align-items-end">
         <div class="col-md-3">
@@ -77,11 +77,11 @@
             </span>
           </td>
           <td>
-            <a href="/frigo/index.php?controller=commande&action=togglePromo&id=<?= $cp['id'] ?>"
+            <a href="<?= FRIGO_INDEX ?>?controller=commande&action=togglePromo&id=<?= $cp['id'] ?>"
                class="btn btn-warning btn-sm">
               <?= $cp['actif'] ? 'Désactiver' : 'Activer' ?>
             </a>
-            <a href="/frigo/index.php?controller=commande&action=supprimerCodePromo&id=<?= $cp['id'] ?>"
+            <a href="<?= FRIGO_INDEX ?>?controller=commande&action=supprimerCodePromo&id=<?= $cp['id'] ?>"
                class="btn btn-danger btn-sm"
                onclick="return confirm('Supprimer ce code ?')">
               Supprimer
@@ -131,7 +131,7 @@
                     data-bs-target="#modalEdit<?= $h['id'] ?>">
               Modifier
             </button>
-            <a href="/frigo/index.php?controller=commande&action=deleteCommande&id=<?= $h['id'] ?>"
+            <a href="<?= FRIGO_INDEX ?>?controller=commande&action=deleteCommande&id=<?= $h['id'] ?>"
                class="btn btn-danger btn-sm"
                onclick="return confirm('Supprimer cette commande ?')">
               Supprimer
@@ -151,7 +151,7 @@
               </div>
               <div class="modal-body">
                 <form method="post"
-                      action="/frigo/index.php?controller=commande&action=updateCommande"
+                      action="<?= FRIGO_INDEX ?>?controller=commande&action=updateCommande"
                       id="form-cmd-<?= $h['id'] ?>">
                   <input type="hidden" name="id" value="<?= $h['id'] ?>">
                   <div class="row g-3">

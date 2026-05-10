@@ -1,5 +1,5 @@
 <?php 
-require_once 'C:/xampp/htdocs/gestion_plan/header.php'; 
+require_once dirname(__DIR__, 3) . '/header.php'; 
 
 function formatDateAffichage($date) {
     if (empty($date)) return '';
@@ -192,5 +192,5 @@ function validerForm() {
 </script>
 
 <?php 
-require_once 'C:/xampp/htdocs/gestion_plan/footer.php'; 
+require_once dirname(__DIR__, 3) . '/footer.php'; 
 ?>

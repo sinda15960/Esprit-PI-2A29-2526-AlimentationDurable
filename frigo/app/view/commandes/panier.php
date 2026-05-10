@@ -23,12 +23,12 @@
 
   <?php if (empty($panier)): ?>
     <div class="alert alert-info">Votre panier est vide.</div>
-    <a href="/frigo/index.php?controller=categorie&action=index"
+    <a href="<?= FRIGO_INDEX ?>?controller=categorie&action=index"
        class="btn btn-success">Continuer les achats</a>
   <?php else: ?>
 
     <form method="post"
-          action="/frigo/index.php?controller=commande&action=modifierPanier"
+          action="<?= FRIGO_INDEX ?>?controller=commande&action=modifierPanier"
           id="form-panier">
       <table class="table table-bordered table-hover align-middle">
         <thead class="table-success">
@@ -62,7 +62,7 @@
                 <?= number_format($sous, 2) ?> TND
               </td>
               <td>
-                <a href="/frigo/index.php?controller=commande&action=retirerPanier&id=<?= $id ?>"
+                <a href="<?= FRIGO_INDEX ?>?controller=commande&action=retirerPanier&id=<?= $id ?>"
                    class="btn btn-danger btn-sm"
                    onclick="return confirm('Retirer cet article ?')">
                   Retirer
@@ -109,11 +109,11 @@
 
       <div class="d-flex gap-2 mt-3 flex-wrap">
         <button type="submit" class="btn btn-warning">Mettre à jour</button>
-        <a href="/frigo/index.php?controller=commande&action=checkout"
+        <a href="<?= FRIGO_INDEX ?>?controller=commande&action=checkout"
            class="btn btn-success px-4">Terminer la commande</a>
-        <a href="/frigo/index.php?controller=commande&action=annuler"
+        <a href="<?= FRIGO_INDEX ?>?controller=commande&action=annuler"
            class="btn btn-outline-danger">Vider le panier</a>
-        <a href="/frigo/index.php?controller=categorie&action=index"
+        <a href="<?= FRIGO_INDEX ?>?controller=categorie&action=index"
            class="btn btn-outline-secondary">Continuer les achats</a>
       </div>
     </form>
@@ -132,16 +132,16 @@
               ? $promo['reduction'] . '%'
               : number_format($promo['reduction'], 2) . ' TND' ?>
           </div>
-          <a href="/frigo/index.php?controller=commande&action=supprimerPromo"
+          <a href="<?= FRIGO_INDEX ?>?controller=commande&action=supprimerPromo"
              class="btn btn-outline-danger btn-sm">
             Supprimer le code
           </a>
         <?php else: ?>
           <form method="post"
-                action="/frigo/index.php?controller=commande&action=appliquerPromo"
+                action="<?= FRIGO_INDEX ?>?controller=commande&action=appliquerPromo"
                 id="form-promo">
             <div class="input-group">
-              <input type="text" name="code_promo"
+              <input type="text" name="frigo_code_promo"
                      class="form-control text-uppercase"
                      id="code-promo"
                      placeholder="Ex: FRIGO10"
@@ -177,7 +177,7 @@
             <div style="font-size:2rem"><?= getEmojiAliment($sugg['nom']) ?></div>
             <h6 class="fw-bold mt-2"><?= htmlspecialchars($sugg['nom']) ?></h6>
             <p class="text-success fw-bold"><?= number_format($sugg['prix'], 2) ?> TND</p>
-            <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier">
+            <form method="post" action="<?= FRIGO_INDEX ?>?mode=front&controller=commande&action=ajouterPanier">
               <input type="hidden" name="produit_id" value="<?= $sugg['id'] ?>">
               <input type="hidden" name="quantite" value="1">
               <button type="submit" class="btn btn-sm btn-outline-success">+ Ajouter</button>
@@ -206,7 +206,7 @@
             <div style="font-size:2rem"><?= getEmojiAliment($rec['nom']) ?></div>
             <h6 class="fw-bold mt-2"><?= htmlspecialchars($rec['nom']) ?></h6>
             <p class="text-success fw-bold"><?= number_format($rec['prix'], 2) ?> TND</p>
-            <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier">
+            <form method="post" action="<?= FRIGO_INDEX ?>?mode=front&controller=commande&action=ajouterPanier">
               <input type="hidden" name="produit_id" value="<?= $rec['id'] ?>">
               <input type="hidden" name="quantite" value="1">
               <button type="submit" class="btn btn-sm btn-outline-success">+ Ajouter</button>

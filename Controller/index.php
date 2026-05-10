@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../../Controller/AllergieController.php';
-require_once __DIR__ . '/../../Controller/TraitementController.php';
-require_once __DIR__ . '/../../Controller/FeedbackController.php';
+require_once __DIR__ . '/AllergieController.php';
+require_once __DIR__ . '/TraitementController.php';
+require_once __DIR__ . '/FeedbackController.php';
 
 $allergieController = new AllergieController();
 $traitementController = new TraitementController();

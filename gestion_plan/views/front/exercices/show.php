@@ -1,5 +1,5 @@
 <?php 
-require_once 'C:/xampp/htdocs/gestion_plan/header.php'; 
+require_once dirname(__DIR__, 3) . '/header.php'; 
 ?>
 
 <div class="container mt-4" style="max-width:800px;">
@@ -405,5 +405,5 @@ require_once 'C:/xampp/htdocs/gestion_plan/header.php';
 </script>
 
 <?php 
-require_once 'C:/xampp/htdocs/gestion_plan/footer.php'; 
+require_once dirname(__DIR__, 3) . '/footer.php'; 
 ?>

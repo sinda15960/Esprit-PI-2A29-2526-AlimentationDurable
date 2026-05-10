@@ -4,7 +4,7 @@
   <h2 class="fw-bold text-success mb-4">Modifier la catégorie</h2>
 
   <form method="post"
-        action="/frigo/index.php?controller=categorie&action=update"
+        action="<?= FRIGO_INDEX ?>?controller=categorie&action=update"
         id="form-edit-cat">
     <input type="hidden" name="id" value="<?= $categorie['id'] ?>">
     <div class="mb-3">
@@ -20,7 +20,7 @@
     </div>
     <div class="d-flex gap-2">
       <button type="submit" class="btn btn-warning">Modifier</button>
-      <a href="/frigo/index.php?controller=categorie&action=admin"
+      <a href="<?= FRIGO_INDEX ?>?controller=categorie&action=admin"
          class="btn btn-outline-secondary">Annuler</a>
     </div>
   </form>

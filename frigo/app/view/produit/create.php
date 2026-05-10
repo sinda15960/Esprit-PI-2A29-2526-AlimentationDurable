@@ -14,7 +14,7 @@
   <?php endif; ?>
 
   <form method="post"
-        action="/frigo/index.php?controller=produit&action=store"
+        action="<?= FRIGO_INDEX ?>?controller=produit&action=store"
         id="form-produit">
     <div class="mb-3">
       <label class="form-label fw-semibold">Nom du produit</label>
@@ -55,7 +55,7 @@
     </div>
     <div class="d-flex gap-2">
       <button type="submit" class="btn btn-success">Enregistrer</button>
-      <a href="/frigo/index.php?controller=produit&action=index"
+      <a href="<?= FRIGO_INDEX ?>?controller=produit&action=index"
          class="btn btn-outline-secondary">Annuler</a>
     </div>
   </form>

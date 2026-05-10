@@ -24,7 +24,7 @@ require 'app/view/layout/header.php';
   <?php endif; ?>
 
   <form id="form-commande" method="post"
-        action="/frigo/index.php?mode=front&controller=commande&action=confirmer">
+        action="<?= FRIGO_INDEX ?>?mode=front&controller=commande&action=confirmer">
 
     <div class="row g-4">
       <!-- Colonne gauche : infos client -->
@@ -183,7 +183,7 @@ require 'app/view/layout/header.php';
 
     <div class="d-flex gap-2 mt-4">
       <button type="submit" class="btn btn-success px-5">✅ Confirmer la commande</button>
-      <a href="/frigo/index.php?mode=front&controller=commande&action=annuler"
+      <a href="<?= FRIGO_INDEX ?>?mode=front&controller=commande&action=annuler"
          class="btn btn-outline-danger">❌ Annuler</a>
     </div>
   </form>

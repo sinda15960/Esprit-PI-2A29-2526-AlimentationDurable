@@ -10,7 +10,7 @@ class Database {
         if (self::$front === null) {
             try {
                 self::$front = new PDO(
-                    "mysql:host=localhost;dbname=nutriflow_front;charset=utf8mb4",
+                    "mysql:host=localhost;dbname=nutriflow_db;charset=utf8mb4",
                     "root",
                     "",
                     [
@@ -29,7 +29,7 @@ class Database {
         if (self::$back === null) {
             try {
                 self::$back = new PDO(
-                    "mysql:host=localhost;dbname=nutriflow_back;charset=utf8mb4",
+                    "mysql:host=localhost;dbname=nutriflow_db;charset=utf8mb4",
                     "root",
                     "",
                     [
@@ -48,7 +48,7 @@ class Database {
         if (self::$ai === null) {
             try {
                 self::$ai = new PDO(
-                    "mysql:host=localhost;dbname=nutriflow_ai;charset=utf8mb4",
+                    "mysql:host=localhost;dbname=nutriflow_db;charset=utf8mb4",
                     "root",
                     "",
                     [

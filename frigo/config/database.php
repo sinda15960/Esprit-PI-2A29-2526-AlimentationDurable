@@ -4,7 +4,7 @@ class Database {
     private $pdo;
 
     private string $host = 'localhost';
-    private string $dbname = 'frigo_intelligent';
+    private string $dbname = 'nutriflow_db';
     private string $user = 'root';
     private string $password = '';
 

@@ -10,7 +10,7 @@
   ?>
 
   <form method="post"
-        action="/frigo/index.php?controller=produit&action=rechercherFrigo"
+        action="<?= FRIGO_INDEX ?>?controller=produit&action=rechercherFrigo"
         id="form-recherche">
     <div class="row g-3 align-items-end mb-4">
       <div class="col-md-6">

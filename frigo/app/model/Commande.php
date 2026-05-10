@@ -55,14 +55,14 @@ class Commande {
 
     public function getHistorique(): array {
         $stmt = $this->pdo->query("
-            SELECT * FROM commande ORDER BY date_commande DESC LIMIT 50
+            SELECT * FROM frigo_commande ORDER BY date_commande DESC LIMIT 50
         ");
         return $stmt->fetchAll();
     }
 
     public function getCodesPromo(): array {
         $stmt = $this->pdo->query("
-            SELECT * FROM code_promo ORDER BY id DESC
+            SELECT * FROM frigo_code_promo ORDER BY id DESC
         ");
         return $stmt->fetchAll();
     }
@@ -93,7 +93,7 @@ class Commande {
 
     public function create(array $data): int {
         $stmt = $this->pdo->prepare("
-            INSERT INTO commande (nom_client, telephone, adresse, methode_paiement, total, statut)
+            INSERT INTO frigo_commande (nom_client, telephone, adresse, methode_paiement, total, statut)
             VALUES (:nom_client, :telephone, :adresse, :methode_paiement, :total, 'en_attente')
         ");
         $stmt->execute($data);
@@ -102,7 +102,7 @@ class Commande {
 
     public function addProduit(int $commandeId, int $produitId, int $quantite, float $prix): void {
         $stmt = $this->pdo->prepare("
-            INSERT INTO commande_produit (commande_id, produit_id, quantite, prix_unitaire)
+            INSERT INTO frigo_commande_produit (commande_id, produit_id, quantite, prix_unitaire)
             VALUES (:commande_id, :produit_id, :quantite, :prix_unitaire)
         ");
         $stmt->execute([
@@ -115,7 +115,7 @@ class Commande {
 
     public function updateCommande(int $id, array $data): void {
         $stmt = $this->pdo->prepare("
-            UPDATE commande SET 
+            UPDATE frigo_commande SET 
                 nom_client = :nom_client,
                 telephone = :telephone,
                 adresse = :adresse,
@@ -129,7 +129,7 @@ class Commande {
     }
 
     public function deleteCommande(int $id): void {
-        $stmt = $this->pdo->prepare("DELETE FROM commande WHERE id = :id");
+        $stmt = $this->pdo->prepare("DELETE FROM frigo_commande WHERE id = :id");
         $stmt->execute([':id' => $id]);
     }
 }

@@ -37,7 +37,7 @@
                   <?= htmlspecialchars($suggestion['message']) ?>
                 </div>
                 <?php if ($suggestion['produit_id']): ?>
-                  <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier">
+                  <form method="post" action="<?= FRIGO_INDEX ?>?mode=front&controller=commande&action=ajouterPanier">
                     <input type="hidden" name="produit_id" value="<?= $suggestion['produit_id'] ?>">
                     <input type="hidden" name="quantite" value="1">
                     <button type="submit" class="btn btn-success btn-sm">+ Panier</button>
@@ -52,7 +52,7 @@
                   <strong>⚠️ Expire bientôt !</strong><br>
                   <?= htmlspecialchars($suggestion['message']) ?>
                 </div>
-                <a href="/frigo/index.php?mode=front&controller=produit&action=frigo" class="btn btn-outline-danger btn-sm">Voir</a>
+                <a href="<?= FRIGO_INDEX ?>?mode=front&controller=produit&action=frigo" class="btn btn-outline-danger btn-sm">Voir</a>
               </div>
             </div>
           <?php elseif ($suggestion['type'] === 'recommandation'): ?>
@@ -63,7 +63,7 @@
                   <?= htmlspecialchars($suggestion['message']) ?>
                 </div>
                 <?php if ($suggestion['produit_id']): ?>
-                  <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier">
+                  <form method="post" action="<?= FRIGO_INDEX ?>?mode=front&controller=commande&action=ajouterPanier">
                     <input type="hidden" name="produit_id" value="<?= $suggestion['produit_id'] ?>">
                     <input type="hidden" name="quantite" value="1">
                     <button type="submit" class="btn btn-info btn-sm text-white">+ Panier</button>
@@ -103,12 +103,12 @@
                     <p class="small text-muted mb-1"><?= htmlspecialchars($fav['categorie_nom'] ?? '') ?></p>
                     <p class="text-success fw-bold mb-2"><?= number_format($fav['prix'], 2) ?> TND</p>
                     <div class="d-flex gap-1 justify-content-center">
-                      <form method="post" action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier" class="d-inline">
+                      <form method="post" action="<?= FRIGO_INDEX ?>?mode=front&controller=commande&action=ajouterPanier" class="d-inline">
                         <input type="hidden" name="produit_id" value="<?= $fav['id'] ?>">
                         <input type="hidden" name="quantite" value="1">
                         <button type="submit" class="btn btn-success btn-sm">+ Panier</button>
                       </form>
-                      <a href="/frigo/index.php?mode=front&controller=favori&action=supprimer&produit_id=<?= $fav['id'] ?>&redirect=categorie%26action%3Dindex"
+                      <a href="<?= FRIGO_INDEX ?>?mode=front&controller=favori&action=supprimer&produit_id=<?= $fav['id'] ?>&redirect=categorie%26action%3Dindex"
                          class="btn btn-outline-danger btn-sm"
                          onclick="return confirm('Retirer des favoris ?')">
                         ✕ Retirer
@@ -167,7 +167,7 @@
         }
       ?>
       <div class="col-md-3">
-        <a href="/frigo/index.php?mode=front&controller=categorie&action=index&cat_id=<?= $cat['id'] ?>"
+        <a href="<?= FRIGO_INDEX ?>?mode=front&controller=categorie&action=index&cat_id=<?= $cat['id'] ?>"
            class="text-decoration-none">
           <div class="card text-center border-0 shadow-sm h-100
             <?= $categorieActive == $cat['id'] ? 'border border-success border-2' : '' ?>">
@@ -213,7 +213,7 @@
 
               <!-- Ajouter au panier -->
               <form method="post"
-                    action="/frigo/index.php?mode=front&controller=commande&action=ajouterPanier"
+                    action="<?= FRIGO_INDEX ?>?mode=front&controller=commande&action=ajouterPanier"
                     id="form_<?= $p['id'] ?>">
                 <input type="hidden" name="produit_id" value="<?= $p['id'] ?>">
                 <div class="input-group input-group-sm mb-2">
@@ -244,12 +244,12 @@
 
               <!-- Bouton Favoris -->
               <?php if ($estFavori): ?>
-                <a href="/frigo/index.php?mode=front&controller=favori&action=supprimer&produit_id=<?= $p['id'] ?>&redirect=categorie%26action%3Dindex%26cat_id%3D<?= $categorieActive ?>"
+                <a href="<?= FRIGO_INDEX ?>?mode=front&controller=favori&action=supprimer&produit_id=<?= $p['id'] ?>&redirect=categorie%26action%3Dindex%26cat_id%3D<?= $categorieActive ?>"
                    class="btn btn-warning btn-sm w-100 mt-1">
                   ⭐ Retirer des favoris
                 </a>
               <?php else: ?>
-                <a href="/frigo/index.php?mode=front&controller=favori&action=ajouter&produit_id=<?= $p['id'] ?>&redirect=categorie%26action%3Dindex%26cat_id%3D<?= $categorieActive ?>"
+                <a href="<?= FRIGO_INDEX ?>?mode=front&controller=favori&action=ajouter&produit_id=<?= $p['id'] ?>&redirect=categorie%26action%3Dindex%26cat_id%3D<?= $categorieActive ?>"
                    class="btn btn-outline-warning btn-sm w-100 mt-1">
                   ☆ Ajouter aux favoris
                 </a>

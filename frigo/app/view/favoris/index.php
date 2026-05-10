@@ -22,7 +22,7 @@
   <?php if (empty($favoris)): ?>
     <div class="alert alert-info">
       Vous n'avez pas encore de favoris.
-      <a href="/frigo/index.php?controller=categorie&action=index"
+      <a href="<?= FRIGO_INDEX ?>?controller=categorie&action=index"
          class="alert-link">Parcourir le supermarché</a>
     </div>
   <?php else: ?>
@@ -37,7 +37,7 @@
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start">
                 <h6 class="fw-bold"><?= htmlspecialchars($fav['nom']) ?></h6>
-                <a href="/frigo/index.php?controller=favori&action=supprimer&produit_id=<?= $fav['produit_id'] ?>"
+                <a href="<?= FRIGO_INDEX ?>?controller=favori&action=supprimer&produit_id=<?= $fav['produit_id'] ?>"
                    class="text-danger fw-bold"
                    onclick="return confirm('Retirer des favoris ?')"
                    title="Retirer">✕</a>
@@ -48,7 +48,7 @@
               <p class="text-success fw-bold">
                 <?= number_format($fav['prix'], 2) ?> TND
               </p>
-              <a href="/frigo/index.php?controller=favori&action=ajouterAuPanier&produit_id=<?= $fav['produit_id'] ?>"
+              <a href="<?= FRIGO_INDEX ?>?controller=favori&action=ajouterAuPanier&produit_id=<?= $fav['produit_id'] ?>"
                  class="btn btn-success btn-sm w-100 mt-2">
                 + Panier
               </a>

@@ -12,12 +12,12 @@ class FavoriController {
         
         if ($id > 0) {
             $stmt = $this->pdo->prepare(
-                "SELECT COUNT(*) FROM favori WHERE produit_id = :id"
+                "SELECT COUNT(*) FROM frigo_favori WHERE produit_id = :id"
             );
             $stmt->execute([':id' => $id]);
             if ($stmt->fetchColumn() == 0) {
                 $stmt = $this->pdo->prepare(
-                    "INSERT INTO favori (produit_id) VALUES (:id)"
+                    "INSERT INTO frigo_favori (produit_id) VALUES (:id)"
                 );
                 $stmt->execute([':id' => $id]);
                 $_SESSION['success'] = "Produit ajouté aux favoris !";
@@ -25,7 +25,7 @@ class FavoriController {
                 $_SESSION['errors'] = ["Ce produit est déjà dans vos favoris."];
             }
         }
-        header("Location: /frigo/index.php?mode=front&controller=$redirect");
+        header("Location: " . FRIGO_INDEX . "?mode=front&controller=$redirect");
         exit;
     }
 
@@ -35,18 +35,18 @@ class FavoriController {
         
         if ($id > 0) {
             $stmt = $this->pdo->prepare(
-                "DELETE FROM favori WHERE produit_id = :id"
+                "DELETE FROM frigo_favori WHERE produit_id = :id"
             );
             $stmt->execute([':id' => $id]);
             $_SESSION['success'] = "Retiré des favoris.";
         }
-        header("Location: /frigo/index.php?mode=front&controller=$redirect");
+        header("Location: " . FRIGO_INDEX . "?mode=front&controller=$redirect");
         exit;
     }
 
     public function ajouterAuPanier(): void {
         $id   = (int)($_GET['produit_id'] ?? 0);
-        $stmt = $this->pdo->prepare("SELECT * FROM produit WHERE id = :id");
+        $stmt = $this->pdo->prepare("SELECT * FROM frigo_produit WHERE id = :id");
         $stmt->execute([':id' => $id]);
         $produit = $stmt->fetch();
 
@@ -62,7 +62,7 @@ class FavoriController {
             }
             $_SESSION['success'] = "{$produit['nom']} ajouté au panier !";
         }
-        header('Location: /frigo/index.php?mode=front&controller=categorie&action=index');
+        header('Location: ' . FRIGO_INDEX . '?mode=front&controller=categorie&action=index');
         exit;
     }
 }
