@@ -101,7 +101,7 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 | 📋 Gestion Plan Alimentaire | **Maissa Jouini** | Planification repas, recettes |
 | 👤 Gestion Utilisateurs | **Cyrine Sboui** | Authentification, profils |
 | 🛒 Gestion Recettes & Catégories | **Sarra Dimassi** | CRUD recettes & catégories, planificateur de repas IA, recherche dynamique & tri, comparateur de recettes, statistiques & progression, export CSV, notifications, recette surprise, historique des modifications, commandes vocales, système de commandes |
-| 📊 Statistiques & Rapports | **Hajer BenTemessek** | Tableaux de bord, rapports |
+| 📊 Statistiques & Rapports | **synda lazaar** | Tableaux de bord, rapports |
 
 ---
 
