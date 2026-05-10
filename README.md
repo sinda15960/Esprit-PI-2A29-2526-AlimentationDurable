@@ -100,7 +100,7 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 | 🧊 Gestion Frigo | Sinda Lazaar | Inventaire, alertes péremption |
 | 📋 Gestion Plan Alimentaire | Maissa Jouini | Planification repas, recettes |
 | 👤 Gestion Utilisateurs | Cyrine Sboui | Authentification, profils |
-| 🛒 Gestion Commandes | Sarra Dimassi | Listes de courses, commandes |
+| 🛒 Gestion Recettes | Sarra Dimassi | Listes de courses, commandes |
 | 📊 Statistiques & Rapports | Hajer BenTemessek | Tableaux de bord, rapports |
 
 ---
