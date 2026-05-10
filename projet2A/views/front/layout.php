@@ -33,7 +33,8 @@ $nfAssetPrefix = ($nfScriptDir === '' || $nfScriptDir === '.' || $nfScriptDir ==
                 <ul class="nav-auth">
                     <?php if(isset($_SESSION['user_id'])): ?>
                         <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                            <li><a href="index.php?action=admin_dashboard" class="nav-btn-login">Dashboard</a></li>
+                            <li><a href="../dashboard.php#donations" class="nav-btn-login">Gestion des dons</a></li>
+                            <li><a href="index.php?action=admin_dashboard" class="nav-link-muted">Console admin</a></li>
                         <?php endif; ?>
                         <li><a href="index.php?action=profile" class="nav-link-muted">Profile</a></li>
                         <li><a href="index.php?action=logout" class="nav-link-muted">Logout</a></li>

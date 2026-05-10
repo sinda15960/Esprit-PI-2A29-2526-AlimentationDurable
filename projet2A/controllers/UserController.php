@@ -107,7 +107,7 @@ class UserController {
             if(empty($errors)) {
                 if($this->loginUser($_POST['email'], $_POST['password'], isset($_POST['remember_me']))) {
                     if($this->userModel->getRole() == 'admin') {
-                        header("Location: index.php?action=admin_dashboard");
+                        header("Location: ../dashboard.php#donations");
                     } else {
                         header("Location: index.php?action=profile");
                     }
@@ -131,7 +131,7 @@ class UserController {
             exit();
         }
         if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
-            header("Location: index.php?action=admin_dashboard");
+            header("Location: ../dashboard.php#donations");
             exit();
         }
         $page_title = "My Profile - NutriFlow AI";
@@ -456,6 +456,9 @@ class UserController {
                 $_SESSION['height'] = $row['height'];
                 $_SESSION['dietary_preference'] = $row['dietary_preference'];
                 $_SESSION['role'] = $row['role'];
+                if (($row['role'] ?? '') === 'admin') {
+                    $_SESSION['logged_in'] = true;
+                }
                 
                 if(isset($row['needs_welcome_message']) && $row['needs_welcome_message'] == 1) {
                     $_SESSION['account_reactivated'] = "🎉 Your account has been reactivated! Welcome back to NutriFlow AI! 🎉";
@@ -510,6 +513,9 @@ class UserController {
                 $_SESSION['height'] = $row['height'];
                 $_SESSION['dietary_preference'] = $row['dietary_preference'];
                 $_SESSION['role'] = $row['role'];
+                if (($row['role'] ?? '') === 'admin') {
+                    $_SESSION['logged_in'] = true;
+                }
                 
                 echo json_encode(['success' => true, 'action' => 'login']);
             } else {
@@ -684,6 +690,9 @@ class UserController {
                     $_SESSION['dietary_preference'] = $user['dietary_preference'];
                     $_SESSION['role'] = $user['role'];
                     $_SESSION['face_id_enabled'] = true;
+                    if (($user['role'] ?? '') === 'admin') {
+                        $_SESSION['logged_in'] = true;
+                    }
                     
                     unset($_SESSION['temp_user_id']);
                     
@@ -722,6 +731,9 @@ class UserController {
                 $_SESSION['height'] = $foundUser['height'];
                 $_SESSION['dietary_preference'] = $foundUser['dietary_preference'];
                 $_SESSION['role'] = $foundUser['role'];
+                if (($foundUser['role'] ?? '') === 'admin') {
+                    $_SESSION['logged_in'] = true;
+                }
                 
                 echo json_encode(['success' => true, 'user' => $foundUser]);
                 exit();
@@ -809,6 +821,9 @@ class UserController {
                 $_SESSION['height'] = $this->userModel->getHeight();
                 $_SESSION['dietary_preference'] = $this->userModel->getDietaryPreference();
                 $_SESSION['role'] = $this->userModel->getRole();
+                if ($this->userModel->getRole() === 'admin') {
+                    $_SESSION['logged_in'] = true;
+                }
                 
                 if(isset($row['needs_welcome_message']) && $row['needs_welcome_message'] == 1) {
                     $_SESSION['account_reactivated'] = "🎉 Your account has been reactivated! Welcome back to NutriFlow AI! 🎉";

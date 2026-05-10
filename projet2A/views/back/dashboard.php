@@ -213,8 +213,8 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <a class="btn-card" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/dashboard.php" target="_blank" rel="noopener noreferrer">Manage Donations</a>
-                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/dashboard.php" target="_blank" rel="noopener noreferrer">+ New Campaign</a>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/dashboard.php#donations">Gestion des dons</a>
+                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/form.php">Nouveau don</a>
                 </div>
             </div>
 

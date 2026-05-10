@@ -24,6 +24,10 @@
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Dashboard</span>
                 </a>
+                <a href="../dashboard.php#donations" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span class="nav-text">Gestion des dons</span>
+                </a>
                 
                 <!-- User Management -->
                 <a href="index.php?action=admin_users" class="nav-item <?php echo ($active_page ?? '') == 'users' ? 'active' : ''; ?>">
