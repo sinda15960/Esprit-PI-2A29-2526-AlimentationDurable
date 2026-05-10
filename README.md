@@ -287,7 +287,7 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 | **Maissa Jouini** | **Gestion Plan Alimentaire** |
 | **Cyrine Sboui** | **Gestion Utilisateurs** |
 | **Sarra Dimassi** | **Gestion Recettes & Catégories** |
-| **Hajer BenTemessek** | **Statistiques & Rapports** |
+| **Hajer BenTemessek** | **Gestion frigo** |
 | **Nada Azlouk** | **Gestion Allergies & Traitements** |
 
 ---
