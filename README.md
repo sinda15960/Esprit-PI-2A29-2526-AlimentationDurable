@@ -97,7 +97,8 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 | Module | Responsable | Fonctionnalités |
 |--------|------------|-----------------|
 | 🗄️ Gestion Allergies & Traitements | **Nada Azlouk** | CRUD complet, chatbot IA, bouton SOS, alertes pollen, comparateur |
-| 🧊 Gestion Frigo | **Sinda Lazaar** | Inventaire, alertes péremption |
+| 🧊 Gestion Frigo | **Hajer BenTemessek** | Inventaire, alertes péremption & stock faible, supermarché virtuel, 
+panier & commandes, paiement CB, carte livraison, code promo, scan QR, suggestions IA, statistiques admin, CRUD complet |
 | 📋 Gestion Plan Alimentaire | **Maissa Jouini** | Planification repas, recettes |
 | 👤 Gestion Utilisateurs | **Cyrine Sboui** | Authentification, profils |
 | 🛒 Gestion Recettes & Catégories | **Sarra Dimassi** | CRUD recettes & catégories, planificateur de repas IA, recherche dynamique & tri, comparateur de recettes, statistiques & progression, export CSV, notifications, recette surprise, historique des modifications, commandes vocales, système de commandes |
