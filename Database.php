@@ -1,38 +1,65 @@
 <?php
+
 class Database {
-    private static $instance_front = null;
-    private static $instance_back = null;
-    
-    public static function getFrontConnection() {
-        if (self::$instance_front === null) {
+
+    private static ?PDO $front = null;
+    private static ?PDO $back = null;
+    private static ?PDO $ai = null;
+
+    public static function getFrontConnection(): PDO {
+        if (self::$front === null) {
             try {
-                self::$instance_front = new PDO(
-                    "mysql:host=localhost;dbname=nutriflow_front;charset=utf8mb4",
-                    "root",      // ← Changé de 'front_user' à 'root'
-                    "",          // ← Mot de passe vide par défaut sur XAMPP
-                    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+                self::$front = new PDO(
+                    "mysql:host=localhost;dbname=nutriflow_db;charset=utf8mb4",
+                    "root",
+                    "",
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                    ]
                 );
-            } catch(PDOException $e) {
+            } catch (PDOException $e) {
                 die("Erreur BD Front: " . $e->getMessage());
             }
         }
-        return self::$instance_front;
+        return self::$front;
     }
-    
-    public static function getBackConnection() {
-        if (self::$instance_back === null) {
+
+    public static function getBackConnection(): PDO {
+        if (self::$back === null) {
             try {
-                self::$instance_back = new PDO(
-                    "mysql:host=localhost;dbname=nutriflow_back;charset=utf8mb4",
-                    "root",      // ← Changé de 'back_user' à 'root'
-                    "",          // ← Mot de passe vide par défaut sur XAMPP
-                    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+                self::$back = new PDO(
+                    "mysql:host=localhost;dbname=nutriflow_db;charset=utf8mb4",
+                    "root",
+                    "",
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                    ]
                 );
-            } catch(PDOException $e) {
+            } catch (PDOException $e) {
                 die("Erreur BD Back: " . $e->getMessage());
             }
         }
-        return self::$instance_back;
+        return self::$back;
+    }
+
+    public static function getAIConnection(): PDO {
+        if (self::$ai === null) {
+            try {
+                self::$ai = new PDO(
+                    "mysql:host=localhost;dbname=nutriflow_db;charset=utf8mb4",
+                    "root",
+                    "",
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                    ]
+                );
+            } catch (PDOException $e) {
+                die("Erreur BD AI: " . $e->getMessage());
+            }
+        }
+        return self::$ai;
     }
 }
-?>

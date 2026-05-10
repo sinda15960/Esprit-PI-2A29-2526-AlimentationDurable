@@ -24,14 +24,15 @@ class DarkModeManager {
             </div>
         `;
 
-        const navbar = document.querySelector('.nav-container');
-        if (navbar) {
+        const navActions = document.querySelector('.nav-actions');
+        const navHost = navActions || document.querySelector('.nav-container');
+        if (navHost) {
             const existingToggle = document.getElementById('darkModeToggle');
             if (existingToggle) existingToggle.remove();
             
             const toggleContainer = document.createElement('div');
             toggleContainer.innerHTML = toggleHtml;
-            navbar.appendChild(toggleContainer.firstElementChild);
+            navHost.appendChild(toggleContainer.firstElementChild);
             
             document.getElementById('darkModeToggle').addEventListener('click', () => this.toggle());
         }

@@ -139,6 +139,137 @@
     color: #1e40af;
 }
 
+/* ========== Navigation (réf. maquette : barre blanche, logo vert, liens gris, Login pilule) ========== */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 0;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.875rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.navbar .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.logo-icon {
+    font-size: 1.65rem;
+    line-height: 1;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: #166534;
+    letter-spacing: -0.02em;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+}
+
+.nav-links a {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #64748b;
+    text-decoration: none;
+}
+
+.nav-links a:hover {
+    color: #166534;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.nav-auth {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-auth li {
+    display: flex;
+    align-items: center;
+}
+
+.nav-btn-login {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.4rem;
+    background: #166534;
+    color: #ffffff !important;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    border: 2px solid #166534;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-btn-login:hover {
+    background: #14532d;
+    border-color: #14532d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(22, 101, 52, 0.35);
+}
+
+.nav-link-muted {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #64748b;
+    text-decoration: none;
+    padding: 0.35rem 0.25rem;
+}
+
+.nav-link-muted:hover {
+    color: #166534;
+}
+
+body.dark-mode .logo-text {
+    color: #4ade80;
+}
+
+body.dark-mode .nav-btn-login {
+    background: #22c55e;
+    border-color: #22c55e;
+    color: #0f172a !important;
+}
+
+body.dark-mode .nav-btn-login:hover {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #fff !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .line-clamp-3 {
@@ -198,6 +329,7 @@
         gap: 1.5rem;
     }
     
+    /* Ancienne classe .nav-menu — conservée si utilisée ailleurs */
     .nav-menu {
         position: fixed;
         top: 70px;
@@ -211,22 +343,22 @@
         box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         z-index: 999;
     }
-    
+
     .nav-menu.show {
         left: 0;
     }
-    
+
     .nav-menu li {
         width: 100%;
     }
-    
+
     .nav-menu a {
         display: block;
         padding: 1rem;
         width: 100%;
         text-align: center;
     }
-    
+
     .nav-btn {
         margin-top: 0.5rem;
     }
@@ -297,6 +429,29 @@
     .deleted-icon {
         font-size: 1.8rem;
     }
-    
+
+    .nav-container {
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem 1.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    body.dark-mode .nav-links {
+        border-top-color: var(--border-color);
+    }
+
+    .nav-actions {
+        margin-left: auto;
+    }
 
 }

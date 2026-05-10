@@ -178,7 +178,14 @@
         </div>
     </div>
 
-    <!-- Management Sections -->
+    <!-- Management Sections — liens vers les modules du dépôt (dons, recettes, frigo, plans, allergies) -->
+    <?php
+    $nfRepoRoot = '..';
+    $nfRecipesPublic = 'public/index.php';
+    $nfFrigoIndex = $nfRepoRoot . '/frigo/index.php';
+    $nfPlanBack = $nfRepoRoot . '/gestion_plan/index.php?office=back&module=programme&action=index';
+    $nfPlanCreate = $nfRepoRoot . '/gestion_plan/index.php?office=back&module=programme&action=create';
+    ?>
     <div class="management-sections">
         <div class="section-header">
             <h2>Management Dashboard</h2>
@@ -206,8 +213,8 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-card" onclick="showComingSoon('Donation Management')">Manage Donations</button>
-                    <button class="btn-card secondary" onclick="showComingSoon('Add Campaign')">+ New Campaign</button>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/dashboard.php" target="_blank" rel="noopener noreferrer">Manage Donations</a>
+                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/dashboard.php" target="_blank" rel="noopener noreferrer">+ New Campaign</a>
                 </div>
             </div>
 
@@ -231,8 +238,8 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-card" onclick="showComingSoon('Recipe Management')">Manage Recipes</button>
-                    <button class="btn-card secondary" onclick="showComingSoon('Add Recipe')">+ New Recipe</button>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfRecipesPublic); ?>?action=backRecipes" target="_blank" rel="noopener noreferrer">Manage Recipes</a>
+                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfRecipesPublic); ?>?action=backCreateRecipe" target="_blank" rel="noopener noreferrer">+ New Recipe</a>
                 </div>
             </div>
 
@@ -256,8 +263,8 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-card" onclick="showComingSoon('Marketplace Management')">Manage Marketplace</button>
-                    <button class="btn-card secondary" onclick="showComingSoon('Add Product')">+ Add Product</button>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfFrigoIndex); ?>?mode=back&amp;controller=commande&amp;action=index" target="_blank" rel="noopener noreferrer">Manage Marketplace</a>
+                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfFrigoIndex); ?>?mode=back&amp;controller=produit&amp;action=create" target="_blank" rel="noopener noreferrer">+ Add Product</a>
                 </div>
             </div>
 
@@ -281,8 +288,8 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-card" onclick="showComingSoon('Plan Management')">Manage Plans</button>
-                    <button class="btn-card secondary" onclick="showComingSoon('Create Plan')">+ Create Plan</button>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfPlanBack); ?>" target="_blank" rel="noopener noreferrer">Manage Plans</a>
+                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfPlanCreate); ?>" target="_blank" rel="noopener noreferrer">+ Create Plan</a>
                 </div>
             </div>
 
@@ -306,8 +313,8 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-card" onclick="showComingSoon('Allergy Management')">Manage Allergies</button>
-                    <button class="btn-card secondary" onclick="showComingSoon('Add Allergen')">+ Add Allergen</button>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/gestion_allergies.php" target="_blank" rel="noopener noreferrer">Manage Allergies</a>
+                    <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfRepoRoot); ?>/addAllergie.php" target="_blank" rel="noopener noreferrer">+ Add Allergen</a>
                 </div>
             </div>
         </div>
@@ -338,32 +345,95 @@
     </div>
 </div>
 
-<!-- Modal for Coming Soon -->
-<div id="comingSoonModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
-            <h2>🚀 Coming Soon</h2>
-        </div>
-        <div class="modal-body">
-            <div class="coming-soon-icon">🔧</div>
-            <p id="modalMessage">This feature is currently under development.</p>
-            <p class="modal-subtext">We're working hard to bring you this functionality soon!</p>
-            <div class="progress-bar">
-                <div class="progress" style="width: 65%;"></div>
-            </div>
-            <p class="progress-text">Development in progress - 65%</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-modal" onclick="closeModal()">Got it!</button>
-        </div>
-    </div>
-</div>
-
 <style>
 /* Dashboard Container */
 .dashboard-container {
     padding: 0;
+}
+
+/* Integrated module cards */
+.management-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+.management-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+.management-card .card-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+.management-card h3 {
+    margin: 0 0 0.5rem;
+    color: #1e293b;
+    font-size: 1.05rem;
+}
+.management-card > p {
+    color: #64748b;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    line-height: 1.45;
+}
+.card-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.card-stats .stat {
+    flex: 1;
+    min-width: 72px;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 0.5rem 0.65rem;
+}
+.card-stats .stat-label {
+    display: block;
+    font-size: 0.65rem;
+    color: #64748b;
+}
+.card-stats .stat-value {
+    font-weight: 700;
+    color: #16a34a;
+    font-size: 0.85rem;
+}
+.card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+a.btn-card {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.55rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: linear-gradient(135deg, #16a34a, #14532d);
+    color: white !important;
+}
+a.btn-card.secondary {
+    background: #f1f5f9;
+    color: #334155 !important;
+    border: 1px solid #e2e8f0;
+}
+a.btn-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+a.btn-card.secondary:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 /* Widget Settings */
@@ -853,11 +923,6 @@
     background: #cbd5e0;
 }
 
-.coming-soon-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
 .progress-bar {
     width: 100%;
     height: 6px;
@@ -876,15 +941,6 @@
 .progress-text {
     font-size: 0.7rem;
     color: #94a3b8;
-}
-
-.btn-modal {
-    padding: 0.5rem 1.5rem;
-    background: linear-gradient(135deg, #16a34a, #14532d);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
 }
 
 @keyframes fadeIn {
@@ -1348,20 +1404,6 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function showComingSoon(feature) {
-    const modal = document.getElementById('comingSoonModal');
-    const message = document.getElementById('modalMessage');
-    if(modal && message) {
-        message.innerHTML = `<strong>${feature}</strong> is currently under development.`;
-        modal.style.display = 'block';
-    }
-}
-
-function closeModal() {
-    const modal = document.getElementById('comingSoonModal');
-    if(modal) modal.style.display = 'none';
-}
-
 // ========== ANIMATION COUNTERS ==========
 function animateNumbers() {
     const counters = document.querySelectorAll('.stat-number');
@@ -1399,9 +1441,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Close modals when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('comingSoonModal');
     const widgetModal = document.getElementById('widgetModal');
-    if(event.target == modal) closeModal();
     if(event.target == widgetModal) closeWidgetModal();
 }
 

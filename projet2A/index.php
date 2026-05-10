@@ -1,84 +1,104 @@
 <?php
+/**
+ * Point d'entrée NutriFlow : page d'accueil = Healthy Eat Healthy (action=home par défaut).
+ * Ancien mini-routeur frigo : uniquement si ?controller= est produit|categorie|commande.
+ */
 session_start();
-require_once 'config/database.php';
 
-spl_autoload_register(function($class) {
+require_once __DIR__ . '/config/database.php';
+
+spl_autoload_register(function ($class) {
     $paths = [
-        'app/model/',
-        'app/contoller/',
+        __DIR__ . '/models/' . $class . '.php',
+        __DIR__ . '/controllers/' . $class . '.php',
+        __DIR__ . '/app/model/' . $class . '.php',
+        __DIR__ . '/app/contoller/' . $class . '.php',
     ];
-    foreach ($paths as $path) {
-        $file = $path . $class . '.php';
-        if (file_exists($file)) {
+    foreach ($paths as $file) {
+        if (is_file($file)) {
             require_once $file;
             return;
         }
     }
 });
 
+$legacyControllers = ['produit', 'categorie', 'commande'];
 
-$controller = $_GET['controller'] ?? 'produit';
-$action     = $_GET['action']     ?? 'frigo';
-
-$map = [
-    'produit'   => 'ProduitController',
-    'categorie' => 'CategorieController',
-    'commande'  => 'CommandeController',
+/*
+ * Les anciennes versions utilisaient $controller = $_GET['controller'] ?? 'produit', donc
+ * ?action=home appelait ProduitController->home() → « Action introuvable ».
+ * Les routes NutriFlow passent toujours en premier si ?action= est reconnu.
+ */
+$requestedAction = $_GET['action'] ?? '';
+$nutriflowFrontActions = [
+    'home', 'login', 'register', 'profile', 'logout', 'delete_account',
+    'forgot_password', 'reset_password', 'sendResetLink', 'resetPasswordAjax',
+    'social_login_ajax', 'send_contact_message', 'save_face_signature', 'login_with_face',
 ];
+$isNutriflowAction = ($requestedAction !== ''
+    && (
+        in_array($requestedAction, $nutriflowFrontActions, true)
+        || strpos($requestedAction, 'admin_') === 0
+    ));
 
-$controllerClass = $map[$controller] ?? null;
+if (
+    !$isNutriflowAction
+    && isset($_GET['controller'])
+    && in_array($_GET['controller'], $legacyControllers, true)
+) {
+    $map = [
+        'produit'   => 'ProduitController',
+        'categorie' => 'CategorieController',
+        'commande'  => 'CommandeController',
+    ];
+    $controllerKey = $_GET['controller'];
+    $controllerClass = $map[$controllerKey];
+    require_once __DIR__ . '/app/contoller/' . $controllerClass . '.php';
+    $ctrl = new $controllerClass();
 
-if (!$controllerClass) {
-    die("Contrôleur introuvable.");
+    $action = $_GET['action'] ?? (
+        $controllerKey === 'produit' ? 'frigo' : 'index'
+    );
+
+    if (!method_exists($ctrl, $action)) {
+        die('Action introuvable.');
+    }
+
+    $ctrl->$action();
+    exit;
 }
 
-require_once 'app/contoller/' . $controllerClass . '.php';
+require_once __DIR__ . '/controllers/UserController.php';
+require_once __DIR__ . '/controllers/AdminController.php';
 
-$ctrl = new $controllerClass();
+$userController = new UserController();
 
-// Liste de toutes les actions autorisées
-$actionsAutorisees = [
-    'frigo', 'index', 'create', 'store', 'edit', 'update',
-    'delete', 'ajouterFrigo', 'ajouterManuel', 'supprimerDuFrigo',
-    'envoyerAuPanier', 'modifierQuantiteFrigo',
-    'panier', 'ajouterPanier', 'modifierPanier', 'retirerPanier',
-    'checkout', 'confirmer', 'annuler', 'updateCommande',
-    'deleteCommande',
-    'admin', 'store', 'updateCommande'
-];
-
-if (!in_array($action, $actionsAutorisees) || !method_exists($ctrl, $action)) {
-    die("Action introuvable.");
-}
-
-$ctrl->$action();
-
-// Auto-login with Remember Me (if not logged in)
-if(!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id'])) {
     $userController->checkRememberMe();
 }
 
-switch($action) {
-    // ========== FRONT ROUTES ==========
+$action = $_GET['action'] ?? 'home';
+
+switch ($action) {
     case 'home':
         $userController->showHome();
         break;
     case 'register':
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userController->register();
         } else {
             $userController->showRegister();
         }
         break;
     case 'login':
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userController->login();
         } else {
             $userController->showLogin();
         }
         break;
     case 'profile':
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userController->updateProfile();
         } else {
             $userController->showProfile();
@@ -91,45 +111,41 @@ switch($action) {
         $userController->deleteAccount();
         break;
     case 'forgot_password':
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userController->sendResetLink();
         } else {
             $userController->showForgotPassword();
         }
         break;
     case 'reset_password':
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userController->resetPassword();
         } else {
             $userController->showResetPassword();
         }
         break;
-    
-    // ========== AJAX RESET PASSWORD ==========
+
     case 'sendResetLink':
         $userController->sendResetLink();
         break;
     case 'resetPasswordAjax':
         $userController->resetPasswordAjax();
         break;
-    
-    // ========== SOCIAL LOGIN ==========
+
     case 'social_login_ajax':
         $userController->socialLoginAjax();
         break;
     case 'send_contact_message':
         $userController->sendContactMessage();
         break;
-    
-    // ========== FACE ID ROUTES ==========
+
     case 'save_face_signature':
         $userController->saveFaceSignature();
         break;
     case 'login_with_face':
         $userController->loginWithFace();
         break;
-    
-    // ========== ADMIN ROUTES ==========
+
     case 'admin_dashboard':
         $adminController = new AdminController();
         $adminController->dashboard();
@@ -139,7 +155,7 @@ switch($action) {
         $adminController->listUsers();
         break;
     case 'admin_edit_user':
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $adminController = new AdminController();
             $adminController->updateUser();
         } else {
@@ -167,8 +183,7 @@ switch($action) {
         $adminController = new AdminController();
         $adminController->enableUser();
         break;
-    
-    // ========== ADMIN CONTACT MESSAGES ROUTES ==========
+
     case 'admin_get_messages':
         $adminController = new AdminController();
         $messages = $adminController->getContactMessages();
@@ -190,14 +205,12 @@ switch($action) {
         header('Content-Type: application/json');
         echo json_encode(['success' => $success]);
         break;
-    
-    // ========== ADMIN ANALYTICS ROUTES ==========
+
     case 'admin_analytics':
         $adminController = new AdminController();
         $adminController->getAnalyticsData();
         break;
-    
-    // ========== ADMIN NOTIFICATIONS ROUTES ==========
+
     case 'admin_get_notifications':
         $adminController = new AdminController();
         $adminController->getNotifications();
@@ -206,14 +219,12 @@ switch($action) {
         $adminController = new AdminController();
         $adminController->markNotificationRead();
         break;
-    
-    // ========== ADMIN WORLD MAP ROUTE ==========
+
     case 'admin_get_locations':
         $adminController = new AdminController();
         $adminController->getUserLocations();
         break;
-    
-    // ========== ADMIN EXPORT ROUTES ==========
+
     case 'admin_export_users':
         $adminController = new AdminController();
         $adminController->exportUsers();
@@ -222,8 +233,7 @@ switch($action) {
         $adminController = new AdminController();
         $adminController->exportMessages();
         break;
-    
-    // ========== ADMIN WIDGET SETTINGS ROUTES ==========
+
     case 'admin_save_widgets':
         $adminController = new AdminController();
         $adminController->saveWidgetSettings();
@@ -232,8 +242,7 @@ switch($action) {
         $adminController = new AdminController();
         $adminController->getWidgetSettings();
         break;
-    
-    // ========== PREMIUM FEATURES ==========
+
     case 'admin_globe':
         $adminController = new AdminController();
         $adminController->showGlobe();
@@ -246,8 +255,7 @@ switch($action) {
         $adminController = new AdminController();
         $adminController->showTerminal();
         break;
-    
-    // ========== TOP 5 NEW FEATURES ==========
+
     case 'admin_incognito':
         $adminController = new AdminController();
         $adminController->showIncognito();
@@ -268,8 +276,8 @@ switch($action) {
         $adminController = new AdminController();
         $adminController->showCleaner();
         break;
-    
+
     default:
         $userController->showHome();
+        break;
 }
-?>

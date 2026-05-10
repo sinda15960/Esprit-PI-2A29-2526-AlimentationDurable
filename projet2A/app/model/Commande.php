@@ -8,7 +8,7 @@ class Commande {
 
     public function create(array $data): int {
         $stmt = $this->pdo->prepare("
-            INSERT INTO commande (nom_client, telephone, adresse, methode_paiement, total)
+            INSERT INTO frigo_commande (nom_client, telephone, adresse, methode_paiement, total)
             VALUES (:nom_client, :telephone, :adresse, :methode_paiement, :total)
         ");
         $stmt->execute($data);
@@ -17,7 +17,7 @@ class Commande {
 
     public function addProduit(int $commandeId, int $produitId, int $qte, float $prix): void {
         $stmt = $this->pdo->prepare("
-            INSERT INTO commande_produit (commande_id, produit_id, quantite, prix_unitaire)
+            INSERT INTO frigo_commande_produit (commande_id, produit_id, quantite, prix_unitaire)
             VALUES (:commande_id, :produit_id, :quantite, :prix_unitaire)
         ");
         $stmt->execute([
@@ -31,9 +31,9 @@ class Commande {
     public function getHistorique(): array {
         return $this->pdo->query("
             SELECT c.*, GROUP_CONCAT(p.nom SEPARATOR ', ') AS produits_noms
-            FROM commande c
-            LEFT JOIN commande_produit cp ON c.id = cp.commande_id
-            LEFT JOIN produit p ON cp.produit_id = p.id
+            FROM frigo_commande c
+            LEFT JOIN frigo_commande_produit cp ON c.id = cp.commande_id
+            LEFT JOIN frigo_produit p ON cp.produit_id = p.id
             GROUP BY c.id
             ORDER BY c.date_commande DESC
             LIMIT 10
@@ -64,14 +64,14 @@ class Commande {
     }
 public function getAll(): array {
     return $this->pdo->query("
-        SELECT * FROM commande ORDER BY date_commande DESC
+        SELECT * FROM frigo_commande ORDER BY date_commande DESC
     ")->fetchAll();
 }
 
 public function updateCommande(int $id, array $data): bool {
     $data[':id'] = $id;
     $stmt = $this->pdo->prepare("
-        UPDATE commande 
+        UPDATE frigo_commande 
         SET nom_client=:nom_client, telephone=:telephone,
             adresse=:adresse, methode_paiement=:methode_paiement,
             total=:total, statut=:statut
@@ -81,7 +81,7 @@ public function updateCommande(int $id, array $data): bool {
 }
 
 public function deleteCommande(int $id): bool {
-    $stmt = $this->pdo->prepare("DELETE FROM commande WHERE id = :id");
+    $stmt = $this->pdo->prepare("DELETE FROM frigo_commande WHERE id = :id");
     return $stmt->execute([':id' => $id]);
 }
 }

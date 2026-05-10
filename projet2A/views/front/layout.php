@@ -9,28 +9,32 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar">
+    <nav class="navbar" aria-label="Main navigation">
         <div class="nav-container">
-            <div class="logo">
-                <span class="logo-icon">🥗</span>
+            <a href="index.php?action=home" class="logo">
+                <span class="logo-icon" aria-hidden="true">🥗</span>
                 <span class="logo-text">NutriFlow AI</span>
-            </div>
-            <ul class="nav-menu">
+            </a>
+            <ul class="nav-links">
                 <li><a href="index.php?action=home">Home</a></li>
                 <li><a href="index.php?action=home#features-section">Features</a></li>
                 <li><a href="index.php?action=home#footer">About</a></li>
                 <li><a href="index.php?action=home#footer">Contact</a></li>
-                <?php if(isset($_SESSION['user_id'])): ?>
-                    <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                        <li><a href="index.php?action=admin_dashboard" class="nav-btn admin">Dashboard</a></li>
-                    <?php endif; ?>
-                    <li><a href="index.php?action=profile" class="nav-btn">Profile</a></li>
-                    <li><a href="index.php?action=logout" class="nav-btn logout">Logout</a></li>
-                <?php else: ?>
-                    <li><a href="index.php?action=login" class="nav-btn">Login</a></li>
-                <?php endif; ?>
             </ul>
-            <!-- Dark Mode Toggle will be inserted here by JS -->
+            <div class="nav-actions">
+                <ul class="nav-auth">
+                    <?php if(isset($_SESSION['user_id'])): ?>
+                        <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
+                            <li><a href="index.php?action=admin_dashboard" class="nav-btn-login">Dashboard</a></li>
+                        <?php endif; ?>
+                        <li><a href="index.php?action=profile" class="nav-link-muted">Profile</a></li>
+                        <li><a href="index.php?action=logout" class="nav-link-muted">Logout</a></li>
+                    <?php else: ?>
+                        <li><a href="index.php?action=login" class="nav-btn-login">Login</a></li>
+                    <?php endif; ?>
+                </ul>
+                <!-- Dark mode toggle inserted here by dark-mode.js -->
+            </div>
         </div>
     </nav>
 
