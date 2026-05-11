@@ -108,7 +108,7 @@ class UserController {
             if(empty($errors)) {
                 if($this->loginUser($_POST['email'], $_POST['password'], isset($_POST['remember_me']))) {
                     if($this->userModel->getRole() == 'admin') {
-                        header('Location: ' . nf_repo_url('dashboard.php') . '#donations', true, 302);
+                        header('Location: ' . nf_admin_dashboard_url(), true, 302);
                     } else {
                         header("Location: index.php?action=profile");
                     }
@@ -132,7 +132,7 @@ class UserController {
             exit();
         }
         if(isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
-            header('Location: ' . nf_repo_url('dashboard.php') . '#donations', true, 302);
+            header('Location: ' . nf_admin_dashboard_url(), true, 302);
             exit();
         }
         $page_title = "My Profile - NutriFlow AI";

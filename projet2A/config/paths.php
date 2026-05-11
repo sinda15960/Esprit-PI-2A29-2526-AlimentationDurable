@@ -106,3 +106,16 @@ function nf_projet_url(string $path): string
     }
     return nf_normalize_web_path($base . '/' . $path);
 }
+
+/**
+ * Panneau admin NutriFlow (sidebar verte, cartes Management Dashboard).
+ */
+function nf_admin_dashboard_url(string $fragment = ''): string
+{
+    $url = nf_projet_url('index.php') . '?action=admin_dashboard';
+    $fragment = ltrim($fragment, '#');
+    if ($fragment !== '') {
+        $url .= '#' . $fragment;
+    }
+    return $url;
+}

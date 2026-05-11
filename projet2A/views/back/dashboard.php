@@ -192,7 +192,7 @@
     $nfGestionAllergies = nf_repo_url('gestion_allergies.php');
     $nfAddAllergie = nf_repo_url('addAllergie.php');
     ?>
-    <div class="management-sections">
+    <div class="management-sections" id="management-dashboard">
         <div class="section-header">
             <h2>Management Dashboard</h2>
             <p>Manage all aspects of NutriFlow AI platform</p>

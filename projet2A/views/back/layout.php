@@ -1,8 +1,8 @@
 <?php
-if (!function_exists('nf_repo_url')) {
+if (!function_exists('nf_admin_dashboard_url')) {
     require_once dirname(__DIR__, 2) . '/config/paths.php';
 }
-$nfAdminDonationsUrl = nf_repo_url('dashboard.php') . '#donations';
+$nfAdminDonationsUrl = nf_admin_dashboard_url('management-dashboard');
 ?>
 <!DOCTYPE html>
 <html lang="en">
