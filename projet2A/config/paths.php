@@ -175,6 +175,52 @@ function nf_projet_asset(string $relativePath): string
 }
 
 /**
+ * URL absolue du dossier projet2A (slash final) pour &lt;base href&gt; du back-office.
+ * Sans cache statique : évite les CSS bloqués si la première résolution était vide.
+ */
+function nf_projet_admin_base_href(): string
+{
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+
+    $sn = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
+    if ($sn !== '' && $sn[0] !== '/') {
+        $sn = '/' . $sn;
+    }
+    if ($sn === '') {
+        $sn = '/index.php';
+    }
+
+    $dir = dirname($sn);
+    if ($dir === '/' || $dir === '\\' || $dir === '.') {
+        $dir = '';
+    } else {
+        $dir = rtrim($dir, '/');
+        if (preg_match('#/public$#', $dir)) {
+            $pd = dirname($dir);
+            $dir = ($pd === '/' || $pd === '\\' || $pd === '.') ? '' : rtrim($pd, '/');
+        }
+    }
+
+    if ($dir === '') {
+        $uri = strtok(str_replace('\\', '/', (string)($_SERVER['REQUEST_URI'] ?? '')), '?') ?: '';
+        if ($uri !== '' && $uri[0] !== '/') {
+            $uri = '/' . $uri;
+        }
+        if ($uri !== '' && preg_match('#/index\.php$#i', $uri)) {
+            $dir = rtrim(substr($uri, 0, -strlen('/index.php')), '/');
+        }
+    }
+
+    if ($dir !== '' && $dir[0] !== '/') {
+        $dir = '/' . $dir;
+    }
+
+    $suffix = ($dir === '' || $dir === '/') ? '/' : ($dir . '/');
+    return $scheme . '://' . $host . $suffix;
+}
+
+/**
  * Panneau admin NutriFlow (sidebar verte, cartes Management Dashboard).
  */
 function nf_admin_dashboard_url(string $fragment = ''): string

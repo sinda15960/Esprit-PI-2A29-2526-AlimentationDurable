@@ -1,10 +1,9 @@
 <?php
-if (!function_exists('nf_admin_dashboard_url')) {
+if (!function_exists('nf_projet_admin_base_href')) {
     require_once dirname(__DIR__, 2) . '/config/paths.php';
 }
 $nfRepoDonationsAdmin = nf_repo_url('donations_admin.php');
-$nfBackCss = nf_projet_asset('assets/css/back-style.css');
-$nfAdminJs = nf_projet_asset('assets/js/admin.js');
+$nfAdminBaseHref = nf_projet_admin_base_href();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,7 +11,8 @@ $nfAdminJs = nf_projet_asset('assets/js/admin.js');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title ?? 'Admin Panel - NutriFlow AI'; ?></title>
-    <link rel="stylesheet" href="<?php echo htmlspecialchars($nfBackCss); ?>">
+    <base href="<?php echo htmlspecialchars($nfAdminBaseHref, ENT_QUOTES, 'UTF-8'); ?>">
+    <link rel="stylesheet" href="assets/css/back-style.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -155,7 +155,7 @@ $nfAdminJs = nf_projet_asset('assets/js/admin.js');
         </main>
     </div>
 
-    <script src="<?php echo htmlspecialchars($nfAdminJs); ?>"></script>
+    <script src="assets/js/admin.js?v=2"></script>
     <script>
         document.querySelectorAll('.alert-close').forEach(button => {
             button.addEventListener('click', function() {
