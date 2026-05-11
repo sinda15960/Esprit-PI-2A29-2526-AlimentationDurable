@@ -50,10 +50,17 @@ $nfAssetPrefix = ($nfScriptDir === '' || $nfScriptDir === '.' || $nfScriptDir ==
         <?php echo $content; ?>
     </main>
 
-    <footer id="footer">
-        <div class="footer-content">
-            <p>www.nutriflowai.com | +123456789</p>
-            <p>&copy; 2024 NutriFlow AI. All rights reserved.</p>
+    <footer id="footer" class="site-footer" aria-labelledby="footer-contact-heading">
+        <div class="footer-inner">
+            <h2 id="footer-contact-heading" class="footer-contact-heading">Contact</h2>
+            <p class="footer-contact-line">
+                <a class="footer-link" href="mailto:support@nutriflowai.com">support@nutriflowai.com</a>
+                <span class="footer-sep" aria-hidden="true">·</span>
+                <a class="footer-link" href="tel:+123456789">+123456789</a>
+                <span class="footer-sep" aria-hidden="true">·</span>
+                <a class="footer-link" href="https://www.nutriflowai.com" rel="noopener noreferrer">www.nutriflowai.com</a>
+            </p>
+            <p class="footer-copy">&copy; <?php echo date('Y'); ?> NutriFlow AI. All rights reserved.</p>
         </div>
     </footer>
 
