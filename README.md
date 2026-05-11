@@ -166,6 +166,7 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 
 ---
 
+
 ## 📸 Aperçu de l'interface
 
 | Front Office | Back Office Admin |
@@ -275,7 +276,103 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 * 📁 **Repository GitHub** : [Esprit-PI-2A29-2526-AlimentationDurable](https://github.com/sinda15960/Esprit-PI-2A29-2526-AlimentationDurable)
 * 👤 **LinkedIn** : Sarra Dimassi ( www.linkedin.com/in/sarra-dimassi-57718840a )
 * 🏫 **Esprit School of Engineering** : [esprit.tn](https://esprit.tn)
+  
+---
+## 🌟 — Hajer Ben Temesssek
+### Module : Gestion Intelligente du Frigo
 
+### 🗄️ 1. Base de données
+Création des tables : produit, categorie, commande, commande_produit, frigo_utilisateur, favori, code_promo
+Gestion des relations (clés étrangères, contraintes d’intégrité)
+Gestion des stocks, seuils d’alerte et dates d’expiration
+Mise en place des jointures complexes pour statistiques et recommandations
+
+### 🎨 2. Back Office (Administration)
+CRUD complet produits & catégories avec validation avancée
+Gestion des commandes (validation, modification, suppression)
+Gestion des codes promo avec activation/désactivation
+Dashboard statistique avec graphiques Chart.js :
+
+Chiffre d’affaires par jour
+Top produits vendus
+Répartition par catégorie et paiement
+Export CSV des statistiques
+Système de suivi des stocks faibles et produits périmés
+
+### 🌍 3. Front Office (Utilisateur)
+Gestion du frigo connecté avec ajout d’aliments
+Ajout manuel avec emojis automatiques
+Ajout via scan QR / code-barres
+Ajout par reconnaissance vocale 🎤
+Gestion des quantités en temps réel
+Alertes couleur : frais / bientôt périmé / périmé
+Recherche et filtrage par catégorie
+Système de favoris ⭐
+
+###🛒 4. Supermarché Virtuel
+Affichage des produits par catégorie avec emojis dynamiques
+Panier interactif avec modification des quantités
+Application des codes promo
+Suggestions de produits complémentaires
+Historique des commandes utilisateur
+Recommandations personnalisées basées sur l’historique
+
+### 🆘 5. Livraison Géolocalisée ⭐
+Carte interactive Leaflet.js + OpenStreetMap
+Calcul automatique de la distance utilisateur/magasin
+Frais de livraison dynamiques :
+
+Gratuit ≤ 2 km
+3 TND ≤ 5 km
+5 TND ≤ 10 km
+Zone non livrable au-delà de 10 km
+Géocodage inverse et récupération automatique d’adresse
+
+### 💳 6. Paiement & Commandes
+Méthodes de paiement : Espèces / Carte bancaire / Virement
+Validation carte bancaire côté client (Luhn, CVV, expiration)
+Formulaire de checkout avec validation en temps réel
+Historique des commandes
+Génération PDF récapitulatif après confirmation
+
+### 🎤 7. Commandes Vocales & Suggestions Intelligentes
+Ajout d’aliments par reconnaissance vocale (Web Speech API)
+Lecture vocale du contenu du frigo
+Suggestions intelligentes basées sur :
+
+Stocks faibles
+Produits favoris
+Historique des commandes
+Produits complémentaires
+Gestion des erreurs avec fallback textuel
+
+### 📸 8. Scan Intelligent des Produits
+Intégration Html5Qrcode
+Reconnaissance QR codes & codes-barres EAN-13
+Ajout automatique des produits au frigo
+Fallback manuel si produit non reconnu
+
+### 🎨 9. Design UI/UX
+Interface responsive (mobile / tablette / desktop)
+Palette de couleurs vert/santé (#2d6a2d)
+Animations et transitions CSS fluides
+Séparation Front Office / Back Office
+Emojis automatiques pour les aliments
+Interface moderne et intuitive
+
+### 📸 Aperçu de l’interface
+
+Front Office	Back Office Admin
+🧊 Mon Frigo avec alertes & emojis	📦 Gestion des produits
+🛒 Panier interactif & promos	📊 Dashboard statistiques
+🗺️ Carte livraison interactive	🏷️ CRUD catégories
+🎤 Commande vocale	💰 Gestion commandes
+⭐ Favoris & recommandations	📈 Export CSV
+
+### 🔗 Liens utiles
+📁 Repository GitHub : [Esprit-PI-2A29-2526-AlimentationDurable](https://github.com/sinda15960/Esprit-PI-2A29-2526-AlimentationDurable)
+👤 LinkedIn : Hajer ben temessek (www.linkedin.com/in/hajer-ben-temessek-7a8a8b3a9)
+🏫 Esprit School of Engineering :  [esprit.tn](https://esprit.tn)
 
 ---
 
