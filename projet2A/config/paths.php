@@ -109,7 +109,8 @@ function nf_projet_url(string $path): string
 
 /**
  * Chemin web vers la racine projet2A (dossier qui contient assets/, index.php).
- * Corrige les CSS 404 quand SCRIPT_NAME pointe sous public/.
+ * Utilise SCRIPT_NAME puis REQUEST_URI — évite les CSS en /assets/... (404 sous sous-dossier)
+ * quand DOCUMENT_ROOT ne correspond pas au disque (8081, proxies, etc.).
  */
 function nf_projet_root_web_path(): string
 {
@@ -118,40 +119,57 @@ function nf_projet_root_web_path(): string
         return $cached;
     }
 
-    $scriptFile = str_replace('\\', '/', (string)($_SERVER['SCRIPT_FILENAME'] ?? ''));
-    if ($scriptFile !== '') {
-        $dir = dirname($scriptFile);
-        if (basename($dir) === 'public') {
-            $dir = dirname($dir);
+    $sn = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
+    if ($sn !== '' && $sn[0] !== '/') {
+        $sn = '/' . $sn;
+    }
+    if ($sn === '') {
+        $sn = '/index.php';
+    }
+
+    $urlDir = dirname($sn);
+    if ($urlDir !== '/' && $urlDir !== '\\' && $urlDir !== '.') {
+        $urlDir = rtrim($urlDir, '/');
+        if (preg_match('#/public$#', $urlDir)) {
+            $urlDir = dirname($urlDir);
+            $urlDir = ($urlDir === '/' || $urlDir === '\\' || $urlDir === '.') ? '' : rtrim($urlDir, '/');
         }
-        $docRoot = rtrim(str_replace('\\', '/', (string)($_SERVER['DOCUMENT_ROOT'] ?? '')), '/');
-        if ($docRoot !== '' && strpos($dir, $docRoot) === 0) {
-            $rel = substr($dir, strlen($docRoot));
-            $cached = nf_normalize_web_path('/' . ltrim(str_replace('\\', '/', $rel), '/'));
+        if ($urlDir !== '' && $urlDir !== '/') {
+            $cached = nf_normalize_web_path($urlDir);
             return $cached;
         }
     }
 
-    $sn = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
-    $urlDir = dirname($sn);
-    if ($urlDir !== '/' && preg_match('#/public$#', $urlDir)) {
-        $urlDir = dirname($urlDir);
+    $uri = str_replace('\\', '/', (string)($_SERVER['REQUEST_URI'] ?? ''));
+    $uri = strtok($uri, '?') ?: '';
+    if ($uri !== '' && $uri[0] !== '/') {
+        $uri = '/' . $uri;
     }
-    if ($urlDir === '/' || $urlDir === '\\' || $urlDir === '.') {
-        $cached = '';
-    } else {
-        $cached = nf_normalize_web_path(rtrim($urlDir, '/'));
+    if ($uri !== '' && $uri !== '/') {
+        if (preg_match('#/index\.php$#i', $uri)) {
+            $uri = substr($uri, 0, -strlen('/index.php'));
+        }
+        $uri = rtrim($uri, '/');
+        if ($uri !== '' && $uri !== '/') {
+            $cached = nf_normalize_web_path($uri);
+            return $cached;
+        }
     }
+
+    $cached = '';
     return $cached;
 }
 
-/** URL absolue (chemin) vers un fichier sous projet2A/assets/ ou autre fichier racine projet. */
+/**
+ * URL vers un fichier sous projet2A/assets/…
+ * Si la base d’URL est inconnue, renvoie un chemin relatif (résolu par le navigateur depuis index.php).
+ */
 function nf_projet_asset(string $relativePath): string
 {
     $relativePath = ltrim(str_replace('\\', '/', $relativePath), '/');
     $base = nf_projet_root_web_path();
     if ($base === '') {
-        return nf_normalize_web_path('/' . $relativePath);
+        return $relativePath;
     }
     return nf_normalize_web_path($base . '/' . $relativePath);
 }
