@@ -192,6 +192,34 @@
 
 <style>
 /* Profile Avatar */
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.profile-header h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.profile-header .profile-email {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+    color: #64748b;
+}
+
+.profile-header .role-badge {
+    display: inline-block;
+}
+
+body.dark-mode .profile-header .profile-email {
+    color: #94a3b8;
+}
+
 .profile-avatar {
     width: 100px;
     height: 100px;
