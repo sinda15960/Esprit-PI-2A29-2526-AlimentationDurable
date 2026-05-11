@@ -221,6 +221,20 @@ function nf_projet_admin_base_href(): string
 }
 
 /**
+ * URL absolue vers un fichier sous projet2A/ (assets/…) pour &lt;link&gt; / &lt;script&gt;.
+ * Cache-bust avec filemtime pour forcer le rechargement après déploiement.
+ */
+function nf_projet_admin_asset_url(string $relativePath): string
+{
+    $relativePath = ltrim(str_replace('\\', '/', $relativePath), '/');
+    $baseUrl = rtrim(nf_projet_admin_base_href(), '/');
+    $projetRootFs = dirname(__DIR__);
+    $fsFile = $projetRootFs . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath);
+    $ver = is_readable($fsFile) ? (string)filemtime($fsFile) : '1';
+    return $baseUrl . '/' . $relativePath . '?v=' . rawurlencode($ver);
+}
+
+/**
  * Panneau admin NutriFlow (sidebar verte, cartes Management Dashboard).
  */
 function nf_admin_dashboard_url(string $fragment = ''): string
