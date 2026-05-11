@@ -6,7 +6,7 @@
 if (!function_exists('nf_repo_url')) {
     require_once dirname(__DIR__, 3) . '/config/paths.php';
 }
-$nfDonationsDashboard = nf_repo_url('dashboard.php') . '#donations';
+$nfDonationsFrontHub = nf_repo_url('donations_hub.php');
 $nfRecipesFo = nf_projet_url('public/index.php') . '?action=frontRecipes';
 $nfFrigo = nf_repo_url('frigo/index.php');
 $nfPlan = nf_repo_url('gestion_plan/login.php');
@@ -14,8 +14,8 @@ $nfAllergiesFo = nf_repo_url('allergies.php');
 ?>
 <!-- Features Buttons Section -->
 <div class="features-buttons-grid">
-    <!-- Donations — tableau de bord dons (section #donations), pas les allergies -->
-    <a class="feature-btn donations" href="<?php echo htmlspecialchars($nfDonationsDashboard); ?>">
+    <!-- Donations — hub front office (organisations + formulaire don) -->
+    <a class="feature-btn donations" href="<?php echo htmlspecialchars($nfDonationsFrontHub); ?>">
         <span class="feature-icon">💝</span>
         <span class="feature-name">Donations</span>
         <span class="feature-arrow">→</span>

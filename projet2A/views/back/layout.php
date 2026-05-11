@@ -2,7 +2,9 @@
 if (!function_exists('nf_admin_dashboard_url')) {
     require_once dirname(__DIR__, 2) . '/config/paths.php';
 }
-$nfAdminDonationsUrl = nf_admin_dashboard_url('management-dashboard');
+$nfRepoDonationsAdmin = nf_repo_url('donations_admin.php');
+$nfBackCss = nf_projet_asset('assets/css/back-style.css');
+$nfAdminJs = nf_projet_asset('assets/js/admin.js');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,7 +12,7 @@ $nfAdminDonationsUrl = nf_admin_dashboard_url('management-dashboard');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title ?? 'Admin Panel - NutriFlow AI'; ?></title>
-    <link rel="stylesheet" href="assets/css/back-style.css">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($nfBackCss); ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -30,7 +32,7 @@ $nfAdminDonationsUrl = nf_admin_dashboard_url('management-dashboard');
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Dashboard</span>
                 </a>
-                <a href="<?php echo htmlspecialchars($nfAdminDonationsUrl); ?>" class="nav-item">
+                <a href="<?php echo htmlspecialchars($nfRepoDonationsAdmin); ?>" class="nav-item">
                     <span class="nav-icon">💰</span>
                     <span class="nav-text">Gestion des dons</span>
                 </a>
@@ -153,7 +155,7 @@ $nfAdminDonationsUrl = nf_admin_dashboard_url('management-dashboard');
         </main>
     </div>
 
-    <script src="assets/js/admin.js"></script>
+    <script src="<?php echo htmlspecialchars($nfAdminJs); ?>"></script>
     <script>
         document.querySelectorAll('.alert-close').forEach(button => {
             button.addEventListener('click', function() {

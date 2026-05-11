@@ -5,6 +5,9 @@
     </div>
     
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <?php if (empty($associations)): ?>
+            <p class="col-span-full text-center text-gray-500 py-12">No organizations to display yet.</p>
+        <?php endif; ?>
         <?php foreach($associations as $assoc): ?>
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden hover:transform hover:scale-105 transition duration-300">
             <div class="p-6">
@@ -26,9 +29,9 @@
                     </div>
                 </div>
                 
-                <a href="/nutriflow-ai/public/associations/show/<?php echo $assoc['id']; ?>" 
+                <a href="donate_public.php" 
                    class="block text-center bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl hover:shadow-lg transition">
-                    Learn more
+                    Donate to this cause
                 </a>
             </div>
         </div>

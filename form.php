@@ -5,7 +5,7 @@
             <p class="text-green-100">Your generosity changes lives</p>
         </div>
         
-        <form method="POST" action="/nutriflow-ai/public/don/store" id="donForm" class="p-8">
+        <form method="POST" action="donate_submit.php" id="donForm" class="p-8">
             <!-- Association -->
             <div class="mb-6">
                 <label class="block text-gray-700 font-semibold mb-2">Beneficiary Organization *</label>

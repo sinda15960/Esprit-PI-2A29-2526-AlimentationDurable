@@ -1,0 +1,139 @@
+/* Front hub — light green hero (module dons / associations) */
+*, *::before, *::after { box-sizing: border-box; }
+
+body.don-hub {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: #1a2e1a;
+  background: radial-gradient(ellipse 100% 80% at 50% 0%, #e8f5e9 0%, #f5faf5 45%, #ffffff 100%);
+}
+
+.don-hub-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.75rem;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(45, 80, 22, 0.12);
+}
+
+.don-hub-brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #1b301b;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.don-hub-leaf { font-size: 1.35rem; }
+
+.don-hub-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.35rem;
+}
+
+.don-hub-nav a {
+  color: #2d5016;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.don-hub-nav a:hover { text-decoration: underline; }
+
+.don-hub-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.don-hub-flash {
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.don-hub-flash-ok {
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  color: #1b5e20;
+}
+
+.don-hub-hero {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+}
+
+.don-hub-hero-icon {
+  font-size: 4rem;
+  line-height: 1;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 4px 12px rgba(45, 80, 22, 0.15));
+}
+
+.don-hub-hero h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 800;
+  color: #1b301b;
+  letter-spacing: -0.02em;
+}
+
+.don-hub-tagline {
+  margin: 0 0 2.25rem;
+  font-size: 1.1rem;
+  color: #5f6d5f;
+}
+
+.don-hub-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.don-hub-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.95rem 1.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  color: #fff;
+  background: linear-gradient(135deg, #2d5016 0%, #3d6b1f 100%);
+  box-shadow: 0 8px 24px rgba(45, 80, 22, 0.25);
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.don-hub-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(45, 80, 22, 0.3);
+}
+
+.don-hub-btn-outline {
+  background: #fff;
+  color: #2d5016;
+  border: 2px solid #2d5016;
+  box-shadow: none;
+}
+
+.don-hub-btn-outline:hover {
+  background: #f1f8e9;
+}
+
+@media (max-width: 520px) {
+  .don-hub-actions { flex-direction: column; align-items: stretch; }
+  .don-hub-btn { width: 100%; }
+}

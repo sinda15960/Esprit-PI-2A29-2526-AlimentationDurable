@@ -79,7 +79,7 @@
             <div class="stat-icon">🍽️</div>
             <div class="stat-info">
                 <h3>Total Recipes</h3>
-                <p class="stat-number">128</p>
+                <p class="stat-number no-counter-animate">128</p>
                 <p class="stat-trend">📖 +12 this month</p>
             </div>
         </div>
@@ -87,7 +87,7 @@
             <div class="stat-icon">💰</div>
             <div class="stat-info">
                 <h3>Donations</h3>
-                <p class="stat-number">$5,240</p>
+                <p class="stat-number no-counter-animate">$5,240</p>
                 <p class="stat-trend">💝 156 donors</p>
             </div>
         </div>
@@ -95,7 +95,7 @@
             <div class="stat-icon">🛒</div>
             <div class="stat-info">
                 <h3>Market Orders</h3>
-                <p class="stat-number">342</p>
+                <p class="stat-number no-counter-animate">342</p>
                 <p class="stat-trend">📦 28 vendors</p>
             </div>
         </div>
@@ -103,7 +103,7 @@
             <div class="stat-icon">⭐</div>
             <div class="stat-info">
                 <h3>Avg Rating</h3>
-                <p class="stat-number">4.8</p>
+                <p class="stat-number no-counter-animate">4.8</p>
                 <p class="stat-trend">★★★★★</p>
             </div>
         </div>
@@ -183,8 +183,9 @@
     if (!function_exists('nf_repo_url')) {
         require_once dirname(__DIR__, 2) . '/config/paths.php';
     }
-    $nfDonationsDashboard = nf_repo_url('dashboard.php') . '#donations';
-    $nfDonationForm = nf_repo_url('form.php');
+    $nfDonationsBackOffice = nf_repo_url('donations_admin.php');
+    $nfDonationsFrontHub = nf_repo_url('donations_hub.php');
+    $nfDonationForm = nf_repo_url('donate_public.php');
     $nfRecipesPublic = nf_projet_url('public/index.php');
     $nfFrigoIndex = nf_repo_url('frigo/index.php');
     $nfPlanBack = nf_repo_url('gestion_plan/index.php') . '?office=back&module=programme&action=index';
@@ -219,7 +220,7 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <a class="btn-card" href="<?php echo htmlspecialchars($nfDonationsDashboard); ?>">Manage Donations</a>
+                    <a class="btn-card" href="<?php echo htmlspecialchars($nfDonationsBackOffice); ?>">Manage Donations</a>
                     <a class="btn-card secondary" href="<?php echo htmlspecialchars($nfDonationForm); ?>">+ New donation</a>
                 </div>
             </div>
@@ -1412,9 +1413,11 @@ function escapeHtml(text) {
 
 // ========== ANIMATION COUNTERS ==========
 function animateNumbers() {
-    const counters = document.querySelectorAll('.stat-number');
-    counters.forEach(counter => {
-        const target = parseInt(counter.innerText);
+    document.querySelectorAll('.stat-number:not(.no-counter-animate)').forEach(counter => {
+        const target = parseInt(counter.innerText, 10);
+        if (!Number.isFinite(target)) {
+            return;
+        }
         let current = 0;
         const increment = target / 50;
         

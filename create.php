@@ -9,7 +9,7 @@ $pageSubtitle = "Add a new partner organization";
             <h2 class="text-xl font-semibold text-white">New Organization</h2>
         </div>
         
-        <form method="POST" action="/nutriflow-ai/public/admin/associations/store" class="p-6" id="associationForm">
+        <form method="POST" action="association_submit.php" class="p-6" id="associationForm">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Name -->
                 <div>
@@ -70,7 +70,7 @@ $pageSubtitle = "Add a new partner organization";
             </div>
             
             <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                <a href="/nutriflow-ai/public/admin/associations" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                <a href="donations_admin.php" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
                     Cancel
                 </a>
                 <button type="submit" class="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition">

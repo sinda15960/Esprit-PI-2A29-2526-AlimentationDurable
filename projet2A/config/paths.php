@@ -108,6 +108,55 @@ function nf_projet_url(string $path): string
 }
 
 /**
+ * Chemin web vers la racine projet2A (dossier qui contient assets/, index.php).
+ * Corrige les CSS 404 quand SCRIPT_NAME pointe sous public/.
+ */
+function nf_projet_root_web_path(): string
+{
+    static $cached = null;
+    if ($cached !== null) {
+        return $cached;
+    }
+
+    $scriptFile = str_replace('\\', '/', (string)($_SERVER['SCRIPT_FILENAME'] ?? ''));
+    if ($scriptFile !== '') {
+        $dir = dirname($scriptFile);
+        if (basename($dir) === 'public') {
+            $dir = dirname($dir);
+        }
+        $docRoot = rtrim(str_replace('\\', '/', (string)($_SERVER['DOCUMENT_ROOT'] ?? '')), '/');
+        if ($docRoot !== '' && strpos($dir, $docRoot) === 0) {
+            $rel = substr($dir, strlen($docRoot));
+            $cached = nf_normalize_web_path('/' . ltrim(str_replace('\\', '/', $rel), '/'));
+            return $cached;
+        }
+    }
+
+    $sn = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
+    $urlDir = dirname($sn);
+    if ($urlDir !== '/' && preg_match('#/public$#', $urlDir)) {
+        $urlDir = dirname($urlDir);
+    }
+    if ($urlDir === '/' || $urlDir === '\\' || $urlDir === '.') {
+        $cached = '';
+    } else {
+        $cached = nf_normalize_web_path(rtrim($urlDir, '/'));
+    }
+    return $cached;
+}
+
+/** URL absolue (chemin) vers un fichier sous projet2A/assets/ ou autre fichier racine projet. */
+function nf_projet_asset(string $relativePath): string
+{
+    $relativePath = ltrim(str_replace('\\', '/', $relativePath), '/');
+    $base = nf_projet_root_web_path();
+    if ($base === '') {
+        return nf_normalize_web_path('/' . $relativePath);
+    }
+    return nf_normalize_web_path($base . '/' . $relativePath);
+}
+
+/**
  * Panneau admin NutriFlow (sidebar verte, cartes Management Dashboard).
  */
 function nf_admin_dashboard_url(string $fragment = ''): string
