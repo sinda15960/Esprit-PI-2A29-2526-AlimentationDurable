@@ -467,8 +467,8 @@ Expérience utilisateur optimisée et navigation intuitive
 
 
 ### 🔗 Liens utiles
-📁 Repository GitHub : [Ajouter votre lien GitHub]
-👤 LinkedIn : Cyrine Sboui (Ajouter votre profil LinkedIn)
+📁 Repository GitHub : [(https://github.com/sinda15960/Esprit-PI-2A29-2526-AlimentationDurable/tree/cyrina)]
+👤 LinkedIn : Cyrine Sboui ([Ajouter votre profil LinkedIn](https://www.linkedin.com/in/cyrine-sboui-a1152840a/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BjBY9HZFmQkmneAErief0nA%3D%3D))
 🏫 Esprit School of Engineering : esprit.tn
 
 ---
@@ -479,7 +479,7 @@ Expérience utilisateur optimisée et navigation intuitive
 |-----|--------|
 | **Sinda Lazaar** | **Gestion Frigo** |
 | **Maissa Jouini** | **Gestion Plan Alimentaire** |
-| **Cyrine Sboui** | **Gestion Utilisateurs** |
+| **Cyrine Sboui** | **Gestion plan** |
 | **Sarra Dimassi** | **Gestion Recettes & Catégories** |
 | **Hajer BenTemessek** | **Gestion frigo** |
 | **Nada Azlouk** | **Gestion Allergies & Traitements** |
