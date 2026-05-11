@@ -99,7 +99,7 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 | 🗄️ Gestion Allergies & Traitements | **Nada Azlouk** | CRUD complet, chatbot IA, bouton SOS, alertes pollen, comparateur |
 | 🧊 Gestion Frigo | **Hajer BenTemessek** | Inventaire, alertes péremption & stock faible, supermarché virtuel, panier & commandes, paiement CB, carte livraison,code promo, scan QR, suggestions IA, statistiques admin, CRUD complet |
 | 📋 Gestion Plan Alimentaire | **Maissa Jouini** | Planification repas, recettes |
-| 👤 Gestion Utilisateurs | **Cyrine Sboui** | Authentification, profils |
+| 👤 Gestion plan | **Cyrine Sboui** | Gestion des objectifs personnalisés, exercices et programmes, système de favoris, assistant vocal, scan OCR, abonnements Stripe, mode sombre/clair, notifications intelligentes, filtrage et tri des programmes, statistiques, export PDF, CRUD complet Back Office |
 | 🛒 Gestion Recettes & Catégories | **Sarra Dimassi** | CRUD recettes & catégories, planificateur de repas IA, recherche dynamique & tri, comparateur de recettes, statistiques & progression, export CSV, notifications, recette surprise, historique des modifications, commandes vocales, système de commandes |
 | 📊 Statistiques & Rapports | **synda lazaar** | Tableaux de bord, rapports |
 
@@ -374,6 +374,102 @@ Interface moderne et intuitive
 📁 Repository GitHub : [Esprit-PI-2A29-2526-AlimentationDurable](https://github.com/sinda15960/Esprit-PI-2A29-2526-AlimentationDurable)
 👤 LinkedIn : Hajer ben temessek (www.linkedin.com/in/hajer-ben-temessek-7a8a8b3a9)
 🏫 Esprit School of Engineering :  [esprit.tn](https://esprit.tn)
+
+---
+## 🌟 — Cyrine Sboui
+Module : Gestion Objectifs Personnalisés & Programmes Fitness
+### 🗄️ 1. Base de données
+
+Création des tables : objectif, objectif_personnalise, exercice, programme, favori, abonnement
+Gestion des relations entre objectifs, exercices et programmes
+Mise en place des clés étrangères et contraintes d’intégrité
+Gestion des jointures complexes pour recommandations, statistiques et progression utilisateur
+
+### 🎨 2. Back Office (Administration)
+
+CRUD complet des objectifs, objectifs personnalisés, exercices et programmes
+Gestion des catégories et organisation des programmes fitness
+Dashboard statistique avec graphiques et indicateurs de progression
+Suivi des utilisateurs, abonnements et activités
+Export PDF des statistiques et rapports
+Validation des données et gestion sécurisée des opérations administratives
+
+### 🌍 3. Front Office (Utilisateur)
+
+Création d’objectifs personnalisés selon :
+
+poids
+taille
+âge
+conditions de santé
+
+Calcul automatique du BMI avec conseils personnalisés
+Affichage des programmes fitness adaptés au profil utilisateur
+Système de favoris pour sauvegarder les programmes préférés ❤️
+Recherche, filtrage et tri dynamique des programmes
+Interface responsive et intuitive pour une meilleure expérience utilisateur
+
+### 🏋️ 4. Gestion des Exercices & Programmes
+
+Système de progression des exercices étape par étape
+Déblocage automatique des exercices après validation du précédent
+Chronomètre interactif avec barre de progression en temps réel ⏱️
+Notifications sonores à la fin des exercices
+Suivi automatique de la progression utilisateur
+Historique des programmes suivis
+
+### 🤖 5. Intelligence Artificielle & Assistance
+
+Assistant vocal intégré pour faciliter la navigation 🎤
+Système intelligent de recommandation de programmes inspiré des recommandations Netflix
+Suggestions personnalisées selon :
+
+profil utilisateur
+objectifs fitness
+progression réalisée
+
+Notifications intelligentes en cas de retard ou d’inactivité 🔔
+
+### 📸 6. OCR & Scan Intelligent
+
+Intégration d’un système OCR pour extraction intelligente des données 📷
+Analyse automatique des informations scannées
+Ajout simplifié des données utilisateur grâce au scan intelligent
+
+### 💳 7. Abonnements & Paiement
+
+Intégration Stripe pour la gestion des abonnements
+Plans disponibles :
+
+Basic
+Pro
+Pro Max
+
+Gestion des paiements et historique des abonnements
+Validation sécurisée des transactions
+
+### 🎨 8. Design UI/UX
+
+Mode sombre / clair 🌙
+Interface responsive (mobile / tablette / desktop)
+Design moderne avec Bootstrap 5
+Animations et transitions fluides
+Séparation Front Office / Back Office
+Expérience utilisateur optimisée et navigation intuitive
+
+### 📸 Aperçu de l’interface
+| Front Office | Back Office Admin |
+|--------------|-------------------|
+| 🎯 Objectifs personnalisés | ⚙️ Gestion des objectifs |
+| 🏋️ Programmes & exercices | 📊 Dashboard statistiques |
+| ❤️ Système de favoris | 📄 Export PDF |
+| 🎤 Assistant vocal | 🛠️ CRUD complet |
+
+
+### 🔗 Liens utiles
+📁 Repository GitHub : [Ajouter votre lien GitHub]
+👤 LinkedIn : Cyrine Sboui (Ajouter votre profil LinkedIn)
+🏫 Esprit School of Engineering : esprit.tn
 
 ---
 
