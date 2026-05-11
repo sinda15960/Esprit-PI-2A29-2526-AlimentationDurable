@@ -309,7 +309,7 @@ Alertes couleur : frais / bientôt périmé / périmé
 Recherche et filtrage par catégorie
 Système de favoris ⭐
 
-###🛒 4. Supermarché Virtuel
+### 🛒 4. Supermarché Virtuel
 Affichage des produits par catégorie avec emojis dynamiques
 Panier interactif avec modification des quantités
 Application des codes promo
@@ -360,14 +360,15 @@ Séparation Front Office / Back Office
 Emojis automatiques pour les aliments
 Interface moderne et intuitive
 
-### 📸 Aperçu de l’interface
+## 📸 Aperçu de l’interface
 
-Front Office	Back Office Admin
-🧊 Mon Frigo avec alertes & emojis	📦 Gestion des produits
-🛒 Panier interactif & promos	📊 Dashboard statistiques
-🗺️ Carte livraison interactive	🏷️ CRUD catégories
-🎤 Commande vocale	💰 Gestion commandes
-⭐ Favoris & recommandations	📈 Export CSV
+| Front Office | Back Office Admin |
+|-------------------------------------------|--------------------------------------|
+| 🧊 Mon Frigo avec alertes & emojis | 📦 Gestion des produits |
+| 🛒 Panier interactif & promos | 📊 Dashboard statistiques |
+| 🗺️ Carte livraison interactive | 🏷️ CRUD catégories |
+| 🎤 Commande vocale | 💰 Gestion commandes |
+| ⭐ Favoris & recommandations | 📈 Export CSV |
 
 ### 🔗 Liens utiles
 📁 Repository GitHub : [Esprit-PI-2A29-2526-AlimentationDurable](https://github.com/sinda15960/Esprit-PI-2A29-2526-AlimentationDurable)
