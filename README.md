@@ -57,73 +57,74 @@ Esprit-PI-2A29-2526-AlimentationDurable/
 ├── pollen_alerts.php             # Alertes pollen (Nada)
 ├── database.sql                  # Base de données principale
 └── index.php                     # Point d'entrée
-```
 nutriflow-ai/
 │
 ├── 📁 assets/
 │   ├── 📁 css/
-│   │   ├── front-style.css          # Styles de l'interface utilisateur
-│   │   ├── back-style.css            # Styles de l'interface admin
-│   │   └── dark-mode.css             # Styles du mode sombre/clair
+│   │   ├── front-style.css           # Styles de l'interface utilisateur
+│   │   ├── back-style.css            # Styles de l'interface administrateur
+│   │   └── dark-mode.css             # Styles du mode sombre / clair
 │   │
 │   └── 📁 js/
-│       ├── validation.js             # Validation des formulaires front
-│       ├── admin.js                  # Fonctions admin globales
-│       ├── dark-mode.js              # Gestion du mode sombre/clair
+│       ├── validation.js             # Validation des formulaires côté front
+│       ├── admin.js                  # Fonctions globales de l'administration
+│       ├── dark-mode.js              # Gestion du mode sombre / clair
 │       └── confetti.js               # Animation de confettis
 │
 ├── 📁 config/
-│   ├── database.php                  # Connexion à la base de données
-│   └── session.php                   # Gestion des sessions PHP
+│   ├── database.php                 # Connexion à la base de données
+│   └── session.php                  # Gestion des sessions PHP
 │
 ├── 📁 controllers/
-│   ├── UserController.php            # Contrôleur pour les actions utilisateur
-│   └── AdminController.php           # Contrôleur pour les actions admin
+│   ├── UserController.php           # Contrôleur des actions utilisateur
+│   └── AdminController.php          # Contrôleur des actions administrateur
 │
 ├── 📁 models/
-│   └── User.php                      # Modèle User (CRUD utilisateurs)
+│   └── User.php                     # Modèle User (CRUD utilisateurs)
 │
 ├── 📁 views/
 │   │
-│   ├── 📁 front/                     # Vues de l'interface utilisateur
-│   │   ├── layout.php                # Layout principal front
-│   │   ├── home.php                  # Page d'accueil
-│   │   ├── login.php                 # Page de connexion
-│   │   ├── register.php              # Page d'inscription
-│   │   ├── profile.php               # Page de profil utilisateur
-│   │   ├── forgot-password.php       # Page mot de passe oublié
-│   │   ├── reset-password.php        # Page réinitialisation mot de passe
-│   │   │
-│   │   └── 📁 components/            # Composants réutilisables
-│   │       ├── streak-widget.php     # Widget série de connexions
-│   │       ├── daily-quote.php       # Widget citation quotidienne
-│   │       ├── avatar-generator.php  # Générateur d'avatar
-│   │       └── features-buttons.php  # Boutons des fonctionnalités à venir
+│   ├── 📁 front/                    # Interface utilisateur
+│   │   ├── layout.php               # Layout principal du front
+│   │   ├── home.php                 # Page d’accueil
+│   │   ├── login.php                # Page de connexion
+│   │   ├── register.php             # Page d’inscription
+│   │   ├── profile.php              # Profil utilisateur
+│   │   ├── forgot-password.php      # Mot de passe oublié
+│   │   └── reset-password.php       # Réinitialisation du mot de passe
 │   │
-│   └── 📁 back/                      # Vues de l'interface admin
-│       ├── layout.php                # Layout principal admin
-│       ├── dashboard.php             # Tableau de bord admin
-│       ├── users.php                 # Gestion des utilisateurs
-│       ├── edit-user.php             # Édition d'un utilisateur
-│       ├── add-user.php              # Ajout d'un utilisateur
-│       ├── globe-3d.php              # Visualisation globe 3D
-│       ├── secret-zone.php           # Zone secrète (easter eggs)
-│       ├── retro-terminal.php        # Interface terminal rétro
-│       ├── incognito-mode.php        # Mode incognito
-│       ├── keyboard-shortcuts.php    # Gestion des raccourcis clavier
-│       ├── comparison-mode.php       # Comparaison de périodes
-│       ├── admin-leaderboard.php     # Classement des admins
-│       └── database-cleaner.php      # Nettoyeur de base de données
+│   ├── 📁 components/               # Composants réutilisables
+│   │   ├── streak-widget.php        # Widget des séries de connexions
+│   │   ├── daily-quote.php          # Citation quotidienne
+│   │   ├── avatar-generator.php     # Générateur d’avatar
+│   │   └── features-buttons.php     # Boutons des futures fonctionnalités
+│   │
+│   └── 📁 back/                     # Interface administrateur
+│       ├── layout.php               # Layout principal admin
+│       ├── dashboard.php            # Tableau de bord
+│       ├── users.php                # Gestion des utilisateurs
+│       ├── edit-user.php            # Modification d’un utilisateur
+│       ├── add-user.php             # Ajout d’un utilisateur
+│       ├── globe-3d.php             # Visualisation 3D du globe
+│       ├── secret-zone.php          # Zone secrète (easter eggs)
+│       ├── retro-terminal.php       # Interface terminal rétro
+│       ├── incognito-mode.php       # Mode navigation privée
+│       ├── keyboard-shortcuts.php   # Raccourcis clavier
+│       ├── comparison-mode.php      # Comparaison de périodes
+│       ├── admin-leaderboard.php    # Classement des administrateurs
+│       └── database-cleaner.php     # Nettoyage de la base de données
 │
 ├── 📁 database/
-│   └── nutriflow_ai.sql              # Script SQL de création de la BDD
+│   └── nutriflow_ai.sql             # Script SQL de création de la base
 │
-├── 📁 uploads/                       # Dossiers d'upload (avatars, etc.)
+├── 📁 uploads/                      # Uploads (avatars, images, etc.)
 │
-└── index.php                         # Routeur principal (point d'entrée)
+└── index.php                        # Point d’entrée principal / routeur
+```
+
 ---
 
-## ⚙️ Installation & Lancement
+
 
 ### Prérequis
 - PHP 8.0+
