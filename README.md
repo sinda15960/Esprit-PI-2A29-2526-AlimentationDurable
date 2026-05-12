@@ -58,7 +58,69 @@ Esprit-PI-2A29-2526-AlimentationDurable/
 ├── database.sql                  # Base de données principale
 └── index.php                     # Point d'entrée
 ```
-
+nutriflow-ai/
+│
+├── 📁 assets/
+│   ├── 📁 css/
+│   │   ├── front-style.css          # Styles de l'interface utilisateur
+│   │   ├── back-style.css            # Styles de l'interface admin
+│   │   └── dark-mode.css             # Styles du mode sombre/clair
+│   │
+│   └── 📁 js/
+│       ├── validation.js             # Validation des formulaires front
+│       ├── admin.js                  # Fonctions admin globales
+│       ├── dark-mode.js              # Gestion du mode sombre/clair
+│       └── confetti.js               # Animation de confettis
+│
+├── 📁 config/
+│   ├── database.php                  # Connexion à la base de données
+│   └── session.php                   # Gestion des sessions PHP
+│
+├── 📁 controllers/
+│   ├── UserController.php            # Contrôleur pour les actions utilisateur
+│   └── AdminController.php           # Contrôleur pour les actions admin
+│
+├── 📁 models/
+│   └── User.php                      # Modèle User (CRUD utilisateurs)
+│
+├── 📁 views/
+│   │
+│   ├── 📁 front/                     # Vues de l'interface utilisateur
+│   │   ├── layout.php                # Layout principal front
+│   │   ├── home.php                  # Page d'accueil
+│   │   ├── login.php                 # Page de connexion
+│   │   ├── register.php              # Page d'inscription
+│   │   ├── profile.php               # Page de profil utilisateur
+│   │   ├── forgot-password.php       # Page mot de passe oublié
+│   │   ├── reset-password.php        # Page réinitialisation mot de passe
+│   │   │
+│   │   └── 📁 components/            # Composants réutilisables
+│   │       ├── streak-widget.php     # Widget série de connexions
+│   │       ├── daily-quote.php       # Widget citation quotidienne
+│   │       ├── avatar-generator.php  # Générateur d'avatar
+│   │       └── features-buttons.php  # Boutons des fonctionnalités à venir
+│   │
+│   └── 📁 back/                      # Vues de l'interface admin
+│       ├── layout.php                # Layout principal admin
+│       ├── dashboard.php             # Tableau de bord admin
+│       ├── users.php                 # Gestion des utilisateurs
+│       ├── edit-user.php             # Édition d'un utilisateur
+│       ├── add-user.php              # Ajout d'un utilisateur
+│       ├── globe-3d.php              # Visualisation globe 3D
+│       ├── secret-zone.php           # Zone secrète (easter eggs)
+│       ├── retro-terminal.php        # Interface terminal rétro
+│       ├── incognito-mode.php        # Mode incognito
+│       ├── keyboard-shortcuts.php    # Gestion des raccourcis clavier
+│       ├── comparison-mode.php       # Comparaison de périodes
+│       ├── admin-leaderboard.php     # Classement des admins
+│       └── database-cleaner.php      # Nettoyeur de base de données
+│
+├── 📁 database/
+│   └── nutriflow_ai.sql              # Script SQL de création de la BDD
+│
+├── 📁 uploads/                       # Dossiers d'upload (avatars, etc.)
+│
+└── index.php                         # Routeur principal (point d'entrée)
 ---
 
 ## ⚙️ Installation & Lancement
@@ -97,11 +159,11 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 | Module | Responsable | Fonctionnalités |
 |--------|------------|-----------------|
 | 🗄️ Gestion Allergies & Traitements | **Nada Azlouk** | CRUD complet, chatbot IA, bouton SOS, alertes pollen, comparateur |
-| 🧊 Gestion Frigo | Sinda Lazaar | Inventaire, alertes péremption |
-| 📋 Gestion Plan Alimentaire | Maissa Jouini | Planification repas, recettes |
-| 👤 Gestion Utilisateurs | Cyrine Sboui | Authentification, profils |
-| 🛒 Gestion Commandes | Sarra Dimassi | Listes de courses, commandes |
-| 📊 Statistiques & Rapports | Hajer BenTemessek | Tableaux de bord, rapports |
+| 🧊 Gestion Frigo |Hajer ben temessek | Inventaire, alertes péremption |
+| 📋 Gestion Plan Alimentaire |Sarra Dimassi | Planification repas, recettes |
+| 👤 Gestion Utilisateurs | Sinda Lazaar | Authentification, profils |
+| 🛒 Gestion Commandes | Cyrine Sboui| Listes de courses, commandes |
+| 📊 Gestion Donation | Maissa Jouini | Tableaux de bord, rapports |
 
 ---
 
@@ -165,7 +227,67 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 - Palette cohérente vert/santé
 
 ---
+SINDA LAZAAR
+Module : Gestion Utilisateurs & Nutrition
+🗄️ 1. Base de données
+Table	Rôle
+users	Informations utilisateurs
+contact_messages	Messages de contact
+admin_notifications	Notifications admin
+user_login_logs	Historique des connexions
+user_face_data	Signatures Face ID
+🎨 2. Back Office (Admin)
+Dashboard avec statistiques et graphiques
 
+CRUD utilisateurs (ajout, modification, suppression)
+
+Filtrage, recherche et tri des utilisateurs
+
+Export CSV/Excel
+
+Gestion des messages de contact
+
+Widgets personnalisables
+
+🌍 3. Front Office (Utilisateur)
+Inscription / Connexion / Mot de passe oublié
+
+Profil utilisateur avec avatar personnalisable
+
+Suivi des objectifs (Goal Tracker)
+
+Série de connexions (Streak) et niveaux XP
+
+Citations inspirantes quotidiennes
+
+Mode sombre / clair
+
+🔐 4. Authentification
+Connexion standard (email + mot de passe)
+
+Remember Me (cookie 30 jours)
+
+Face ID (via webcam)
+
+Voice to Text (reconnaissance vocale)
+
+Social Login (simulé)
+
+🚀 5. Fonctionnalités Premium
+Fonction	Description
+Globe 3D	Visualisation des connexions mondiales
+Zone secrète	Easter eggs + mini-jeu Snake
+Terminal rétro	Interface style commandes
+Mode incognito	Preview du site sans se déconnecter
+Raccourcis clavier	Personnalisables
+Leaderboard	Classement des admins
+Nettoyeur BDD	Simulation de nettoyage
+📊 6. Technologies utilisées
+Type	Technologies
+Backend	PHP 7.4+, MySQL
+Frontend	HTML5, CSS3, JavaScript
+Librairies	Chart.js, Three.js, Leaflet.js
+Stockage	LocalStorage, SessionStorage
 ## 📸 Aperçu de l'interface
 
 | Front Office | Back Office Admin |
@@ -187,9 +309,9 @@ cp -r Esprit-PI-2A29-2526-AlimentationDurable/ C:/xampp/htdocs/
 
 | Nom | Module |
 |-----|--------|
-| Sinda Lazaar | Gestion Frigo |
-| Maissa Jouini | Gestion Plan Alimentaire |
-| Cyrine Sboui | Gestion Utilisateurs |
+| Sinda Lazaar | Gestion utilisateurs|
+| Maissa Jouini | Gestion donation |
+| Cyrine Sboui | Gestion plan alimentaires |
 | Sarra Dimassi | Gestion Commandes |
 | Hajer BenTemessek | Statistiques & Rapports |
 | **Nada Azlouk** | **Gestion Allergies & Traitements** |
